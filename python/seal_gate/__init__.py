@@ -53,11 +53,27 @@ class _Seal:
         all_for_score = [f for f in detector_findings if getattr(f, 'trust_deduction', 0)] + risk_ded
         detector_score = heuristic_scorer.compute_detector_score(all_for_score)
 
-        # Step 11: LLM (not implemented — no LLM penalty per spec)
+        # Step 11: LLM reviewer (optional)
         llm_issues: list[SealIssue] = []
         assumptions = list(spec_result['assumptions'])
-        assumptions.append('L2 (semantic correctness) not reviewed — no LLM reviewer registered')
-        detector_findings.append(make_issue(type='OTHER', severity='LOW', layer='L2', source='core', evidence='L2 unreviewed — semantic issues may exist'))
+
+        if self._llm_adapter:
+            partial = {
+                'trust_score': detector_score,
+                'risk_level': risk_level,
+                'deterministic_findings': detector_findings,
+                'missing_evidence': gap_result['missing_evidence'],
+                'assumptions_detected': assumptions,
+            }
+            try:
+                signals = self._llm_adapter.review(inp.__dict__ if hasattr(inp, '__dict__') else inp, partial)
+                llm_issues = policy_engine.convert_llm_signals(signals)
+            except Exception as e:
+                detector_findings.append(make_issue(type='OTHER', severity='LOW', layer='L2', source='core', evidence=f'LLM reviewer failed — L2 unreviewed: {e}'))
+                assumptions.append('L2 (semantic correctness) not reviewed — LLM reviewer error')
+        else:
+            assumptions.append('L2 (semantic correctness) not reviewed — no LLM reviewer registered')
+            detector_findings.append(make_issue(type='OTHER', severity='LOW', layer='L2', source='core', evidence='L2 unreviewed — semantic issues may exist'))
 
         # Step 12: Policy
         base_verdict = heuristic_scorer.verdict_from_score(detector_score, any(f.is_blocking for f in detector_findings))
