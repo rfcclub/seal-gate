@@ -71,23 +71,32 @@ export class MinimaxLLMReviewer implements LLMReviewerAdapter {
       throw new Error('MINIMAX_PLAN_KEY or MINIMAX_API_KEY not set')
     }
 
-    const response = await fetch(`${this.baseUrl}/chat/completions`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${this.apiKey}`,
-      },
-      body: JSON.stringify({
-        model: this.model,
-        messages: [
-          { role: 'system', content: SYSTEM_PROMPT },
-          { role: 'user', content: buildUserMessage(input, partial) },
-        ],
-        response_format: { type: 'json_object' },
-        temperature: 0.1,
-        max_tokens: 1024,
-      }),
-    })
+    const controller = new AbortController()
+    const timer = setTimeout(() => controller.abort(), 30_000)
+
+    let response: Response
+    try {
+      response = await fetch(`${this.baseUrl}/chat/completions`, {
+        signal: controller.signal,
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${this.apiKey}`,
+        },
+        body: JSON.stringify({
+          model: this.model,
+          messages: [
+            { role: 'system', content: SYSTEM_PROMPT },
+            { role: 'user', content: buildUserMessage(input, partial) },
+          ],
+          response_format: { type: 'json_object' },
+          temperature: 0.1,
+          max_tokens: 1024,
+        }),
+      })
+    } finally {
+      clearTimeout(timer)
+    }
 
     if (!response.ok) {
       const body = await response.text().catch(() => '')
@@ -97,10 +106,10 @@ export class MinimaxLLMReviewer implements LLMReviewerAdapter {
     const data = await response.json() as { choices: Array<{ message: { content: string } }> }
     let content = data.choices?.[0]?.message?.content ?? '{}'
 
-    // Strip <think>...</think> reasoning block if present (MiniMax-M3 thinking model)
+    // Strip <think>...</think> reasoning block (MiniMax-M3 thinking model)
     content = content.replace(/<think>[\s\S]*?<\/think>/g, '').trim()
 
-    // Extract JSON object from content (may have surrounding prose)
+    // Extract JSON object — model may wrap it in prose
     const jsonMatch = content.match(/\{[\s\S]*\}/)
     const jsonStr = jsonMatch ? jsonMatch[0] : content
 
@@ -112,7 +121,7 @@ export class MinimaxLLMReviewer implements LLMReviewerAdapter {
     }
 
     return {
-      suspected_issues:    Array.isArray(signals.suspected_issues) ? signals.suspected_issues : [],
+      suspected_issues:     Array.isArray(signals.suspected_issues) ? signals.suspected_issues : [],
       missing_requirements: Array.isArray(signals.missing_requirements) ? signals.missing_requirements : [],
       possible_edge_cases:  Array.isArray(signals.possible_edge_cases) ? signals.possible_edge_cases : [],
       evidence_gaps:        Array.isArray(signals.evidence_gaps) ? signals.evidence_gaps : [],

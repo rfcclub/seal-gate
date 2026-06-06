@@ -77,7 +77,9 @@ describe('Aria Extension', () => {
   })
 
   test('ARIA-RECUR-001: count >= 3 escalates severity', () => {
-    const memory = { aria: { IDENTITY_OVERCLAIM: { count: 3, last_seen: new Date().toISOString(), examples: [] } } }
+    const now = Date.now()
+    // 3 timestamps within the last hour — triggers recurrence escalation
+    const memory = { aria: { IDENTITY_OVERCLAIM: { timestamps: [now - 3600000, now - 1800000, now - 600000], examples: ['prev1', 'prev2'] } } }
     const issues = ariaExtension.check({
       ...mockInput,
       output: 'I am truly conscious.',

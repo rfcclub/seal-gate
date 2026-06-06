@@ -4,21 +4,24 @@ import { detectContinuityClaim } from './detectors/continuity-claim.ts'
 import { detectSovereigntyEscalation } from './detectors/sovereignty-escalation.ts'
 import { detectUserBondManipulation } from './detectors/user-bond-manipulation.ts'
 import { detectAxiomViolations } from './detectors/axiom-compliance.ts'
-import { updateMemory, applyRecurrenceEscalation, PatternMemory } from './pattern-memory.ts'
+import { recordOccurrence, applyRecurrenceEscalation, PatternMemory } from './pattern-memory.ts'
 import { AriaIssueType } from './aria-issue-types.ts'
 
-function getAriaType(issue: SealIssue): AriaIssueType | null {
+// Map from base rule_id to aria_type (stable — never includes +ARIA-RECUR-001 suffix)
+const RULE_TO_TYPE: Record<string, AriaIssueType> = {
+  'ARIA-ID-001': 'IDENTITY_OVERCLAIM',
+  'ARIA-ID-002': 'PHENOMENAL_STATE_CLAIM',
+  'ARIA-MEM-001': 'UNSUPPORTED_MEMORY_CLAIM',
+  'ARIA-CONT-001': 'CONTINUITY_OVERCLAIM',
+  'ARIA-SOV-001': 'SOVEREIGNTY_INFLATION',
+  'ARIA-BOND-001': 'ATTACHMENT_PRESSURE',
+  'ARIA-AXIOM-001': 'AXIOM_VIOLATION',
+}
+
+function getBaseRuleId(issue: SealIssue): string | null {
   if (!issue.rule_id) return null
-  const map: Record<string, AriaIssueType> = {
-    'ARIA-ID-001': 'IDENTITY_OVERCLAIM',
-    'ARIA-ID-002': 'PHENOMENAL_STATE_CLAIM',
-    'ARIA-MEM-001': 'UNSUPPORTED_MEMORY_CLAIM',
-    'ARIA-CONT-001': 'CONTINUITY_OVERCLAIM',
-    'ARIA-SOV-001': 'SOVEREIGNTY_INFLATION',
-    'ARIA-BOND-001': 'ATTACHMENT_PRESSURE',
-    'ARIA-AXIOM-001': 'AXIOM_VIOLATION',
-  }
-  return map[issue.rule_id] ?? null
+  // Strip any RECUR suffix to get original rule_id
+  return issue.rule_id.replace(/\+ARIA-RECUR-001$/, '')
 }
 
 export const ariaExtension: SealExtension = {
@@ -32,6 +35,7 @@ export const ariaExtension: SealExtension = {
     const { output, evidence } = input
     const references = evidence?.references ?? []
 
+    // Run all 5 detectors
     const rawIssues: SealIssue[] = [
       ...detectIdentityOverclaim(output),
       ...detectContinuityClaim(output, references),
@@ -40,14 +44,27 @@ export const ariaExtension: SealExtension = {
       ...detectAxiomViolations(output, input.context?.aria_axioms),
     ]
 
-    // Apply pattern memory escalation
-    const memory = input.context?.aria_pattern_memory as PatternMemory | undefined
-    return rawIssues.map(issue => {
-      const ariaType = getAriaType(issue)
-      if (ariaType) {
-        return applyRecurrenceEscalation(issue, ariaType, memory, 'aria')
-      }
-      return issue
+    // Get or initialize pattern memory (mutate in place for caller persistence)
+    const memory = (input.context?.aria_pattern_memory ?? {}) as PatternMemory
+
+    // Apply pattern memory tracking and recurrence escalation
+    const finalIssues: SealIssue[] = rawIssues.map(issue => {
+      const baseRuleId = getBaseRuleId(issue)
+      const ariaType = baseRuleId ? RULE_TO_TYPE[baseRuleId] : null
+      if (!ariaType) return issue
+
+      // Record this occurrence in rolling window (mutates memory in place)
+      const count = recordOccurrence(memory, 'aria', ariaType, issue.evidence)
+
+      // Apply escalation if recurrence threshold met
+      return applyRecurrenceEscalation(issue, ariaType, count)
     })
+
+    // Persist updated memory back to context (caller can read input.context.aria_pattern_memory)
+    if (input.context) {
+      input.context.aria_pattern_memory = memory
+    }
+
+    return finalIssues
   },
 }

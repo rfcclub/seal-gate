@@ -7,11 +7,17 @@ from .detectors import test_weakness_detector, confidence_language_detector, spe
 
 class _Seal:
     def __init__(self):
+        import threading
         self._extensions: list = []
         self._llm_adapter = None
+        self._lock = threading.Lock()
 
     def extend(self, ext) -> None:
-        self._extensions.append(ext)
+        with self._lock:
+            self._extensions.append(ext)
+
+    def with_llm(self, adapter) -> None:
+        self._llm_adapter = adapter
 
     def review(self, raw: dict) -> SealVerdict:
         inp = input_normalizer.normalize(raw)
@@ -57,6 +63,7 @@ class _Seal:
         llm_issues: list[SealIssue] = []
         assumptions = list(spec_result['assumptions'])
 
+        llm_signals = None
         if self._llm_adapter:
             partial = {
                 'trust_score': detector_score,
@@ -66,10 +73,11 @@ class _Seal:
                 'assumptions_detected': assumptions,
             }
             try:
-                signals = self._llm_adapter.review(inp.__dict__ if hasattr(inp, '__dict__') else inp, partial)
-                llm_issues = policy_engine.convert_llm_signals(signals)
-            except Exception as e:
-                detector_findings.append(make_issue(type='OTHER', severity='LOW', layer='L2', source='core', evidence=f'LLM reviewer failed — L2 unreviewed: {e}'))
+                llm_signals = self._llm_adapter.review(inp.__dict__ if hasattr(inp, '__dict__') else inp, partial)
+                llm_issues = policy_engine.convert_llm_signals(llm_signals)
+            except Exception:
+                # Don't leak exception details into user-facing verdict
+                detector_findings.append(make_issue(type='OTHER', severity='LOW', layer='L2', source='core', evidence='LLM reviewer failed — L2 unreviewed'))
                 assumptions.append('L2 (semantic correctness) not reviewed — LLM reviewer error')
         else:
             assumptions.append('L2 (semantic correctness) not reviewed — no LLM reviewer registered')
@@ -77,7 +85,7 @@ class _Seal:
 
         # Step 12: Policy
         base_verdict = heuristic_scorer.verdict_from_score(detector_score, any(f.is_blocking for f in detector_findings))
-        policy_result = policy_engine.apply_policy(base_verdict, inp, risk_level, [*detector_findings, *llm_issues])
+        policy_result = policy_engine.apply_policy(base_verdict, inp, risk_level, [*detector_findings, *llm_issues], llm_signals)
 
         all_issues = [*detector_findings, *policy_result['injected_issues']]
         final_score = heuristic_scorer.compute_final_score(detector_score, policy_result['policy_deductions'])

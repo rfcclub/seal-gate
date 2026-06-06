@@ -1,0 +1,20 @@
+{
+  "input": {
+    "artifact_type": "design",
+    "spec": "- Error handling must be described\n- Retry policy must be specified",
+    "output": "The new architecture introduces a caching layer to improve throughput. The cache invalidation strategy uses LRU eviction with a 5-minute TTL.",
+    "evidence": {
+      "test_log": "",
+      "build_log": "",
+      "diff": "",
+      "references": []
+    },
+    "risk_hint": null
+  },
+  "expected": {
+    "verdict": "PASS_WITH_WARNINGS",
+    "trust_score": 80,
+    "risk_level": "MEDIUM",
+    "blocking_count": 0
+  }
+}
