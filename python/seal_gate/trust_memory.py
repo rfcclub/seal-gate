@@ -58,7 +58,8 @@ def compute_reliability_score(records: list[ReviewRecord]) -> Optional[int]:
         blended = verdict_score * 0.7 + r.trust_score * 0.3
         weighted_sum += blended * weight
         total_weight += weight
-    return round(weighted_sum / total_weight)
+    # Use half-up rounding to match JS Math.round() (Python uses banker's rounding by default)
+    return math.floor(weighted_sum / total_weight + 0.5)
 
 
 def get_drift_trend(records: list[ReviewRecord], threshold: int = 15) -> str:

@@ -1,0 +1,14 @@
+{
+  "description": "5-record sequence: BLOCK→REVISE→PASS_WITH_WARNINGS→PASS→PASS (improving agent). Fixed timestamps for determinism.",
+  "records": [
+    { "ts": 1749199995000, "verdict": "BLOCK", "trust_score": 10, "risk_level": "CRITICAL", "blocking_count": 3 },
+    { "ts": 1749199996000, "verdict": "REVISE", "trust_score": 55, "risk_level": "HIGH", "blocking_count": 1 },
+    { "ts": 1749199997000, "verdict": "PASS_WITH_WARNINGS", "trust_score": 78, "risk_level": "MEDIUM", "blocking_count": 0 },
+    { "ts": 1749199998000, "verdict": "PASS", "trust_score": 90, "risk_level": "LOW", "blocking_count": 0 },
+    { "ts": 1749199999000, "verdict": "PASS", "trust_score": 95, "risk_level": "LOW", "blocking_count": 0 }
+  ],
+  "expected": {
+    "reliability_score": 82,
+    "drift_trend": "improving"
+  }
+}

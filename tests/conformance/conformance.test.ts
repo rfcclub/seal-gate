@@ -12,7 +12,8 @@ interface Fixture {
 
 const fixtures = readdirSync(FIXTURES_DIR)
   .filter(f => f.endsWith('.json'))
-  .map(f => ({ name: f.replace('.json', ''), data: JSON.parse(readFileSync(join(FIXTURES_DIR, f), 'utf-8')) as Fixture }))
+  .map(f => ({ name: f.replace('.json', ''), data: JSON.parse(readFileSync(join(FIXTURES_DIR, f), 'utf-8')) }))
+  .filter(({ data }) => 'input' in data) as { name: string; data: Fixture }[]
 
 describe('Conformance — TypeScript golden fixtures', () => {
   for (const { name, data } of fixtures) {
