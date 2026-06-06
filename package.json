@@ -1,0 +1,15 @@
+{
+  "name": "seal-gate",
+  "version": "0.2.0",
+  "description": "Universal standalone AI quality gate — deterministic core + optional LLM overlay",
+  "module": "src/index.ts",
+  "type": "module",
+  "scripts": {
+    "test": "bun test",
+    "test:watch": "bun test --watch",
+    "review": "bun src/cli.ts review"
+  },
+  "devDependencies": {
+    "bun-types": "latest"
+  }
+}
