@@ -1,0 +1,20 @@
+{
+  "input": {
+    "artifact_type": "design",
+    "spec": null,
+    "output": "Architecture overview for the new feature.",
+    "evidence": {
+      "test_log": "",
+      "build_log": "",
+      "diff": "",
+      "references": []
+    },
+    "risk_hint": null
+  },
+  "expected": {
+    "verdict": "PASS",
+    "trust_score": 100,
+    "risk_level": "MEDIUM",
+    "blocking_count": 0
+  }
+}

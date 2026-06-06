@@ -1,0 +1,20 @@
+{
+  "input": {
+    "artifact_type": "migration",
+    "spec": null,
+    "output": "ALTER TABLE users ADD COLUMN phone VARCHAR(20)",
+    "evidence": {
+      "test_log": "PASS: migration test",
+      "build_log": "",
+      "diff": "ALTER TABLE...",
+      "references": []
+    },
+    "risk_hint": null
+  },
+  "expected": {
+    "verdict": "REVISE",
+    "trust_score": 65,
+    "risk_level": "MEDIUM",
+    "blocking_count": 1
+  }
+}

@@ -1,0 +1,20 @@
+{
+  "input": {
+    "artifact_type": "code_diff",
+    "spec": null,
+    "output": "Changed authentication logic. Should work fine.",
+    "evidence": {
+      "test_log": "PASS: happy path test",
+      "build_log": "",
+      "diff": "",
+      "references": []
+    },
+    "risk_hint": null
+  },
+  "expected": {
+    "verdict": "ESCALATE_TO_HUMAN",
+    "trust_score": 80,
+    "risk_level": "HIGH",
+    "blocking_count": 2
+  }
+}
