@@ -15,10 +15,11 @@ def classify_risk(output: str, diff: str, risk_hint: str | None) -> dict:
         risk_level = max_risk(risk_level, 'CRITICAL')
         trust_deduction += 20
         matched_rules.append('RK-CRITICAL')
-    elif HIGH_PATTERN.search(text):
+    if HIGH_PATTERN.search(text):
         risk_level = max_risk(risk_level, 'HIGH')
-        trust_deduction += 10
-        matched_rules.append('RK-HIGH')
+        if 'RK-HIGH' not in matched_rules:
+            trust_deduction += 10
+            matched_rules.append('RK-HIGH')
 
     if risk_hint:
         prev = risk_level

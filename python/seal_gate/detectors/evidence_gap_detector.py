@@ -1,8 +1,8 @@
 import re
-from ..types import SealIssue, SealEvidence, make_issue
+from ..types import SealIssue, SealEvidence, make_issue, RISK_ORDER
 
 
-def detect_evidence_gaps(claims: list, evidence: SealEvidence) -> dict:
+def detect_evidence_gaps(claims: list, evidence: SealEvidence, risk_level: str = 'MEDIUM') -> dict:
     issues: list[SealIssue] = []
     missing: list[str] = []
     deductions = 0
@@ -30,7 +30,7 @@ def detect_evidence_gaps(claims: list, evidence: SealEvidence) -> dict:
                 issues.append(make_issue(type='MISSING_EVIDENCE', severity='HIGH', layer='L3', source='core', rule_id='E003', trust_deduction=20, evidence=f'No security reasoning for claim: "{claim.text}"', required_fix='Provide security test log or text envelope'))
                 deductions += 20
 
-        elif claim.type == 'production_claim':
+        elif claim.type == 'production_claim' and RISK_ORDER.index(risk_level) >= RISK_ORDER.index('MEDIUM'):
             has_any = bool(evidence.references) or bool(evidence.test_log.strip())
             if not has_any:
                 issues.append(make_issue(type='MISSING_EVIDENCE', severity='CRITICAL', layer='L3', source='core', rule_id='E004', trust_deduction=20, evidence=f'No evidence for production claim: "{claim.text}"', required_fix='Provide evidence envelopes'))

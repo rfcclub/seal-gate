@@ -27,10 +27,13 @@ export class RiskClassifier {
       risk_level = maxRisk(risk_level, 'CRITICAL')
       trust_deduction += 20
       matched_rules.push('RK-CRITICAL')
-    } else if (HIGH_PATTERN.test(text)) {
+    }
+    if (HIGH_PATTERN.test(text)) {
       risk_level = maxRisk(risk_level, 'HIGH')
-      trust_deduction += 10
-      matched_rules.push('RK-HIGH')
+      if (!matched_rules.includes('RK-HIGH')) {
+        trust_deduction += 10
+        matched_rules.push('RK-HIGH')
+      }
     }
 
     if (risk_hint) {

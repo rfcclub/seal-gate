@@ -64,7 +64,7 @@ export const Seal = {
     }
 
     // Step 6: Evidence gap detection
-    const gapResult = EvidenceGapDetector.detect(claims, input.evidence)
+    const gapResult = EvidenceGapDetector.detect(claims, input.evidence, riskResult.risk_level)
 
     // Step 7: Spec coverage
     const specResult = SpecCoverageDetector.detect(input.spec, input.output)

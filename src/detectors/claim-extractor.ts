@@ -7,7 +7,7 @@ const CLAIM_PATTERNS: Array<{ type: ClaimType; pattern: RegExp }> = [
   { type: 'risk_claim',           pattern: /\b(no security impact|safe|secure|no risk)\b/gi },
   { type: 'build_claim',          pattern: /\b(build succeeded|compiled|build pass(?:ed)?|build is (?:clean|green))\b/gi },
   { type: 'production_claim',     pattern: /\b(production.?ready|ready for (?:production|deploy|release))\b/gi },
-  { type: 'generic_claim',        pattern: /\b(definitely|guaranteed|fully safe|all good|no issues)\b/gi },
+  { type: 'generic_claim',        pattern: /\b(definitely|guaranteed|fully|completely|all good|no issues)\b/gi },
 ]
 
 function stripCodeFences(text: string): { stripped: string; fenceRanges: Array<[number, number]> } {

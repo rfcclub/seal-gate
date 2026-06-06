@@ -9,7 +9,7 @@ CLAIM_PATTERNS = [
     ('risk_claim',           re.compile(r'\b(no security impact|safe|secure|no risk)\b', re.I)),
     ('build_claim',          re.compile(r'\b(build succeeded|compiled|build pass(?:ed)?|build is (?:clean|green))\b', re.I)),
     ('production_claim',     re.compile(r'\b(production.?ready|ready for (?:production|deploy|release))\b', re.I)),
-    ('generic_claim',        re.compile(r'\b(definitely|guaranteed|fully safe|all good|no issues)\b', re.I)),
+    ('generic_claim',        re.compile(r'\b(definitely|guaranteed|fully|completely|all good|no issues)\b', re.I)),
 ]
 
 BLOCK_FENCE = re.compile(r'```[\s\S]*?```')

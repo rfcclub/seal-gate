@@ -11,8 +11,10 @@ export interface EvidenceGapResult {
   trust_deductions: number
 }
 
+const RISK_ORDER = ['LOW', 'MEDIUM', 'HIGH', 'CRITICAL']
+
 export class EvidenceGapDetector {
-  static detect(claims: Claim[], evidence: SealEvidence): EvidenceGapResult {
+  static detect(claims: Claim[], evidence: SealEvidence, risk_level = 'MEDIUM'): EvidenceGapResult {
     const issues: SealIssue[] = []
     const missing_evidence: string[] = []
     let trust_deductions = 0
@@ -68,7 +70,7 @@ export class EvidenceGapDetector {
         }
       }
 
-      if (claim.type === 'production_claim') {
+      if (claim.type === 'production_claim' && RISK_ORDER.indexOf(risk_level) >= RISK_ORDER.indexOf('MEDIUM')) {
         const hasAnyEvidence = evidence.references.length > 0 || evidence.test_log.trim().length > 0
         if (!hasAnyEvidence) {
           issues.push(makeIssue({
