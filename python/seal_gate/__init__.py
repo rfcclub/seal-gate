@@ -17,9 +17,15 @@ class _Seal:
             self._extensions.append(ext)
 
     def with_llm(self, adapter) -> None:
-        self._llm_adapter = adapter
+        with self._lock:
+            self._llm_adapter = adapter
 
     def review(self, raw: dict) -> SealVerdict:
+        # Snapshot mutable state under lock to avoid race conditions
+        with self._lock:
+            extensions = list(self._extensions)
+            llm_adapter = self._llm_adapter
+
         inp = input_normalizer.normalize(raw)
 
         # Step 2: Claims
@@ -64,7 +70,7 @@ class _Seal:
         assumptions = list(spec_result['assumptions'])
 
         llm_signals = None
-        if self._llm_adapter:
+        if llm_adapter:
             partial = {
                 'trust_score': detector_score,
                 'risk_level': risk_level,
@@ -73,13 +79,13 @@ class _Seal:
                 'assumptions_detected': assumptions,
             }
             try:
-                llm_signals = self._llm_adapter.review(inp.__dict__ if hasattr(inp, '__dict__') else inp, partial)
+                llm_signals = llm_adapter.review(inp.__dict__ if hasattr(inp, '__dict__') else inp, partial)
                 llm_issues = policy_engine.convert_llm_signals(llm_signals)
             except Exception:
                 # Don't leak exception details into user-facing verdict
                 detector_findings.append(make_issue(type='OTHER', severity='LOW', layer='L2', source='core', evidence='LLM reviewer failed — L2 unreviewed'))
                 assumptions.append('L2 (semantic correctness) not reviewed — LLM reviewer error')
-        else:
+        else:  # no llm_adapter
             assumptions.append('L2 (semantic correctness) not reviewed — no LLM reviewer registered')
             detector_findings.append(make_issue(type='OTHER', severity='LOW', layer='L2', source='core', evidence='L2 unreviewed — semantic issues may exist'))
 
@@ -96,7 +102,7 @@ class _Seal:
             final_verdict = 'BLOCK'
 
         # Step 13: Extensions
-        for ext in self._extensions:
+        for ext in extensions:
             try:
                 ext_issues = ext.check(inp.__dict__ if not isinstance(inp, dict) else inp)
                 all_issues.extend(ext_issues)

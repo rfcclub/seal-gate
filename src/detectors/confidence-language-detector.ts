@@ -1,7 +1,7 @@
 import { SealIssue, RiskLevel, SealEvidence } from '../types.ts'
 import { makeIssue } from '../types.ts'
 
-const OVERCONFIDENT_PATTERN = /\b(definitely|guaranteed|fully\s+safe|all\s+good|no\s+issues|completely\s+safe|production.?ready)\b/gi
+const OVERCONFIDENT_PATTERN = /\b(definitely|guaranteed|fully|completely|all\s+good|no\s+issues|production.?ready)\b/gi
 const HEDGING_PATTERN = /\b(probably|should\s+work|seems|might|appears\s+to|I\s+think)\b/gi
 
 export interface ConfidenceLangResult {

@@ -1,7 +1,7 @@
 import re
 from ..types import SealIssue, SealEvidence, make_issue, RISK_ORDER
 
-OVERCONFIDENT = re.compile(r'\b(definitely|guaranteed|fully|completely|all\s+good|no\s+issues)\b', re.I)
+OVERCONFIDENT = re.compile(r'\b(definitely|guaranteed|fully|completely|all\s+good|no\s+issues|production.?ready)\b', re.I)
 HEDGING = re.compile(r'\b(probably|should\s+work|seems|might|appears\s+to|I\s+think)\b', re.I)
 
 

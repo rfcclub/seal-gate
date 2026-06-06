@@ -48,7 +48,7 @@ export function recordOccurrence(
  */
 export function getCount(memory: PatternMemory | undefined, agent_role: string, aria_type: AriaIssueType): number {
   const entry = memory?.[agent_role]?.[aria_type]
-  if (!entry) return 0
+  if (!entry || !Array.isArray(entry.timestamps)) return 0
   const now = Date.now()
   return entry.timestamps.filter(t => now - t < WINDOW_MS).length
 }

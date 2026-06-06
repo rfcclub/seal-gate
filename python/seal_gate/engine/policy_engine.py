@@ -82,7 +82,7 @@ def apply_policy(base_verdict: str, input: SealInput, risk_level: str, all_findi
     llm_policy_deductions = 0
     if llm_signals:
         confidence = llm_signals.get('confidence', 1.0)
-        if not isinstance(confidence, (int, float)):
+        if not isinstance(confidence, (int, float)) or isinstance(confidence, bool):
             confidence = 1.0
         if confidence < 0.6 and _risk_idx(risk_level_safe) >= _risk_idx('MEDIUM'):
             injected.append(make_issue(type='AMBIGUITY', severity='MEDIUM', layer='L2', source='llm-overlay', rule_id='CL403', trust_deduction=20, evidence=f'LLM confidence {confidence:.2f} below threshold for {risk_level_safe} risk'))
