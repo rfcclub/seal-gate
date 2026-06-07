@@ -63,12 +63,15 @@ def compute_reliability_score(records: list[ReviewRecord]) -> Optional[int]:
 
 
 def get_drift_trend(records: list[ReviewRecord], threshold: int = 15) -> str:
-    """'improving' | 'stable' | 'degrading'. 'stable' for < 2 records."""
+    """Split at time midpoint (not count midpoint) to avoid skew with clustered reviews."""
     if len(records) < 2:
         return 'stable'
-    mid = math.ceil(len(records) / 2)
-    first = records[:mid]
-    second = records[mid:]
+    sorted_r = sorted(records, key=lambda r: r.ts)
+    mid_ts = (sorted_r[0].ts + sorted_r[-1].ts) / 2
+    first  = [r for r in sorted_r if r.ts <= mid_ts]
+    second = [r for r in sorted_r if r.ts > mid_ts]
+    if not first or not second:
+        return 'stable'
 
     def avg(rs: list[ReviewRecord]) -> float:
         return sum(r.trust_score for r in rs) / len(rs)
@@ -81,6 +84,23 @@ def get_drift_trend(records: list[ReviewRecord], threshold: int = 15) -> str:
     return 'stable'
 
 
+def _sort_and_cap(records: list[ReviewRecord], max_history: int) -> list[ReviewRecord]:
+    """Sort by ts and cap — for real-time record()."""
+    return sorted(records, key=lambda r: r.ts)[-max_history:]
+
+
+def _normalize_from_persistence(records: list[ReviewRecord], max_history: int) -> list[ReviewRecord]:
+    """Sort, dedup same-ts (keep last), cap — for loading persisted data only."""
+    sorted_r = sorted(records, key=lambda r: r.ts)
+    seen: dict[int, ReviewRecord] = {}
+    for r in sorted_r:
+        seen[r.ts] = r
+    return sorted(seen.values(), key=lambda r: r.ts)[-max_history:]
+
+
+VALID_VERDICTS = {'PASS', 'PASS_WITH_WARNINGS', 'REVISE', 'ESCALATE_TO_HUMAN', 'BLOCK'}
+
+
 class TrustMemory:
     def __init__(self, max_history: int = 50, drift_threshold: int = 15):
         self._store: dict[str, list[ReviewRecord]] = {}
@@ -89,12 +109,19 @@ class TrustMemory:
 
     def record(self, agent_id: str, verdict: str, trust_score: int,
                risk_level: str, blocking_count: int, ts: Optional[int] = None) -> None:
-        r = ReviewRecord(ts=ts or int(time.time() * 1000), verdict=verdict,
+        if ts is not None:
+            effective_ts = ts
+        else:
+            # Ensure monotonically increasing ts even within the same millisecond
+            now_ms = int(time.time() * 1000)
+            history = self._store.get(agent_id, [])
+            last_ts = history[-1].ts if history else 0
+            effective_ts = max(now_ms, last_ts + 1)
+        r = ReviewRecord(ts=effective_ts, verdict=verdict,
                          trust_score=trust_score, risk_level=risk_level, blocking_count=blocking_count)
         history = self._store.setdefault(agent_id, [])
         history.append(r)
-        if len(history) > self._max_history:
-            del history[:len(history) - self._max_history]
+        self._store[agent_id] = _sort_and_cap(history, self._max_history)
 
     def get_history(self, agent_id: str) -> list[ReviewRecord]:
         return list(self._store.get(agent_id, []))
@@ -119,6 +146,19 @@ class TrustMemory:
     def from_dict(data: dict, max_history: int = 50, drift_threshold: int = 15) -> 'TrustMemory':
         mem = TrustMemory(max_history=max_history, drift_threshold=drift_threshold)
         for agent_id, records in data.items():
-            if isinstance(records, list):
-                mem._store[agent_id] = [ReviewRecord.from_dict(r) for r in records][-max_history:]
+            if not isinstance(records, list):
+                continue
+            valid = []
+            for r in records:
+                if not isinstance(r, dict):
+                    continue
+                if not (isinstance(r.get('ts'), (int, float)) and
+                        r.get('verdict') in VALID_VERDICTS and
+                        isinstance(r.get('trust_score'), (int, float)) and
+                        isinstance(r.get('risk_level'), str) and
+                        isinstance(r.get('blocking_count'), (int, float))):
+                    continue
+                valid.append(ReviewRecord.from_dict(r))
+            if valid:
+                mem._store[agent_id] = _normalize_from_persistence(valid, max_history)
         return mem

@@ -64,8 +64,9 @@ export function computeReliabilityScore(records: ReviewRecord[]): number | null 
 }
 
 /**
- * Classify drift trend by comparing average trust_score of first vs second half.
- * Returns 'stable' for fewer than 2 records.
+ * Classify drift trend by splitting at the time midpoint (not count midpoint).
+ * Time-midpoint avoids skew when reviews are temporally clustered.
+ * Returns 'stable' for fewer than 2 records or when either half is empty.
  */
 export function getDriftTrend(
   records: ReviewRecord[],
@@ -73,9 +74,13 @@ export function getDriftTrend(
 ): 'improving' | 'stable' | 'degrading' {
   if (records.length < 2) return 'stable'
 
-  const mid = Math.ceil(records.length / 2)
-  const first = records.slice(0, mid)
-  const second = records.slice(mid)
+  // Sort by ts to ensure correct temporal split
+  const sorted = [...records].sort((a, b) => a.ts - b.ts)
+  const midTs = (sorted[0].ts + sorted[sorted.length - 1].ts) / 2
+  const first  = sorted.filter(r => r.ts <= midTs)
+  const second = sorted.filter(r => r.ts > midTs)
+
+  if (first.length === 0 || second.length === 0) return 'stable'
 
   const avg = (rs: ReviewRecord[]) =>
     rs.reduce((s, r) => s + r.trust_score, 0) / rs.length
@@ -85,6 +90,19 @@ export function getDriftTrend(
   if (delta > threshold) return 'improving'
   if (delta < -threshold) return 'degrading'
   return 'stable'
+}
+
+/** Sort by ts and cap — used for real-time record(). */
+function sortAndCap(records: ReviewRecord[], maxHistory: number): ReviewRecord[] {
+  return [...records].sort((a, b) => a.ts - b.ts).slice(-maxHistory)
+}
+
+/** Sort, dedup same-ts (keep last), and cap — used only when loading persisted data. */
+function normalizeFromPersistence(records: ReviewRecord[], maxHistory: number): ReviewRecord[] {
+  const sorted = [...records].sort((a, b) => a.ts - b.ts)
+  const seen = new Map<number, ReviewRecord>()
+  for (const r of sorted) seen.set(r.ts, r)
+  return [...seen.values()].sort((a, b) => a.ts - b.ts).slice(-maxHistory)
 }
 
 export class TrustMemory {
@@ -97,15 +115,12 @@ export class TrustMemory {
     this.driftThreshold = options.driftThreshold ?? 15
   }
 
-  /** Append a review result for an agent. Prunes oldest if over cap. */
+  /** Append a review result for an agent. Keeps history sorted by ts, capped to maxHistory. */
   record(agent_id: string, review: Omit<ReviewRecord, 'ts'> & { ts?: number }): void {
-    const record: ReviewRecord = { ts: review.ts ?? Date.now(), ...review }
+    const entry: ReviewRecord = { ts: review.ts ?? Date.now(), ...review }
     const history = this.store.get(agent_id) ?? []
-    history.push(record)
-    if (history.length > this.maxHistory) {
-      history.splice(0, history.length - this.maxHistory)
-    }
-    this.store.set(agent_id, history)
+    history.push(entry)
+    this.store.set(agent_id, sortAndCap(history, this.maxHistory))
   }
 
   /** Get full review history for an agent (oldest first). */
@@ -136,13 +151,20 @@ export class TrustMemory {
     return Object.fromEntries(this.store)
   }
 
-  /** Restore from serialized object. */
+  /** Restore from serialized object. Validates, sorts by ts, deduplicates, and caps. */
   static fromJSON(data: Record<string, ReviewRecord[]>, options?: TrustMemoryOptions): TrustMemory {
     const mem = new TrustMemory(options)
+    const VALID_VERDICTS = new Set(['PASS', 'PASS_WITH_WARNINGS', 'REVISE', 'ESCALATE_TO_HUMAN', 'BLOCK'])
     for (const [agent_id, records] of Object.entries(data)) {
-      if (Array.isArray(records)) {
-        mem.store.set(agent_id, records.slice(-( options?.maxHistory ?? 50)))
-      }
+      if (!Array.isArray(records)) continue
+      const valid = records.filter(r =>
+        typeof r.ts === 'number' &&
+        typeof r.verdict === 'string' && VALID_VERDICTS.has(r.verdict) &&
+        typeof r.trust_score === 'number' &&
+        typeof r.risk_level === 'string' &&
+        typeof r.blocking_count === 'number'
+      )
+      mem.store.set(agent_id, normalizeFromPersistence(valid, options?.maxHistory ?? 50))
     }
     return mem
   }
