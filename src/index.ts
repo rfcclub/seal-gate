@@ -1,4 +1,5 @@
 import { SealInput, SealVerdict, SealExtension, LLMReviewerAdapter, SealIssue, makeIssue, maxVerdict } from './types.ts'
+import { TrustMemory } from './trust-memory.ts'
 import { InputNormalizer } from './engine/input-normalizer.ts'
 import { ClaimExtractor } from './detectors/claim-extractor.ts'
 import { ArtifactClassifier } from './detectors/artifact-classifier.ts'
@@ -15,6 +16,7 @@ import { VerdictFormatter } from './engine/verdict-formatter.ts'
 
 const registry = new ExtensionRegistry()
 let llmAdapter: LLMReviewerAdapter | null = null
+let trustMemory: TrustMemory | null = null
 
 export const Seal = {
   extend(ext: SealExtension): void {
@@ -23,6 +25,10 @@ export const Seal = {
 
   withLLM(adapter: LLMReviewerAdapter): void {
     llmAdapter = adapter
+  },
+
+  withTrustMemory(mem: TrustMemory): void {
+    trustMemory = mem
   },
 
   async review(rawInput: Partial<SealInput>): Promise<SealVerdict> {
@@ -173,7 +179,18 @@ export const Seal = {
       finalVerdict = maxVerdict(finalVerdict, 'REVISE')
     }
 
-    // Step 14: Format verdict
+    // Step 14a: Record to TrustMemory if wired and agent_id present
+    const agentId = input.context?.agent_id
+    if (trustMemory && agentId) {
+      trustMemory.record(agentId, {
+        verdict: finalVerdict,
+        trust_score: finalScore,
+        risk_level: riskResult.risk_level,
+        blocking_count: [...allIssues, ...extIssues].filter(i => i.is_blocking).length,
+      })
+    }
+
+    // Step 14b: Format verdict
     return VerdictFormatter.format({
       verdict: finalVerdict,
       trust_score: finalScore,
@@ -182,6 +199,7 @@ export const Seal = {
       llm_issues: llmIssues,
       missing_evidence: gapResult.missing_evidence,
       assumptions_detected,
+      trust_memory_summary: (trustMemory && agentId) ? trustMemory.getSummary(agentId) : undefined,
     })
   },
 }

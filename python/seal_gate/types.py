@@ -91,9 +91,10 @@ class SealVerdict:
     assumptions_detected: list[str]
     next_action: str
     schema_version: str
+    trust_memory_summary: Optional[dict] = None
 
     def to_dict(self) -> dict:
-        return {
+        d = {
             'verdict': self.verdict,
             'trust_score': self.trust_score,
             'risk_level': self.risk_level,
@@ -107,3 +108,6 @@ class SealVerdict:
             'next_action': self.next_action,
             'schema_version': self.schema_version,
         }
+        if self.trust_memory_summary is not None:
+            d['trust_memory_summary'] = self.trust_memory_summary
+        return d

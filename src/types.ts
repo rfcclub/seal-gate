@@ -25,7 +25,7 @@ export interface SealInput {
   output: string
   evidence: SealEvidence
   risk_hint: RiskLevel | null
-  context?: { agent_role?: string; aria_axioms?: string[]; aria_pattern_memory?: Record<string, unknown>; [key: string]: unknown }
+  context?: { agent_id?: string; agent_role?: string; aria_axioms?: string[]; aria_pattern_memory?: Record<string, unknown>; [key: string]: unknown }
 }
 
 export interface Claim {
@@ -74,6 +74,14 @@ export interface PartialVerdict {
   assumptions_detected: string[]
 }
 
+export interface TrustMemorySummary {
+  agent_id: string
+  reliability_score: number | null
+  drift_trend: 'improving' | 'stable' | 'degrading'
+  review_count: number
+  last_reviewed_at: number | null
+}
+
 export interface SealVerdict {
   verdict: Verdict
   trust_score: number
@@ -87,6 +95,7 @@ export interface SealVerdict {
   assumptions_detected: string[]
   next_action: string
   schema_version: string
+  trust_memory_summary?: TrustMemorySummary  // present when context.agent_id is set and TrustMemory is wired
 }
 
 export interface SealExtension {

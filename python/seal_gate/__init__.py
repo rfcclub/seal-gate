@@ -3,6 +3,7 @@ from .errors import SealInputError
 from .engine import input_normalizer, heuristic_scorer, policy_engine, verdict_formatter
 from .detectors import claim_extractor, risk_classifier, evidence_gap_detector, evidence_checker
 from .detectors import test_weakness_detector, confidence_language_detector, spec_coverage_detector
+from .trust_memory import TrustMemory
 
 
 class _Seal:
@@ -10,6 +11,7 @@ class _Seal:
         import threading
         self._extensions: list = []
         self._llm_adapter = None
+        self._trust_memory: TrustMemory | None = None
         self._lock = threading.Lock()
 
     def extend(self, ext) -> None:
@@ -20,11 +22,16 @@ class _Seal:
         with self._lock:
             self._llm_adapter = adapter
 
+    def with_trust_memory(self, mem: TrustMemory) -> None:
+        with self._lock:
+            self._trust_memory = mem
+
     def review(self, raw: dict) -> SealVerdict:
         # Snapshot mutable state under lock to avoid race conditions
         with self._lock:
             extensions = list(self._extensions)
             llm_adapter = self._llm_adapter
+            trust_memory = self._trust_memory
 
         inp = input_normalizer.normalize(raw)
 
@@ -113,10 +120,25 @@ class _Seal:
             except Exception as e:
                 all_issues.append(make_issue(type='OTHER', severity='LOW', layer='EXTENSION', source='extension', evidence=f'Extension failed: {e}'))
 
-        # Step 14: Format
+        # Step 14a: Record to TrustMemory if wired and agent_id present
+        agent_id = inp.context.get('agent_id') if inp.context else None
+        trust_memory_summary = None
+        if trust_memory and agent_id:
+            blocking_count = sum(1 for i in all_issues if i.is_blocking)
+            trust_memory.record(agent_id, final_verdict, final_score, risk_level, blocking_count)
+            s = trust_memory.get_summary(agent_id)
+            trust_memory_summary = {
+                'agent_id': s.agent_id,
+                'reliability_score': s.reliability_score,
+                'drift_trend': s.drift_trend,
+                'review_count': s.review_count,
+                'last_reviewed_at': s.last_reviewed_at,
+            }
+
+        # Step 14b: Format
         return verdict_formatter.format_verdict(
             final_verdict, final_score, risk_level, all_issues, llm_issues,
-            gap_result['missing_evidence'], assumptions
+            gap_result['missing_evidence'], assumptions, trust_memory_summary
         )
 
 
