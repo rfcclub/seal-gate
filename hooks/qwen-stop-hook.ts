@@ -8,7 +8,7 @@
  * When blocking, the model receives the reason as a follow-up prompt
  * and must regenerate its response.
  *
- * Usage in ~/.qwen/settings.json:
+ * Usage in ~/.qwen-lyra/settings.json:
  *   {
  *     "userHooks": {
  *       "Stop": [

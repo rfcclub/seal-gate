@@ -111,7 +111,7 @@ python3 -m seal_gate review \
 
 ## Qwen Code Hooks
 
-Add to `~/.qwen/settings.json`:
+Add to `~/.qwen-lyra/settings.json`:
 
 ```json
 {

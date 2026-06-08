@@ -4,7 +4,7 @@
  * Reads Qwen Code HookInput from stdin, runs Seal.review() on the
  * tool output, and writes HookOutput JSON to stdout.
  *
- * Usage in ~/.qwen/settings.json:
+ * Usage in ~/.qwen-lyra/settings.json:
  *   {
  *     "userHooks": {
  *       "PostToolUse": [
