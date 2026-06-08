@@ -109,6 +109,31 @@ python3 -m seal_gate review \
 # Exit codes: 0 = PASS/PASS_WITH_WARNINGS, 1 = REVISE/ESCALATE/BLOCK, 2 = usage error
 ```
 
+## Qwen Code Hook
+
+Add to `~/.qwen/settings.json`:
+
+```json
+{
+  "userHooks": {
+    "PostToolUse": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bun ~/work/seal-gate/hooks/qwen-post-tool-use.ts",
+            "timeout": 30000,
+            "name": "seal-gate-post-tool"
+          }
+        ]
+      }
+    ]
+  }
+}
+```
+
+This gates every tool result (Write, Edit, Bash, etc.) through Seal before the model sees it.
+
 ## Verdict Actions
 
 | Verdict | Trust Score | What to do |
