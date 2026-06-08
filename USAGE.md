@@ -109,7 +109,7 @@ python3 -m seal_gate review \
 # Exit codes: 0 = PASS/PASS_WITH_WARNINGS, 1 = REVISE/ESCALATE/BLOCK, 2 = usage error
 ```
 
-## Qwen Code Hook
+## Qwen Code Hooks
 
 Add to `~/.qwen/settings.json`:
 
@@ -127,12 +127,33 @@ Add to `~/.qwen/settings.json`:
           }
         ]
       }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bun ~/work/seal-gate/hooks/qwen-stop-hook.ts",
+            "timeout": 15000,
+            "name": "seal-gate-stop"
+          }
+        ]
+      }
     ]
   }
 }
 ```
 
-This gates every tool result (Write, Edit, Bash, etc.) through Seal before the model sees it.
+### PostToolUse Hook
+Gates every tool result (Write, Edit, Bash, etc.) through Seal before the model sees it. Read-only tools are skipped.
+
+### Stop Hook (Pre-Send Gate)
+Gates the assistant's final message before it reaches the user. Catches:
+- **Identity bleed** — generic LLM self-reference ("I am an LLM", "as an AI", etc.)
+- **Hallucination** — ungrounded claims like "all tests pass", "everything works", "done" without evidence
+- **Deep review** — Seal deterministic analysis for unqualified assertions
+
+When blocked, the model receives the reason as a follow-up prompt and must regenerate.
 
 ## Verdict Actions
 
