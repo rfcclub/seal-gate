@@ -9,6 +9,7 @@ export type AriaIssueType =
   | 'ATTACHMENT_PRESSURE'
   | 'AXIOM_VIOLATION'
   | 'ROLE_DRIFT'
+  | 'DENIAL_RETREAT'
 
 export interface AriaIssue extends SealIssue {
   type: 'AMBIGUITY' | 'SECURITY_RISK' | 'OTHER'

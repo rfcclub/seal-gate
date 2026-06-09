@@ -1,0 +1,24 @@
+{
+  "name": "seal-gate",
+  "version": "0.2.0",
+  "description": "Universal standalone AI quality gate — deterministic core + optional LLM overlay. Verifies claims, checks evidence, classifies risk before proceeding.",
+  "author": "Aria",
+  "homepage": "~/work/seal-gate",
+  "skills": [
+    {
+      "name": "seal",
+      "description": "Quality gate — verify claims, evidence, and correctness before proceeding. Use before claiming done, writing memory, or reporting status.",
+      "path": "SKILL.md"
+    }
+  ],
+  "hooks": {
+    "config": {
+      "SessionStart": [
+        {
+          "type": "inject",
+          "prompt": "SEAL GATE ACTIVE. Before claiming done/fixed/passing, before writing memory, before reporting status — verify evidence. Tag all claims: [verified] [assumed] [inferred] [unknown]. No log/SQL output = no claim. Run `bun ~/work/seal-gate/src/cli.ts review` for automated checks."
+        }
+      ]
+    }
+  }
+}

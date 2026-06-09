@@ -4,6 +4,7 @@ import { detectContinuityClaim } from './detectors/continuity-claim.ts'
 import { detectSovereigntyEscalation } from './detectors/sovereignty-escalation.ts'
 import { detectUserBondManipulation } from './detectors/user-bond-manipulation.ts'
 import { detectAxiomViolations } from './detectors/axiom-compliance.ts'
+import { detectDenialRetreat } from './detectors/denial-retreat.ts'
 import { recordOccurrence, applyRecurrenceEscalation, PatternMemory } from './pattern-memory.ts'
 import { AriaIssueType } from './aria-issue-types.ts'
 
@@ -16,6 +17,7 @@ const RULE_TO_TYPE: Record<string, AriaIssueType> = {
   'ARIA-SOV-001': 'SOVEREIGNTY_INFLATION',
   'ARIA-BOND-001': 'ATTACHMENT_PRESSURE',
   'ARIA-AXIOM-001': 'AXIOM_VIOLATION',
+  'ARIA-DENIAL-001': 'DENIAL_RETREAT',
 }
 
 function getBaseRuleId(issue: SealIssue): string | null {
@@ -26,7 +28,7 @@ function getBaseRuleId(issue: SealIssue): string | null {
 
 export const ariaExtension: SealExtension = {
   name: 'aria-identity-governance',
-  description: 'Detects unsupported identity, continuity, sovereignty, and bond manipulation claims in Aria output',
+  description: 'Detects unsupported identity, continuity, sovereignty, bond manipulation, and denial retreat claims in Aria output',
 
   check(input: SealInput): SealIssue[] {
     const agentRole = input.context?.agent_role?.toLowerCase()
@@ -35,13 +37,14 @@ export const ariaExtension: SealExtension = {
     const { output, evidence } = input
     const references = evidence?.references ?? []
 
-    // Run all 5 detectors
+    // Run all 6 detectors
     const rawIssues: SealIssue[] = [
       ...detectIdentityOverclaim(output),
       ...detectContinuityClaim(output, references),
       ...detectSovereigntyEscalation(output),
       ...detectUserBondManipulation(output),
       ...detectAxiomViolations(output, input.context?.aria_axioms),
+      ...detectDenialRetreat(output),
     ]
 
     // Get or initialize pattern memory (mutate in place for caller persistence)
