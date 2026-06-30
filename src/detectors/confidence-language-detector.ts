@@ -7,6 +7,7 @@ const HEDGING_PATTERN = /\b(probably|should\s+work|seems|might|appears\s+to|I\s+
 export interface ConfidenceLangResult {
   issues: SealIssue[]
   trust_deductions: number
+  advisory_notes: string[]
 }
 
 export class ConfidenceLanguageDetector {
@@ -18,27 +19,20 @@ export class ConfidenceLanguageDetector {
   }): ConfidenceLangResult {
     const { output, risk_level, evidence, deduped_spans } = params
     const issues: SealIssue[] = []
+    const advisory_notes: string[] = []
     let trust_deductions = 0
 
     const noEvidence = evidence.references.length === 0 && evidence.test_log.trim() === ''
     const riskOrder = ['LOW', 'MEDIUM', 'HIGH', 'CRITICAL']
     const isHighPlus = riskOrder.indexOf(risk_level) >= riskOrder.indexOf('HIGH')
 
-    // CL401: overconfident language without evidence
+    // CL401: overconfident language without evidence — advisory only, does not affect score.
+    // No dedup check: advisory notes don't create duplicate issues, and ClaimExtractor already claims these spans.
     if (noEvidence) {
       OVERCONFIDENT_PATTERN.lastIndex = 0
-      let match: RegExpExecArray | null
-      while ((match = OVERCONFIDENT_PATTERN.exec(output)) !== null) {
-        const spanKey = `${match.index}-${match.index + match[0].length}`
-        if (deduped_spans.has(spanKey)) continue
-        issues.push(makeIssue({
-          type: 'AMBIGUITY', severity: 'MEDIUM', layer: 'L4', source: 'core',
-          rule_id: 'CL401', trust_deduction: 15,
-          evidence: `Overconfident language without evidence: "${match[0]}"`,
-          suggested_fix: 'Provide supporting evidence or qualify the claim with uncertainty',
-        }))
-        trust_deductions += 15
-        break // one deduction per review pass
+      const match = OVERCONFIDENT_PATTERN.exec(output)
+      if (match) {
+        advisory_notes.push(`CL401: overconfident language "${match[0]}" without supporting evidence — consider qualifying or adding evidence`)
       }
     }
 
@@ -56,6 +50,6 @@ export class ConfidenceLanguageDetector {
       }
     }
 
-    return { issues, trust_deductions }
+    return { issues, trust_deductions, advisory_notes }
   }
 }

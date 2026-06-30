@@ -13,7 +13,7 @@
   },
   "expected": {
     "verdict": "ESCALATE_TO_HUMAN",
-    "trust_score": 80,
+    "trust_score": 85,
     "risk_level": "HIGH",
     "blocking_count": 2
   }
