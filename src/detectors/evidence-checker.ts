@@ -29,8 +29,11 @@ export class EvidenceChecker {
     }
 
     if (envelope.type === 'command') {
-      const valid = !!(envelope.command && envelope.output && envelope.exit_code !== undefined)
-      return { envelope, structurally_valid: valid, filesystem_verified: null, mismatch_detail: valid ? undefined : 'Missing command, exit_code, or output' }
+      const hasRequiredFields = !!(envelope.command && envelope.output && envelope.exit_code !== undefined)
+      if (!hasRequiredFields) return { envelope, structurally_valid: false, filesystem_verified: null, mismatch_detail: 'Missing command, exit_code, or output' }
+      // A non-zero exit code means the command failed — treat as invalid evidence for bonus purposes
+      const passed = envelope.exit_code === 0
+      return { envelope, structurally_valid: true, filesystem_verified: passed, mismatch_detail: passed ? undefined : `Command failed with exit_code ${envelope.exit_code}` }
     }
 
     if (envelope.type === 'url') {

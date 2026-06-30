@@ -93,6 +93,7 @@ export interface SealVerdict {
   non_blocking_issues: SealIssue[]
   missing_evidence: string[]
   assumptions_detected: string[]
+  advisory_notes: string[]  // informational — do not affect verdict or score
   next_action: string
   schema_version: string
   trust_memory_summary?: TrustMemorySummary  // present when context.agent_id is set and TrustMemory is wired
@@ -112,9 +113,14 @@ export const SCHEMA_VERSION = '0.2.0'
 
 export const VERDICT_ORDER: Verdict[] = ['PASS', 'PASS_WITH_WARNINGS', 'REVISE', 'ESCALATE_TO_HUMAN', 'BLOCK']
 
-export function maxVerdict(a: Verdict, b: Verdict): Verdict {
+// Semantic worst-of comparison — safe against enum reordering because it reads VERDICT_ORDER, not integer values.
+// Use this everywhere instead of arithmetic max over enum indices.
+export function worstOf(a: Verdict, b: Verdict): Verdict {
   return VERDICT_ORDER.indexOf(a) >= VERDICT_ORDER.indexOf(b) ? a : b
 }
+
+// Alias for backward compatibility — prefer worstOf in new code
+export const maxVerdict = worstOf
 
 export function verdictFromScore(score: number, hasBlocking: boolean): Verdict {
   if (hasBlocking) return maxVerdict(scoreToVerdict(score), 'REVISE')

@@ -101,17 +101,34 @@ export const Seal = {
       ...confResult.issues,
     ]
 
+    // Collect advisory notes (do not affect score or verdict)
+    const advisoryNotes: string[] = [...confResult.advisory_notes]
+
     // Add risk deduction as synthetic finding for HeuristicScorer
     const riskDeductionFindings = riskResult.trust_deduction > 0
       ? [{ trust_deduction: riskResult.trust_deduction } as SealIssue]
       : []
 
-    // Step 10: Compute detector_score
+    // Evidence bonus: +5 per evidence field that passed EvidenceChecker validation, capped at +15.
+    // Gated on validator pass — non-empty fields with invalid content do NOT earn a bonus.
+    const evidenceFields = ['test_log', 'build_log', 'diff'] as const
+    const validatedReferenceCount = evidenceResults.filter(r => r.structurally_valid && r.filesystem_verified !== false).length
+    const fieldBonus = evidenceFields.filter(f => {
+      const val = input.evidence[f]
+      if (!val || typeof val !== 'string' || !val.trim()) return false
+      // Field is non-empty AND does not contain failure signals
+      const failPattern = /\b(FAIL|ERROR|failed|error:)\b/i
+      return !failPattern.test(val)
+    }).length * 5
+    const referenceBonus = Math.min(validatedReferenceCount, 1) * 5 // max +5 for references
+    const evidenceBonus = Math.min(fieldBonus + referenceBonus, 15)
+
+    // Step 10: Compute detector_score (start from 100 + evidenceBonus, then deduct)
     const allDeductions = [
       ...detectorFindings.filter(f => (f.trust_deduction ?? 0) > 0),
       ...riskDeductionFindings,
     ]
-    const detectorScore = HeuristicScorer.computeDetectorScore(allDeductions)
+    const detectorScore = Math.min(100, HeuristicScorer.computeDetectorScore(allDeductions) + evidenceBonus)
 
     // Step 11: Optional LLM reviewer
     let llmSignals = null
@@ -199,6 +216,7 @@ export const Seal = {
       llm_issues: llmIssues,
       missing_evidence: gapResult.missing_evidence,
       assumptions_detected,
+      advisory_notes: advisoryNotes,
       trust_memory_summary: (trustMemory && agentId) ? trustMemory.getSummary(agentId) : undefined,
     })
   },

@@ -13,7 +13,7 @@
   },
   "expected": {
     "verdict": "REVISE",
-    "trust_score": 65,
+    "trust_score": 75,
     "risk_level": "MEDIUM",
     "blocking_count": 1
   }

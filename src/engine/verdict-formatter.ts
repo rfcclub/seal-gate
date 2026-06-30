@@ -8,12 +8,13 @@ export interface FormatParams {
   llm_issues?: SealIssue[]
   missing_evidence: string[]
   assumptions_detected: string[]
+  advisory_notes?: string[]
   trust_memory_summary?: TrustMemorySummary
 }
 
 export class VerdictFormatter {
   static format(params: FormatParams): SealVerdict {
-    const { verdict, trust_score, risk_level, all_issues, llm_issues = [], missing_evidence, assumptions_detected, trust_memory_summary } = params
+    const { verdict, trust_score, risk_level, all_issues, llm_issues = [], missing_evidence, assumptions_detected, advisory_notes = [], trust_memory_summary } = params
 
     const deterministic_findings = all_issues.filter(i => i.source === 'core')
     const llm_findings = [...llm_issues, ...all_issues.filter(i => i.source === 'llm-overlay')]
@@ -36,6 +37,7 @@ export class VerdictFormatter {
       non_blocking_issues,
       missing_evidence,
       assumptions_detected,
+      advisory_notes,
       next_action: NEXT_ACTION[verdict],
       schema_version: SCHEMA_VERSION,
     }
