@@ -1,4 +1,4 @@
-export type ArtifactType = 'llm_response' | 'code_diff' | 'test_plan' | 'design' | 'migration'
+export type ArtifactType = 'llm_response' | 'code_diff' | 'test_plan' | 'design' | 'migration' | 'plan_review'
 export type RiskLevel = 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL'
 export type Verdict = 'PASS' | 'PASS_WITH_WARNINGS' | 'REVISE' | 'ESCALATE_TO_HUMAN' | 'BLOCK'
 export type IssueType = 'SPEC_MISMATCH' | 'LOGIC_BUG' | 'TEST_GAP' | 'MISSING_EVIDENCE' | 'SECURITY_RISK' | 'DATA_RISK' | 'HALLUCINATION' | 'AMBIGUITY' | 'OTHER'
@@ -25,7 +25,15 @@ export interface SealInput {
   output: string
   evidence: SealEvidence
   risk_hint: RiskLevel | null
-  context?: { agent_id?: string; agent_role?: string; aria_axioms?: string[]; aria_pattern_memory?: Record<string, unknown>; [key: string]: unknown }
+  context?: {
+    agent_id?: string
+    agent_role?: string
+    aria_axioms?: string[]
+    aria_pattern_memory?: Record<string, unknown>
+    // plan_review mode: locked acceptance criteria from intent.md / self-check.md
+    locked_criteria?: Array<{ id: string; text: string; source_file?: string; source_line?: number }>
+    [key: string]: unknown
+  }
 }
 
 export interface Claim {
@@ -55,6 +63,44 @@ export interface SealIssue {
   rule_id?: string
   source: 'core' | 'llm-overlay' | 'extension'
   trust_deduction?: number
+  // plan_review mode — richer location fields
+  evidence_file?: string
+  evidence_lines?: number[]   // [lineA] for single, [lineA, lineB] for contradiction pair (Type G)
+  evidence_quote?: string
+  criterion_ref?: string      // for Type H (unsatisfied forward-criterion)
+  confidence?: number
+  policy_tags?: string[]
+}
+
+export type EvidenceGrade = 'strong' | 'weak' | 'none'
+
+export function gradeEvidence(issue: SealIssue): EvidenceGrade {
+  const hasFile = !!issue.evidence_file
+  const hasLines = !!(issue.evidence_lines && issue.evidence_lines.length > 0)
+  const hasQuote = !!issue.evidence_quote
+  const hasCriterionRef = !!issue.criterion_ref
+
+  // Type G: contradiction pair — both line spans present
+  const isTypeG = hasFile && hasLines && (issue.evidence_lines?.length ?? 0) >= 2 && hasQuote
+
+  // Type H: unsatisfied forward-criterion with criterion_ref
+  const isTypeH = hasCriterionRef && hasFile && hasLines
+
+  // Type A+B: file + lines present
+  const isAB = hasFile && hasLines
+
+  // Type D: quote references spec requirement or AC bullet (heuristic: quote contains AC- or SHALL/MUST)
+  const isTypeD = hasQuote && /\bAC-\d+\b|SHALL|MUST|SHOULD/i.test(issue.evidence_quote ?? '')
+
+  if (isTypeG || isTypeH || isAB || isTypeD) return 'strong'
+
+  // Type E: quote contains code/diff excerpt; Type F: AMBIGUITY issue type
+  const isTypeE = hasQuote && /```|diff --git|@@/.test(issue.evidence_quote ?? '')
+  const isTypeF = issue.type === 'AMBIGUITY'
+
+  if (isTypeE || isTypeF) return 'weak'
+
+  return 'none'
 }
 
 export interface LLMSignals {

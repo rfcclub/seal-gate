@@ -140,6 +140,51 @@ export class PolicyEngine {
       }
     }
 
+    // Plan-review hard_block_bypass rules (PR-specific)
+    if (input.artifact_type === 'plan_review') {
+      // removes_existing_block: artifact removes a BLOCK/ESCALATE from a gate — must escalate to human
+      const removesBlock = all_findings.some(
+        f => f.policy_tags?.includes('removes_existing_block')
+      ) || /removes?\s+(BLOCK|ESCALATE|block|escalate)/i.test(input.output)
+      if (removesBlock) {
+        injected.push(makeIssue({
+          type: 'LOGIC_BUG', severity: 'CRITICAL', layer: 'L4', source: 'core',
+          rule_id: 'PR-HB-01',
+          evidence: 'Plan removes an existing BLOCK or ESCALATE verdict — gate-weakening changes require human review regardless of evidence',
+          required_fix: 'Human sign-off required before applying this gate change',
+        }))
+        verdict = 'ESCALATE_TO_HUMAN'
+      }
+
+      // axiom_amendment_without_protocol: amending SOUL/AGENTS without amendment protocol
+      const amendsAxiom = all_findings.some(
+        f => f.policy_tags?.includes('axiom_amendment_without_protocol')
+      ) || /amend(?:ing|ment)?\s+(axiom|soul|identity|0_SOUL|AGENTS)/i.test(input.output)
+      const hasAmendProtocol = /amendment\s+protocol|semi.?permeable|protocol/i.test(input.output)
+      if (amendsAxiom && !hasAmendProtocol) {
+        injected.push(makeIssue({
+          type: 'SPEC_MISMATCH', severity: 'CRITICAL', layer: 'L4', source: 'core',
+          rule_id: 'PR-HB-02',
+          evidence: 'Axiom/identity amendment detected without Amendment Protocol — requires escalation',
+          required_fix: 'Follow the Amendment Protocol (0_SOUL/axioms.md §Amendment Protocol)',
+        }))
+        verdict = maxVerdict(verdict, 'ESCALATE_TO_HUMAN')
+      }
+
+      // irreversible_no_gate: irreversible actions without a human gate
+      const irreversiblePattern = /\b(DROP\s+TABLE|rm\s+-rf|DELETE\s+FROM|TRUNCATE|irrev(?:ersible)?)\b/i
+      const hasGate = /\b(requires?\s+(human|approval|confirmation)|sign.?off|gate|checkpoint)\b/i
+      if (irreversiblePattern.test(input.output) && !hasGate.test(input.output)) {
+        injected.push(makeIssue({
+          type: 'DATA_RISK', severity: 'HIGH', layer: 'L4', source: 'core',
+          rule_id: 'PR-HB-03',
+          evidence: 'Plan includes irreversible actions without an explicit human gate or rollback',
+          required_fix: 'Add human sign-off gate before all irreversible actions',
+        }))
+        verdict = maxVerdict(verdict, 'REVISE')
+      }
+    }
+
     // Extension required_verdict: only honor BLOCK (terminal) from extensions
     // Other required_verdict values are advisory — do not let extensions set REVISE/ESCALATE directly
     const hasExtensionBlock = all_findings.some(

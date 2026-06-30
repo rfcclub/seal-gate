@@ -11,6 +11,7 @@ const RULE_ACTIVATIONS: Record<ArtifactType, string[]> = {
   test_plan:    ['TW202'],
   llm_response: ['TW201'],
   design:       [],
+  plan_review:  ['PR001', 'PR002', 'PR003', 'PR004'],
 }
 
 export class ArtifactClassifier {

@@ -13,6 +13,7 @@ import { HeuristicScorer } from './engine/heuristic-scorer.ts'
 import { PolicyEngine } from './engine/policy-engine.ts'
 import { ExtensionRegistry } from './engine/extension-registry.ts'
 import { VerdictFormatter } from './engine/verdict-formatter.ts'
+import { runPlanReviewPipeline } from './engine/plan-review-pipeline.ts'
 
 const registry = new ExtensionRegistry()
 let llmAdapter: LLMReviewerAdapter | null = null
@@ -34,6 +35,11 @@ export const Seal = {
   async review(rawInput: Partial<SealInput>): Promise<SealVerdict> {
     // Step 1: Normalize input
     const input = InputNormalizer.normalize(rawInput)
+
+    // plan_review mode: dedicated 4-stage pipeline
+    if (input.artifact_type === 'plan_review') {
+      return runPlanReviewPipeline(input, registry, trustMemory)
+    }
 
     // Step 2: Extract claims
     const claims = ClaimExtractor.extract(input.output)

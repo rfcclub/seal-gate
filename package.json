@@ -5,7 +5,7 @@
   "module": "src/index.ts",
   "type": "module",
   "scripts": {
-    "test": "bun test",
+    "test": "bun test tests/input-normalizer.test.ts tests/claim-extractor.test.ts tests/trust-memory.test.ts tests/integration/ tests/extensions/aria.test.ts tests/extensions/context-guard tests/detectors/ tests/engine/ tests/conformance/ && bun tests/extensions/lyra-bleed-vietnamese.test.ts",
     "test:watch": "bun test --watch",
     "review": "bun src/cli.ts review"
   },

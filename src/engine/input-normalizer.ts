@@ -1,7 +1,7 @@
 import { SealInput, ArtifactType, RiskLevel } from '../types.ts'
 import { SealInputError } from '../errors.ts'
 
-const VALID_ARTIFACT_TYPES: ArtifactType[] = ['llm_response', 'code_diff', 'test_plan', 'design', 'migration']
+const VALID_ARTIFACT_TYPES: ArtifactType[] = ['llm_response', 'code_diff', 'test_plan', 'design', 'migration', 'plan_review']
 const VALID_RISK_LEVELS: RiskLevel[] = ['LOW', 'MEDIUM', 'HIGH', 'CRITICAL']
 
 export class InputNormalizer {
