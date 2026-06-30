@@ -26,6 +26,14 @@ function parseLines(text: string): string[] {
   return text.split('\n')
 }
 
+// Strip code fences and inline code so pattern matching operates on prose only
+function stripCode(text: string): string {
+  return text
+    .replace(/```[\s\S]*?```/g, ' ')   // block fences
+    .replace(/`[^`\n]+`/g, ' ')         // inline code
+    .replace(/^\s*[-*]\s+\[[ x]\]\s*/gm, ' ') // task checkboxes
+}
+
 function extractSections(text: string): Section[] {
   const lines = parseLines(text)
   const sections: Section[] = []
@@ -69,13 +77,15 @@ export class ContradictionDetector {
         if (i === j) continue
         const secA = sections[i]
         const secB = sections[j]
+        const proseA = stripCode(secA.body)
+        const proseB = stripCode(secB.body)
 
         for (const [writePattern, readonlyPattern, desc] of CONFLICT_PAIRS) {
           writePattern.lastIndex = 0
           readonlyPattern.lastIndex = 0
 
-          const writeMatcher = writePattern.exec(secA.body)
-          const readonlyMatcher = readonlyPattern.exec(secB.body)
+          const writeMatcher = writePattern.exec(proseA)
+          const readonlyMatcher = readonlyPattern.exec(proseB)
 
           if (!writeMatcher || !readonlyMatcher) continue
 
@@ -109,16 +119,17 @@ export class ContradictionDetector {
       }
     }
 
-    // Non-goal violation scan
+    // Non-goal violation scan — operate on prose only
+    const artifactProse = stripCode(artifact)
     NON_GOAL_PATTERN.lastIndex = 0
     let ngMatch: RegExpExecArray | null
-    while ((ngMatch = NON_GOAL_PATTERN.exec(artifact)) !== null) {
+    while ((ngMatch = NON_GOAL_PATTERN.exec(artifactProse)) !== null) {
       const ngText = ngMatch[1].trim().toLowerCase()
       const ngLine = findLineNumber(artifact, ngMatch[0].slice(0, 40))
 
       GOAL_CLAIM_PATTERN.lastIndex = 0
       let gcMatch: RegExpExecArray | null
-      while ((gcMatch = GOAL_CLAIM_PATTERN.exec(artifact)) !== null) {
+      while ((gcMatch = GOAL_CLAIM_PATTERN.exec(artifactProse)) !== null) {
         const claimTarget = (gcMatch[2] ?? '').toLowerCase()
         // Rough match: non-goal keyword appears in a SHALL/MUST claim
         if (claimTarget && ngText.includes(claimTarget.slice(0, 5))) {
