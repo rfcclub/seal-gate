@@ -49,10 +49,13 @@ const restored = TrustMemory.fromJSON(JSON.parse(readFileSync('trust-memory.json
 
 ## Python
 
+The Python port lives in `~/work/aquarium/seal` (package name `seal`):
+
 ```python
-from seal_gate import Seal
-from seal_gate.trust_memory import TrustMemory
-from seal_gate.adapters.minimax_llm_reviewer import create_minimax_reviewer
+# Import from the aquarium/seal python package
+from seal import Seal
+from seal.trust_memory import TrustMemory
+from seal.adapters.minimax_llm_reviewer import create_minimax_reviewer
 
 # One-time setup
 agent_memory = TrustMemory()
@@ -100,8 +103,8 @@ bun run src/cli.ts review \
   --spec /path/to/spec.md \
   --artifact-type code_diff
 
-# Python CLI
-python3 -m seal_gate review \
+# Python CLI (from ~/work/aquarium/seal)
+python3 -m seal review \
   --output /path/to/agent-output.txt \
   --spec /path/to/spec.md \
   --artifact-type code_diff
