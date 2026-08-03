@@ -1,9 +1,11 @@
 export type ArtifactType = 'llm_response' | 'code_diff' | 'test_plan' | 'design' | 'migration' | 'plan_review'
 export type RiskLevel = 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL'
 export type Verdict = 'PASS' | 'PASS_WITH_WARNINGS' | 'REVISE' | 'ESCALATE_TO_HUMAN' | 'BLOCK'
-export type IssueType = 'SPEC_MISMATCH' | 'LOGIC_BUG' | 'TEST_GAP' | 'MISSING_EVIDENCE' | 'SECURITY_RISK' | 'DATA_RISK' | 'HALLUCINATION' | 'AMBIGUITY' | 'OTHER'
+export type IssueType = 'SPEC_MISMATCH' | 'LOGIC_BUG' | 'TEST_GAP' | 'MISSING_EVIDENCE' | 'SECURITY_RISK' | 'DATA_RISK' | 'HALLUCINATION' | 'AMBIGUITY' | 'COMPATIBILITY_RISK' | 'FABRICATED_EVIDENCE' | 'OTHER'
 export type IssueLayer = 'L1' | 'L2' | 'L3' | 'L4' | 'EXTENSION' | 'LLM_OVERLAY'
 export type ClaimType = 'test_result_claim' | 'implementation_claim' | 'compatibility_claim' | 'risk_claim' | 'build_claim' | 'production_claim' | 'generic_claim'
+export type CitationStatus = 'verified' | 'drifted' | 'void' | 'phantom' | 'not_applicable'
+export type StructuralClaimType = 'structural_endpoint' | 'structural_auth' | 'structural_migration' | 'structural_dependency'
 
 export type EvidenceEnvelope =
   | { type: 'file'; path: string; line: number; snapshot: string }
@@ -44,11 +46,48 @@ export interface Claim {
   requires_evidence: boolean
 }
 
+export interface StructuralClaim {
+  type: StructuralClaimType
+  target: string          // e.g. "/api/login" for endpoint, "auth middleware" for auth, "package.json" for dep
+  line: number
+  description: string
+  requires_auth?: boolean // for endpoint claims: does it have auth?
+  has_rollback?: boolean  // for migration claims
+  change_type?: 'added' | 'modified' | 'removed'
+}
+
 export interface EvidenceResult {
   envelope: EvidenceEnvelope
   structurally_valid: boolean
   filesystem_verified: boolean | null
   mismatch_detail?: string
+  citation_status?: CitationStatus
+}
+
+export interface ScoreBreakdown {
+  base: number
+  issue_deductions: number
+  missing_evidence_deductions: number
+  risk_deductions: number
+  overconfidence_deductions: number
+  evidence_bonuses: number
+  final: number
+}
+
+export interface FabricatedEvidence {
+  type: IssueType
+  severity: 'CRITICAL' | 'HIGH' | 'MEDIUM' | 'LOW'
+  is_blocking: boolean
+  evidence: string
+  layer: IssueLayer
+  source: 'core' | 'llm-overlay' | 'extension'
+  citation_status: CitationStatus
+  fabricated_reason: 'location_not_found' | 'content_mismatch'
+  claimed_evidence: {
+    file?: string
+    lines?: number[]
+    quote?: string
+  }
 }
 
 export interface SealIssue {
@@ -70,6 +109,8 @@ export interface SealIssue {
   criterion_ref?: string      // for Type H (unsatisfied forward-criterion)
   confidence?: number
   policy_tags?: string[]
+  // CitationVerifier annotation
+  citation_status?: CitationStatus
 }
 
 export type EvidenceGrade = 'strong' | 'weak' | 'none'
@@ -141,7 +182,11 @@ export interface SealVerdict {
   assumptions_detected: string[]
   advisory_notes: string[]  // informational — do not affect verdict or score
   next_action: string
+  version: string            // package version (e.g. "0.4.0")
   schema_version: string
+  // New fields for reference gaps
+  score_breakdown: ScoreBreakdown
+  fabricated_evidence: FabricatedEvidence[]
   trust_memory_summary?: TrustMemorySummary  // present when context.agent_id is set and TrustMemory is wired
 }
 
