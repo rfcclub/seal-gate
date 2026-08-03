@@ -1,4 +1,5 @@
 import { SealIssue, makeIssue } from '../types.js'
+import { mutationSurvivorEvidence } from '../spec/mutation-probe.js'
 
 export interface SpecCoverageResult {
   issues: SealIssue[]
@@ -12,6 +13,8 @@ export interface SpecCriterionResult {
   level: 0 | 1           // 0 = not covered, 1 = covered at assertion/execution level
   match_type: 'none' | 'assertion' | 'test_name' | 'keyword'
   evidence?: string       // which test/assertion covered it
+  /** Level 2b: does the covering test actually pin this behavior? (mutation-probe) */
+  pinned?: boolean
 }
 
 /** Default stop words for keyword extraction */
@@ -171,4 +174,87 @@ export class SpecCoverageValidator {
 
     return { issues, assumptions: [], trust_deductions, coverage }
   }
+
+  /**
+   * Level 2b — `test_exercises()` mutation-probe.
+   *
+   * Runs the base Level 1 spec-coverage validation, then for each covered criterion where a
+   * `test_file` + `run_command` is supplied, mutation-probes the test to confirm it genuinely
+   * pins the behavior. A test that survives a single-point mutation (still green) does not
+   * exercise the criterion — it gets downgraded and reported as SPEC_UNTESTED.
+   *
+   * Probe is best-effort: missing test_file / run_command / workdir ⇒ skip that criterion's
+   * probe (assumption), never block the whole review.
+   */
+  static async validateWithProbe(
+    spec: string | null,
+    testLog: string,
+    diff: string,
+    probeOpts: Array<{
+      criterion: string
+      test_file: string
+      run_command: [string, string[]]
+      workdir: string
+      _runTest?: (workdir: string, cmd: string, args: string[]) => Promise<{ exit_code: number; output: string }>
+    }>,
+  ): Promise<SpecCoverageResult> {
+    const base = SpecCoverageValidator.validate(spec, testLog, diff)
+
+    if (probeOpts.length === 0) return base
+
+    const { checkTestPinsBehavior } = await import('../spec/mutation-probe.js')
+
+    const coverage = base.coverage.map((c) => ({ ...c, pinned: undefined } as SpecCriterionResult))
+    const issues = [...base.issues]
+    const assumptions = [...base.assumptions]
+    let trust_deductions = base.trust_deductions
+
+    for (const opt of probeOpts) {
+      const entry = coverage.find((c) => c.level === 1 && c.criterion.includes(opt.criterion.slice(0, 100)))
+      if (!entry) continue // not Level-1 covered → nothing to probe
+
+      let outcome: { pinned?: boolean; skipped?: boolean; reason?: string; survivors?: string[] }
+      try {
+        const res = await checkTestPinsBehavior(opt)
+        if ('skipped' in res) {
+          outcome = { skipped: true, reason: (res as { skipped: true; reason: string }).reason }
+        } else if (res.pinned) {
+          outcome = { pinned: true, survivors: [] }
+        } else {
+          outcome = { pinned: false, survivors: res.survivors }
+        }
+      } catch (e) {
+        outcome = { skipped: true, reason: (e as Error).message }
+      }
+
+      if (outcome.skipped) {
+        assumptions.push(`mutation-probe skipped for "${opt.criterion.slice(0, 60)}": ${outcome.reason}`)
+        continue
+      }
+
+      entry.pinned = outcome.pinned
+
+      if (outcome.pinned === false && outcome.survivors && outcome.survivors.length > 0) {
+        const deduction = Math.min(8, 20 - trust_deductions)
+        if (deduction > 0) {
+          issues.push(makeIssue({
+            type: 'SPEC_UNTESTED',
+            severity: 'MEDIUM',
+            layer: 'L1',
+            source: 'core',
+            rule_id: 'TE201',
+            trust_deduction: deduction,
+            evidence: `Criterion "${opt.criterion.slice(0, 80)}" is covered by a test that does NOT pin the behavior. ${mutationSurvivorEvidence(outcome.survivors)}`,
+            suggested_fix: `Tighten the test for "${opt.criterion.slice(0, 80)}" so a mutation of its assertion actually fails.`,
+          }))
+          trust_deductions += deduction
+          entry.level = 0 // downgrade: covered-in-name but not pinned
+        }
+      }
+    }
+
+    return { issues, assumptions, trust_deductions, coverage }
+  }
 }
+
+export { breedMutations, checkTestPinsBehavior } from '../spec/mutation-probe.js'

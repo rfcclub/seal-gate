@@ -324,4 +324,6 @@ export type { SealInput, SealVerdict, SealExtension, LLMReviewerAdapter }
 export { VERSION } from './version.js'
 export { TrustMemory } from './trust-memory.js'
 export { createReviewer, createMinimaxReviewer, createFireworksReviewer, createGeminiReviewer, createMiMoReviewer, createLocalReviewer } from './adapters/generic-llm-reviewer.js'
+export { SpecCoverageValidator } from './detectors/spec-coverage-validator.js'
+export { checkTestPinsBehavior, breedMutations } from './spec/mutation-probe.js'
 export { SealInputError } from './errors.js'

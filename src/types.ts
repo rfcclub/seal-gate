@@ -1,7 +1,7 @@
 export type ArtifactType = 'llm_response' | 'code_diff' | 'test_plan' | 'design' | 'migration' | 'plan_review'
 export type RiskLevel = 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL'
 export type Verdict = 'PASS' | 'PASS_WITH_WARNINGS' | 'REVISE' | 'ESCALATE_TO_HUMAN' | 'BLOCK'
-export type IssueType = 'SPEC_MISMATCH' | 'LOGIC_BUG' | 'TEST_GAP' | 'MISSING_EVIDENCE' | 'SECURITY_RISK' | 'DATA_RISK' | 'HALLUCINATION' | 'AMBIGUITY' | 'COMPATIBILITY_RISK' | 'FABRICATED_EVIDENCE' | 'OTHER'
+export type IssueType = 'SPEC_MISMATCH' | 'LOGIC_BUG' | 'TEST_GAP' | 'MISSING_EVIDENCE' | 'SECURITY_RISK' | 'DATA_RISK' | 'HALLUCINATION' | 'AMBIGUITY' | 'COMPATIBILITY_RISK' | 'FABRICATED_EVIDENCE' | 'SPEC_UNTESTED' | 'OTHER'
 export type IssueLayer = 'L1' | 'L2' | 'L3' | 'L4' | 'EXTENSION' | 'LLM_OVERLAY'
 export type ClaimType = 'test_result_claim' | 'implementation_claim' | 'compatibility_claim' | 'risk_claim' | 'build_claim' | 'production_claim' | 'generic_claim'
 export type CitationStatus = 'verified' | 'drifted' | 'void' | 'phantom' | 'not_applicable'
