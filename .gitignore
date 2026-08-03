@@ -1,0 +1,21 @@
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+
+# Compiled test artifacts (mirror of .ts — regenerate via tsc)
+*.test.js
+*.test.js.map
+
+# Python
+__pycache__/
+*.pyc
+
+# Backup / temp
+*.bak
+*.tmp
+.DS_Store
+
+# Bun lockfile is optional (runtime-agnostic lib); uncomment to track
+# bun.lock
