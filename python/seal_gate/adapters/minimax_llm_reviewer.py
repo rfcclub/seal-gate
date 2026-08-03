@@ -10,6 +10,7 @@ import os
 import urllib.request
 import urllib.error
 from ..types import SealInput, SealVerdict
+from .sanitize_claim_input import wrap_untrusted_claim, UNTRUSTED_CLAIM_PREAMBLE
 
 MINIMAX_BASE_URL = os.environ.get('MINIMAX_BASE_URL', 'https://api.minimax.io/v1')
 MINIMAX_API_KEY = os.environ.get('MINIMAX_PLAN_KEY') or os.environ.get('MINIMAX_API_KEY', '')
@@ -39,14 +40,16 @@ Rules:
 - missing_requirements: only if spec is provided and requirement is clearly absent.
 - confidence: 0.0–1.0. Be honest. If output is clear and correct, say 0.85+.
 - Do not reward fluent explanations. Reward verifiable correctness.
-- If output looks correct and complete, return empty arrays and high confidence."""
+- If output looks correct and complete, return empty arrays and high confidence.
+
+""" + UNTRUSTED_CLAIM_PREAMBLE
 
 
 def _build_user_message(input_data: dict, partial: dict) -> str:
     parts = []
     if input_data.get('spec'):
         parts.append(f"=== SPEC ===\n{input_data['spec']}")
-    parts.append(f"=== OUTPUT (artifact_type: {input_data.get('artifact_type', 'unknown')}) ===\n{input_data.get('output', '')}")
+    parts.append(f"=== OUTPUT (artifact_type: {input_data.get('artifact_type', 'unknown')}) ===\n{wrap_untrusted_claim(input_data.get('output', ''))}")
     blocking = [f for f in partial.get('deterministic_findings', []) if getattr(f, 'is_blocking', False)]
     if blocking:
         issues = '\n'.join(f"- [{getattr(f, 'rule_id', getattr(f, 'type', ''))}] {getattr(f, 'evidence', '')}" for f in blocking)

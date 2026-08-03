@@ -5,7 +5,8 @@
  * MiniMax is a SENSOR, not a judge. Returns structured signals.
  * PolicyEngine converts signals to SealIssue[] via deterministic rules.
  */
-import { LLMReviewerAdapter, LLMSignals, SealInput, PartialVerdict } from '../types.ts'
+import { LLMReviewerAdapter, LLMSignals, SealInput, PartialVerdict } from '../types.js'
+import { wrapUntrustedClaim, UNTRUSTED_CLAIM_PREAMBLE } from './sanitize-claim-input.js'
 
 const MINIMAX_BASE_URL = process.env.MINIMAX_BASE_URL ?? 'https://api.minimax.io/v1'
 const MINIMAX_API_KEY = process.env.MINIMAX_PLAN_KEY ?? process.env.MINIMAX_API_KEY ?? ''
@@ -35,21 +36,23 @@ Rules:
 - missing_requirements: only if spec is provided and requirement is clearly absent.
 - confidence: 0.0–1.0. Be honest. If output is clear and correct, say 0.85+.
 - Do not reward fluent explanations. Reward verifiable correctness.
-- If output looks correct and complete, return empty arrays and high confidence.`
+- If output looks correct and complete, return empty arrays and high confidence.
 
-function buildUserMessage(input: SealInput, partial: PartialVerdict): string {
+${UNTRUSTED_CLAIM_PREAMBLE}`
+
+export function buildUserMessage(input: SealInput, partial: PartialVerdict): string {
   const parts: string[] = []
 
   if (input.spec) {
-    parts.push(`=== SPEC ===\n${input.spec}`)
+    parts.push(`=== SPEC ===\n${wrapUntrustedClaim(input.spec)}`)
   }
 
-  parts.push(`=== OUTPUT (artifact_type: ${input.artifact_type}) ===\n${input.output}`)
+  parts.push(`=== OUTPUT (artifact_type: ${input.artifact_type}) ===\n${wrapUntrustedClaim(input.output)}`)
 
   if (partial.deterministic_findings.length > 0) {
     const issues = partial.deterministic_findings
       .filter(f => f.is_blocking)
-      .map(f => `- [${f.rule_id ?? f.type}] ${f.evidence}`)
+      .map(f => `- [${f.rule_id ?? f.type}] ${wrapUntrustedClaim(f.evidence)}`)
       .join('\n')
     if (issues) parts.push(`=== DETERMINISTIC FINDINGS (already flagged, do not repeat) ===\n${issues}`)
   }

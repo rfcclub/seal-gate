@@ -6,7 +6,7 @@ CLAIM_PATTERNS = [
     ('test_result_claim',    re.compile(r'\b(all tests? pass(?:ed)?|tests? pass(?:ed)?|verified|tested)\b', re.I)),
     ('implementation_claim', re.compile(r'\b(implemented|fixed|completed|resolved|built|deployed)\b', re.I)),
     ('compatibility_claim',  re.compile(r'\b(backward.?compatible|no breaking changes|fully compatible)\b', re.I)),
-    ('risk_claim',           re.compile(r'\b(no security impact|safe|secure|no risk)\b', re.I)),
+    ('risk_claim',           re.compile(r'\b(no security impact|no risk of (?:breach|exploit|injection|attack)|safe to (?:deploy|release|merge)|security[- ](?:free|cleared)|no (?:auth|security) (?:change|impact|risk))\b', re.I)),
     ('build_claim',          re.compile(r'\b(build succeeded|compiled|build pass(?:ed)?|build is (?:clean|green))\b', re.I)),
     ('production_claim',     re.compile(r'\b(production.?ready|ready for (?:production|deploy|release))\b', re.I)),
     ('generic_claim',        re.compile(r'\b(definitely|guaranteed|fully|completely|all good|no issues)\b', re.I)),

@@ -1,7 +1,7 @@
 import { createHash } from 'crypto';
 import { readFileSync, existsSync } from 'fs';
-import { DriftDb } from './drift-db.ts';
-import { Embedder } from './embedder.ts';
+import { DriftDb } from './drift-db.js';
+import { Embedder } from './embedder.js';
 
 export type BaselineStatus = 'READY' | 'DEGRADED' | 'MISSING';
 

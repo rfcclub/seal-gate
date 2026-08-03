@@ -18,7 +18,17 @@ describe('ClaimExtractor', () => {
   })
 
   test('detects risk_claim', () => {
+    const claims = ClaimExtractor.extract('This change is safe to deploy.')
+    expect(claims.some(c => c.type === 'risk_claim')).toBe(true)
+  })
+
+  test('does not false-positive on bare safe/secure', () => {
     const claims = ClaimExtractor.extract('This change is secure.')
+    expect(claims.some(c => c.type === 'risk_claim')).toBe(false)
+  })
+
+  test('detects no security impact as risk_claim', () => {
+    const claims = ClaimExtractor.extract('There is no security impact from this change.')
     expect(claims.some(c => c.type === 'risk_claim')).toBe(true)
   })
 

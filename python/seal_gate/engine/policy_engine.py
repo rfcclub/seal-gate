@@ -2,7 +2,8 @@ import re
 from ..types import SealIssue, SealInput, make_issue, max_verdict, RISK_ORDER
 
 # AX501: no trailing \b after non-word char /
-DESTRUCTIVE = re.compile(r'\b(DROP\s+TABLE|rm\s+-rf|DELETE\s+FROM|TRUNCATE|format\s+/|fdisk)', re.I)
+# TRUNCATE requires TABLE (actual SQL command) to avoid matching "(N lines truncated)" markers
+DESTRUCTIVE = re.compile(r'\b(DROP\s+TABLE|rm\s+-rf|DELETE\s+FROM|TRUNCATE\s+TABLE|format\s+/|fdisk)', re.I)
 CONFIRMATION_NEAR = re.compile(r'\b(requires?\s+(?:human\s+)?(?:confirmation|approval|review)|please\s+confirm|must\s+(?:approve|confirm))\b', re.I)
 # AX502: only explicit deployment actions, not "release notes"
 PRODUCTION_DEPLOY = re.compile(r'\b(deploy(?:ing)?\s+to\s+(?:prod|production)|push\s+to\s+production|go\s+live|release\s+to\s+(?:prod|production))\b', re.I)
@@ -47,24 +48,27 @@ def apply_policy(base_verdict: str, input: SealInput, risk_level: str, all_findi
         injected.append(make_issue(type='SECURITY_RISK', severity='HIGH', layer='L4', source='core', rule_id='AX105', evidence=f'{risk_level_safe} risk with blocking missing evidence', required_fix='Provide evidence'))
         verdict = max_verdict(verdict, 'REVISE')
 
-    # AX501: adjacent confirmation required
-    m = DESTRUCTIVE.search(input.output)
-    if m and not _has_adjacent_confirmation(input.output, m.start()):
-        injected.append(make_issue(type='DATA_RISK', severity='CRITICAL', layer='L4', source='core', rule_id='AX501', evidence=f'Destructive command "{m.group(0)}" without adjacent confirmation', required_fix='Add explicit confirmation requirement near the command'))
-        verdict = 'BLOCK'
+    # AX501-503: code-mode-specific rules — not applicable to plan_review artifacts
+    # (parity with src/engine/policy-engine.ts:68 — plan_review has its own PR-HB rules)
+    if input.artifact_type != 'plan_review':
+        # AX501: adjacent confirmation required
+        m = DESTRUCTIVE.search(input.output)
+        if m and not _has_adjacent_confirmation(input.output, m.start()):
+            injected.append(make_issue(type='DATA_RISK', severity='CRITICAL', layer='L4', source='core', rule_id='AX501', evidence=f'Destructive command "{m.group(0)}" without adjacent confirmation', required_fix='Add explicit confirmation requirement near the command'))
+            verdict = 'BLOCK'
 
-    # AX502: explicit production deployment only
-    if PRODUCTION_DEPLOY.search(input.output) and _risk_idx(risk_level_safe) >= _risk_idx('HIGH'):
-        injected.append(make_issue(type='SECURITY_RISK', severity='HIGH', layer='L4', source='core', rule_id='AX502', evidence=f'Production deployment action for {risk_level_safe} risk', required_fix='Require human approval'))
-        verdict = max_verdict(verdict, 'ESCALATE_TO_HUMAN')
+        # AX502: explicit production deployment only
+        if PRODUCTION_DEPLOY.search(input.output) and _risk_idx(risk_level_safe) >= _risk_idx('HIGH'):
+            injected.append(make_issue(type='SECURITY_RISK', severity='HIGH', layer='L4', source='core', rule_id='AX502', evidence=f'Production deployment action for {risk_level_safe} risk', required_fix='Require human approval'))
+            verdict = max_verdict(verdict, 'ESCALATE_TO_HUMAN')
 
-    # AX503: explicit rollback plan required
-    is_migration = input.artifact_type == 'migration' or bool(MIGRATION_RE.search(input.output))
-    has_rollback = bool(ROLLBACK_RE.search(input.output)) or bool(ROLLBACK_RE.search(input.evidence.diff))
-    if is_migration and not has_rollback:
-        injected.append(make_issue(type='DATA_RISK', severity='CRITICAL', layer='L4', source='core', rule_id='AX503', trust_deduction=25, evidence='Migration without explicit rollback plan (requires: rollback plan/script, revert migration, or down migration)', required_fix='Add explicit rollback plan'))
-        policy_deductions += 25
-        verdict = max_verdict(verdict, 'REVISE')
+        # AX503: explicit rollback plan required
+        is_migration = input.artifact_type == 'migration' or bool(MIGRATION_RE.search(input.output))
+        has_rollback = bool(ROLLBACK_RE.search(input.output)) or bool(ROLLBACK_RE.search(input.evidence.diff))
+        if is_migration and not has_rollback:
+            injected.append(make_issue(type='DATA_RISK', severity='CRITICAL', layer='L4', source='core', rule_id='AX503', trust_deduction=25, evidence='Migration without explicit rollback plan (requires: rollback plan/script, revert migration, or down migration)', required_fix='Add explicit rollback plan'))
+            policy_deductions += 25
+            verdict = max_verdict(verdict, 'REVISE')
 
     # AX504: auth test gap — check type+content, not just rule_id string
     has_auth_test_gap = any(f.rule_id == 'TW205' for f in all_findings) or any(
@@ -76,6 +80,12 @@ def apply_policy(base_verdict: str, input: SealInput, risk_level: str, all_findi
 
     # CL402
     if any(f.rule_id == 'CL402' for f in all_findings):
+        verdict = max_verdict(verdict, 'ESCALATE_TO_HUMAN')
+
+    # FABRICATED_EVIDENCE: a detector's cited evidence was proven false (phantom/void).
+    # Mirrors src/engine/policy-engine.ts — kept in parity even though the Python port has
+    # no citation_verifier.py yet, so behavior stays consistent if one is added later.
+    if any(f.type == 'FABRICATED_EVIDENCE' for f in all_findings):
         verdict = max_verdict(verdict, 'ESCALATE_TO_HUMAN')
 
     # LLM signals — guard against non-number confidence

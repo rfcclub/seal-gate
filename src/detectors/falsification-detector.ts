@@ -1,4 +1,4 @@
-import { SealIssue, SealInput } from '../types.ts'
+import { SealIssue, SealInput } from '../types.js'
 
 export const FALSIFICATION_PROBES = [
   {

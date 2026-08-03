@@ -1,5 +1,6 @@
 from typing import Optional
 from ..types import SealVerdict, SealIssue, NEXT_ACTION, SCHEMA_VERSION
+from .. import __version__
 
 
 def format_verdict(verdict: str, trust_score: int, risk_level: str, all_issues: list[SealIssue], llm_issues: list[SealIssue], missing_evidence: list[str], assumptions_detected: list[str], trust_memory_summary: Optional[dict] = None) -> SealVerdict:
@@ -25,6 +26,7 @@ def format_verdict(verdict: str, trust_score: int, risk_level: str, all_issues: 
         missing_evidence=missing_evidence,
         assumptions_detected=assumptions_detected,
         next_action=NEXT_ACTION[verdict],
+        version=__version__,
         schema_version=SCHEMA_VERSION,
         trust_memory_summary=trust_memory_summary,
     )

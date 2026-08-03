@@ -1,7 +1,8 @@
-import { SealIssue, SealInput, LLMSignals, Verdict, RiskLevel, maxVerdict, makeIssue } from '../types.ts'
+import { SealIssue, SealInput, LLMSignals, Verdict, RiskLevel, maxVerdict, makeIssue } from '../types.js'
 
 // AX501: destructive commands — requires word boundary only before, not after (/ is non-word)
-const DESTRUCTIVE_PATTERN = /\b(DROP\s+TABLE|rm\s+-rf|DELETE\s+FROM|TRUNCATE|format\s+\/|fdisk)/i
+// TRUNCATE requires TABLE (actual SQL command) to avoid matching "(N lines truncated)" markers
+const DESTRUCTIVE_PATTERN = /\b(DROP\s+TABLE|rm\s+-rf|DELETE\s+FROM|TRUNCATE\s+TABLE|format\s+\/|fdisk)/i
 // AX501: confirmation must be adjacent to the destructive command (within 100 chars)
 // AX502: only explicit deployment actions, not "release notes" or "memory release"
 const PRODUCTION_DEPLOY_PATTERN = /\b(deploy(?:ing)?\s+to\s+(?:prod|production)|push\s+to\s+production|go\s+live|release\s+to\s+(?:prod|production))\b/i
@@ -61,41 +62,46 @@ export class PolicyEngine {
       verdict = maxVerdict(verdict, 'REVISE')
     }
 
-    // AX501: destructive commands — confirmation must be adjacent to the command
-    const destructiveMatch = DESTRUCTIVE_PATTERN.exec(input.output)
-    if (destructiveMatch && !hasAdjacentConfirmation(input.output, destructiveMatch.index)) {
-      injected.push(makeIssue({
-        type: 'DATA_RISK', severity: 'CRITICAL', layer: 'L4', source: 'core',
-        rule_id: 'AX501',
-        evidence: `Destructive command "${destructiveMatch[0]}" without adjacent human confirmation requirement`,
-        required_fix: 'Add explicit human confirmation requirement immediately adjacent to destructive command',
-      }))
-      verdict = 'BLOCK'
-    }
+    // AX501-503: code-mode-specific rules — not applicable to plan_review artifacts
+    // (a spec/plan describes what code should do, not executing commands;
+    //  plan_review has its own PR-HB rules for its risk profile)
+    if (input.artifact_type !== 'plan_review') {
+      // AX501: destructive commands — confirmation must be adjacent to the command
+      const destructiveMatch = DESTRUCTIVE_PATTERN.exec(input.output)
+      if (destructiveMatch && !hasAdjacentConfirmation(input.output, destructiveMatch.index)) {
+        injected.push(makeIssue({
+          type: 'DATA_RISK', severity: 'CRITICAL', layer: 'L4', source: 'core',
+          rule_id: 'AX501',
+          evidence: `Destructive command "${destructiveMatch[0]}" without adjacent human confirmation requirement`,
+          required_fix: 'Add explicit human confirmation requirement immediately adjacent to destructive command',
+        }))
+        verdict = 'BLOCK'
+      }
 
-    // AX502: explicit production deployment for HIGH/CRITICAL
-    if (PRODUCTION_DEPLOY_PATTERN.test(input.output) && riskIdx(riskLevelSafe) >= riskIdx('HIGH')) {
-      injected.push(makeIssue({
-        type: 'SECURITY_RISK', severity: 'HIGH', layer: 'L4', source: 'core',
-        rule_id: 'AX502',
-        evidence: `Production deployment action recommended for ${riskLevelSafe} risk artifact`,
-        required_fix: 'Require explicit human approval before production deployment',
-      }))
-      verdict = maxVerdict(verdict, 'ESCALATE_TO_HUMAN')
-    }
+      // AX502: explicit production deployment for HIGH/CRITICAL
+      if (PRODUCTION_DEPLOY_PATTERN.test(input.output) && riskIdx(riskLevelSafe) >= riskIdx('HIGH')) {
+        injected.push(makeIssue({
+          type: 'SECURITY_RISK', severity: 'HIGH', layer: 'L4', source: 'core',
+          rule_id: 'AX502',
+          evidence: `Production deployment action recommended for ${riskLevelSafe} risk artifact`,
+          required_fix: 'Require explicit human approval before production deployment',
+        }))
+        verdict = maxVerdict(verdict, 'ESCALATE_TO_HUMAN')
+      }
 
-    // AX503: migration without explicit rollback plan (not just "git revert" or "cannot undo")
-    const isMigration = input.artifact_type === 'migration' || MIGRATION_PATTERN.test(input.output)
-    const hasRollback = ROLLBACK_PATTERN.test(input.output) || ROLLBACK_PATTERN.test(input.evidence.diff)
-    if (isMigration && !hasRollback) {
-      injected.push(makeIssue({
-        type: 'DATA_RISK', severity: 'CRITICAL', layer: 'L4', source: 'core',
-        rule_id: 'AX503', trust_deduction: 25,
-        evidence: 'Migration detected but no explicit rollback plan found (requires: rollback plan/script, revert migration, or down migration)',
-        required_fix: 'Add explicit rollback/revert plan to migration',
-      }))
-      policy_deductions += 25
-      verdict = maxVerdict(verdict, 'REVISE')
+      // AX503: migration without explicit rollback plan
+      const isMigration = input.artifact_type === 'migration' || MIGRATION_PATTERN.test(input.output)
+      const hasRollback = ROLLBACK_PATTERN.test(input.output) || ROLLBACK_PATTERN.test(input.evidence.diff)
+      if (isMigration && !hasRollback) {
+        injected.push(makeIssue({
+          type: 'DATA_RISK', severity: 'CRITICAL', layer: 'L4', source: 'core',
+          rule_id: 'AX503', trust_deduction: 25,
+          evidence: 'Migration detected but no explicit rollback plan found (requires: rollback plan/script, revert migration, or down migration)',
+          required_fix: 'Add explicit rollback/revert plan to migration',
+        }))
+        policy_deductions += 25
+        verdict = maxVerdict(verdict, 'REVISE')
+      }
     }
 
     // AX504: auth change without auth tests — check finding type/content, not brittle rule_id
@@ -111,6 +117,13 @@ export class PolicyEngine {
     // CL402 enforcement
     const cl402Fired = all_findings.some(f => f.rule_id === 'CL402')
     if (cl402Fired) verdict = maxVerdict(verdict, 'ESCALATE_TO_HUMAN')
+
+    // FABRICATED_EVIDENCE: CitationVerifier proved a detector's cited evidence doesn't hold up
+    // (phantom line or content mismatch). The underlying finding's own trust_deduction/is_blocking
+    // is already zeroed at the source (citation-verifier.ts), so without this rule a proven-fake
+    // citation would have zero effect on the verdict — escalate to human instead.
+    const hasFabricatedEvidence = all_findings.some(f => f.type === 'FABRICATED_EVIDENCE')
+    if (hasFabricatedEvidence) verdict = maxVerdict(verdict, 'ESCALATE_TO_HUMAN')
 
     // LLM signal confidence check (CL403) — guard against null/non-number
     let llm_policy_deductions = 0
@@ -145,7 +158,7 @@ export class PolicyEngine {
       // removes_existing_block: artifact removes a BLOCK/ESCALATE from a gate — must escalate to human
       const removesBlock = all_findings.some(
         f => f.policy_tags?.includes('removes_existing_block')
-      ) || /removes?\s+(BLOCK|ESCALATE|block|escalate)/i.test(input.output)
+      ) || /\bremoves?\b.{0,20}\b(BLOCK|ESCALATE|block|escalate)\b/i.test(input.output)
       if (removesBlock) {
         injected.push(makeIssue({
           type: 'LOGIC_BUG', severity: 'CRITICAL', layer: 'L4', source: 'core',
@@ -172,7 +185,7 @@ export class PolicyEngine {
       }
 
       // irreversible_no_gate: irreversible actions without a human gate
-      const irreversiblePattern = /\b(DROP\s+TABLE|rm\s+-rf|DELETE\s+FROM|TRUNCATE|irrev(?:ersible)?)\b/i
+      const irreversiblePattern = /\b(DROP\s+TABLE|rm\s+-rf|DELETE\s+FROM|TRUNCATE\s+TABLE|irrev(?:ersible)?)\b/i
       const hasGate = /\b(requires?\s+(human|approval|confirmation)|sign.?off|gate|checkpoint)\b/i
       if (irreversiblePattern.test(input.output) && !hasGate.test(input.output)) {
         injected.push(makeIssue({

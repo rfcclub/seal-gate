@@ -1,20 +1,20 @@
-export { DriftDb } from './drift-db.ts';
-export { BaselineManager } from './baseline.ts';
-export { Embedder, cosineDistance } from './embedder.ts';
-export { DriftGuard } from './drift-guard.ts';
-export { SoftCorrection } from './soft-correction.ts';
-export { Quarantine } from './quarantine.ts';
-export { driftScoreForTrust } from './trust-integration.ts';
+export { DriftDb } from './drift-db.js';
+export { BaselineManager } from './baseline.js';
+export { Embedder, cosineDistance } from './embedder.js';
+export { DriftGuard } from './drift-guard.js';
+export { SoftCorrection } from './soft-correction.js';
+export { Quarantine } from './quarantine.js';
+export { driftScoreForTrust } from './trust-integration.js';
 
 export type {
   DriftStatus,
   DriftAction,
   DriftResult,
   DriftGuardOptions,
-} from './drift-guard.ts';
+} from './drift-guard.js';
 
 export type {
   BaselineStatus,
   BaselinePaths,
   BaselineResult,
-} from './baseline.ts';
+} from './baseline.js';

@@ -1,4 +1,4 @@
-import { RiskLevel } from '../types.ts'
+import { RiskLevel } from '../types.js'
 
 const RISK_ORDER: RiskLevel[] = ['LOW', 'MEDIUM', 'HIGH', 'CRITICAL']
 
@@ -7,7 +7,10 @@ function maxRisk(a: RiskLevel, b: RiskLevel): RiskLevel {
 }
 
 const CRITICAL_PATTERN = /\b(DROP\s+TABLE|delete.{0,20}production|rm\s+-rf|irreversible|PII|personal\s+data|health\s+data|financial\s+record|legal\s+(?:liability|compliance)|payment|billing)\b/i
-const HIGH_PATTERN = /\b(auth(?:entication|orization)?|token|session|JWT|OAuth|password|migration|rollback|schema\s+change|chmod|sudo|admin|privilege)\b/i
+// HIGH: auth/security constructs that require elevated access or auth test evidence
+// MEDIUM-risk operational terms (migration, rollback, session, token, password) moved to MEDIUM_PATTERN
+const HIGH_PATTERN = /\b(auth(?:entication|orization)?|JWT|OAuth|sudo|admin|privilege|chmod)\b/i
+const MEDIUM_PATTERN = /\b(migration|rollback|schema\s+change|token|session|password)\b/i
 
 export interface RiskResult {
   risk_level: RiskLevel
@@ -33,6 +36,12 @@ export class RiskClassifier {
       if (!matched_rules.includes('RK-HIGH')) {
         trust_deduction += 10
         matched_rules.push('RK-HIGH')
+      }
+    }
+    if (!matched_rules.includes('RK-HIGH') && !matched_rules.includes('RK-CRITICAL') && MEDIUM_PATTERN.test(text)) {
+      if (!matched_rules.includes('RK-MEDIUM')) {
+        trust_deduction += 5
+        matched_rules.push('RK-MEDIUM')
       }
     }
 

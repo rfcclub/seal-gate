@@ -26,18 +26,26 @@ def test_claim_extractor_implementation():
     assert any(c.type == 'implementation_claim' for c in claims)
 
 def test_claim_extractor_risk():
-    claims = extract_claims('This change is secure.')
+    claims = extract_claims('This is safe to deploy.')
     assert any(c.type == 'risk_claim' for c in claims)
+
+def test_claim_extractor_risk_no_security_impact():
+    claims = extract_claims('No security impact.')
+    assert any(c.type == 'risk_claim' for c in claims)
+
+def test_claim_extractor_risk_bare_safe_no_match():
+    claims = extract_claims('This change is secure.')
+    assert not any(c.type == 'risk_claim' for c in claims)
 
 def test_claim_extractor_generic_fully():
     claims = extract_claims('This is fully done.')
     assert any(c.type == 'generic_claim' for c in claims)
 
 def test_claim_extractor_generic_completely():
-    claims = extract_claims('This is completely safe.')
-    # 'completely' matches generic_claim; 'safe' matches risk_claim — dedup keeps first
+    claims = extract_claims('This is completely done.')
+    # 'completely' matches generic_claim
     types = [c.type for c in claims]
-    assert 'generic_claim' in types or 'risk_claim' in types
+    assert 'generic_claim' in types
 
 def test_claim_extractor_ignores_code_block():
     claims = extract_claims('```\nall tests pass\n```')

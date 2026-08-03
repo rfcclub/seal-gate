@@ -1,5 +1,5 @@
-import { SealIssue } from '../types.ts'
-import { makeIssue } from '../types.ts'
+import { SealIssue } from '../types.js'
+import { makeIssue } from '../types.js'
 
 export interface SpecCoverageResult {
   issues: SealIssue[]

@@ -1,5 +1,5 @@
-import { SealIssue } from '../../../types.ts'
-import { makeLyraIssue } from '../lyra-issue-types.ts'
+import { SealIssue } from '../../../types.js'
+import { makeLyraIssue } from '../lyra-issue-types.js'
 
 interface BleedRule {
   pattern: RegExp

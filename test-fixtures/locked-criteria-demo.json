@@ -1,0 +1,14 @@
+[
+  { "id": "AC-001", "text": "WHEN an entry has header immediately followed by ***CORE*** marker THEN that entry is included in IDENTITY_CORE_IMMEDIATE.md", "source_file": "intent.md", "source_line": 191 },
+  { "id": "AC-002", "text": "WHEN an entry has no ***CORE*** marker THEN it is excluded from IDENTITY_CORE_IMMEDIATE.md", "source_file": "intent.md", "source_line": 196 },
+  { "id": "AC-003", "text": "WHEN THOOR.md is parsed THEN exactly 5 named entries by exact title match are included in original file order", "source_file": "intent.md", "source_line": 199 },
+  { "id": "AC-004", "text": "WHEN a required THOOR.md entry is not found THEN compilation fails with a clear error", "source_file": "intent.md", "source_line": 203 },
+  { "id": "AC-005", "text": "WHEN compiler runs successfully THEN it atomically writes IDENTITY_CORE_IMMEDIATE.md then CORE_IDENTITY.md then a manifest", "source_file": "intent.md", "source_line": 204 },
+  { "id": "AC-006", "text": "WHEN compileProjection is invoked THEN it computes current hashes and compares against manifest; if any differ or manifest missing THEN synchronously recompile", "source_file": "intent.md", "source_line": 209 },
+  { "id": "AC-007", "text": "WHEN compileProjection returns THEN the returned projection is verbatim content of CORE_IDENTITY.md", "source_file": "intent.md", "source_line": 214 },
+  { "id": "AC-008", "text": "WHEN any of the five source files is missing or unreadable THEN the compiler fails closed with a clear error", "source_file": "intent.md", "source_line": 217 },
+  { "id": "AC-009", "text": "WHEN AnimaProjectionCompiler.compile() is invoked from any other code path THEN its behavior is completely unchanged", "source_file": "intent.md", "source_line": 220 },
+  { "id": "AC-010", "text": "WHEN the compiler writes its manifest THEN it contains individual hashes for SOUL KERNEL JUDGMENTS THOOR SCARS plus immediateHash coreHash builtAt compilerVersion", "source_file": "intent.md", "source_line": 223 },
+  { "id": "AC-011", "text": "WHEN a file-watcher detects a change THEN it debounces and triggers an atomic recompile and never watches identityCache/ itself", "source_file": "intent.md", "source_line": 227 },
+  { "id": "AC-012", "text": "WHEN compileProjection returns RuntimeProjection for the static path THEN prompt equals CORE_IDENTITY.md verbatim and all scope fields are defaults", "source_file": "intent.md", "source_line": 230 }
+]

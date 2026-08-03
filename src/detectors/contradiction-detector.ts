@@ -1,4 +1,4 @@
-import { SealIssue, makeIssue } from '../types.ts'
+import { SealIssue, makeIssue } from '../types.js'
 
 export interface ContradictionDetectorInput {
   artifact: string
@@ -13,14 +13,14 @@ interface Section {
 
 // Conflict patterns: [write side pattern, readonly side pattern, description]
 const CONFLICT_PAIRS: Array<[RegExp, RegExp, string]> = [
-  [/\b(writes?|modifies?|overwrites?|creates?)\s+(\S+)/gi, /\b(\S+)\s+(is\s+)?(read.?only|append.?only|immutable|locked|mutex)/gi, 'write vs readonly constraint'],
+  [/\b(writes?|modifies?|overwrites?|creates?)\s+(\S+)/gi, /\b(\S+)\s+is\s+(read.?only|append.?only|immutable)\b/gi, 'write vs readonly constraint'],
   [/\b(removes?|deletes?|drops?)\s+(\S+)/gi, /\b(requires?|depends?\s+on|needs?)\s+(\S+)/gi, 'remove vs dependency'],
   [/step\s+(\d+)\s+.*?(writes?|creates?)\s+(\S+)/gi, /(\S+)\s+must\s+(exist|be\s+present)\s+before\s+step\s+(\d+)/gi, 'step ordering'],
 ]
 
 // Non-goal violation: "non-goal: X" but body contains "SHALL/WILL/MUST X"
 const NON_GOAL_PATTERN = /non.?goals?\s*:?\s*([^\n]+)/gi
-const GOAL_CLAIM_PATTERN = /\b(shall|will|must|implement|add|support)\s+(\S+)/gi
+const GOAL_CLAIM_PATTERN = /\b(?:shall|will|must|implement)\s+(\S+(?:\s+\S+){0,5})/gi
 
 function parseLines(text: string): string[] {
   return text.split('\n')
@@ -89,8 +89,16 @@ export class ContradictionDetector {
 
           if (!writeMatcher || !readonlyMatcher) continue
 
-          const lineA = secA.startLine + (secA.body.slice(0, writeMatcher.index).split('\n').length - 1)
-          const lineB = secB.startLine + (secB.body.slice(0, readonlyMatcher.index).split('\n').length - 1)
+          // Find actual position in original (unstripped) body, since writeMatcher.index
+          // is relative to proseA (stripped) which is shorter when code blocks exist.
+          const actualIndexA = secA.body.indexOf(writeMatcher[0])
+          const actualIndexB = secB.body.indexOf(readonlyMatcher[0])
+          const lineA = actualIndexA >= 0
+            ? secA.startLine + (secA.body.slice(0, actualIndexA).split('\n').length - 1)
+            : secA.startLine
+          const lineB = actualIndexB >= 0
+            ? secB.startLine + (secB.body.slice(0, actualIndexB).split('\n').length - 1)
+            : secB.startLine
 
           // Only emit once per pair (lower section index first)
           if (i > j) continue
@@ -125,15 +133,22 @@ export class ContradictionDetector {
     let ngMatch: RegExpExecArray | null
     while ((ngMatch = NON_GOAL_PATTERN.exec(artifactProse)) !== null) {
       const ngText = ngMatch[1].trim().toLowerCase()
-      const ngLine = findLineNumber(artifact, ngMatch[0].slice(0, 40))
+      // Search ngMatch text in artifactProse (stripCode preserves line structure
+      // even though content length changes), so the same text is on the same line.
+      const ngLine = findLineNumber(artifactProse, ngMatch[0].slice(0, 40))
 
       GOAL_CLAIM_PATTERN.lastIndex = 0
       let gcMatch: RegExpExecArray | null
       while ((gcMatch = GOAL_CLAIM_PATTERN.exec(artifactProse)) !== null) {
-        const claimTarget = (gcMatch[2] ?? '').toLowerCase()
-        // Rough match: non-goal keyword appears in a SHALL/MUST claim
-        if (claimTarget && ngText.includes(claimTarget.slice(0, 5))) {
-          const claimLine = findLineNumber(artifact, gcMatch[0].slice(0, 40))
+        // Extract significant words from the claim phrase (captured group after verb)
+        const claimPhrase = (gcMatch[1] ?? '').toLowerCase()
+        const claimWords = claimPhrase.split(/\s+/).filter(w => w.length > 4)
+        const ngWords = ngText.split(/\s+/).filter(w => w.length > 4)
+        // Require word overlap between non-goal text and claim line
+        const hasOverlap = ngWords.length > 0 && claimWords.length > 0 &&
+          claimWords.some(cw => ngWords.some(nw => nw.includes(cw) || cw.includes(nw)))
+        if (hasOverlap) {
+          const claimLine = findLineNumber(artifactProse, gcMatch[0].slice(0, 40))
           if (Math.abs(claimLine - ngLine) < 3) continue // same line, skip
 
           const quote = `Non-goal: '${ngText}' || Goal claim: '${gcMatch[0]}'`

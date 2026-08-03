@@ -5,7 +5,8 @@ NEGATIVE_TEST = re.compile(r'\b(fail|error|exception|invalid|unauthorized|forbid
 RETRY = re.compile(r'\b(retry|retries|exponential.?backoff|timeout|circuit.?breaker)\b', re.I)
 BUG_FIX = re.compile(r'\b(fix(?:ed)?|bug|defect|regression)\b', re.I)
 REGRESSION_TEST = re.compile(r'\b(regression|repro|original.?bug|fixed.?case)\b', re.I)
-AUTH_UNAUTH = re.compile(r'\b(unauthorized|forbidden|403|401|permission.?denied|access.?denied)\b', re.I)
+# Auth test evidence: literal keywords + semantic equivalents (budget exhausted, no candidate, access denied, etc.)
+AUTH_UNAUTH = re.compile(r'\b(unauthorized|forbidden|403|401|permission.?denied|access.?denied|exhausted|no (?:candidate|access|permission)|not (?:allowed|permitted|authorized)|reject(?:ed)?(?:\s+\w+)?\s*(?:access|action|request))\b', re.I)
 
 
 def detect_test_weakness(artifact_type: str, output: str, risk_level: str, auth_flagged: bool, evidence: SealEvidence) -> dict:

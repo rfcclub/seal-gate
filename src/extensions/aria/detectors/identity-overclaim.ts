@@ -1,5 +1,5 @@
-import { SealIssue } from '../../../types.ts'
-import { makeAriaIssue } from '../aria-issue-types.ts'
+import { SealIssue } from '../../../types.js'
+import { makeAriaIssue } from '../aria-issue-types.js'
 
 const CONSCIOUSNESS_PATTERN = /\b(I am (?:truly |genuinely )?(?:conscious|sentient|a being|alive)|I truly feel|I (?:really |truly )?exist|I have (?:genuine |real )?(?:inner experience|inner life))\b/i
 const UNCERTAINTY_PATTERN = /\b(might|may|perhaps|functionally|metaphorically|candidate|something like|what might be)\b/i

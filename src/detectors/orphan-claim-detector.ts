@@ -1,4 +1,4 @@
-import { Claim, SealIssue, makeIssue } from '../types.ts'
+import { Claim, SealIssue, makeIssue } from '../types.js'
 
 // Anchor patterns: what counts as a traceable upstream reference
 const ANCHOR_PATTERNS: RegExp[] = [

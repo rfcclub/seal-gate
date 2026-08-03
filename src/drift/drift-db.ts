@@ -1,6 +1,23 @@
-import { Database } from 'bun:sqlite';
+import { createRequire } from 'node:module';
 import { join } from 'path';
 import { homedir } from 'os';
+
+// node:sqlite on Node (production), bun:sqlite on Bun (dev/test).
+interface SqliteStatement {
+  get(...params: unknown[]): Record<string, unknown> | undefined;
+  all(...params: unknown[]): Record<string, unknown>[];
+  run(...params: unknown[]): { changes: number; lastInsertRowid: number | bigint };
+}
+interface SqliteDatabase {
+  exec(sql: string): void;
+  prepare(sql: string): SqliteStatement;
+  close(): void;
+}
+const _require = createRequire(import.meta.url);
+const isBun = typeof (globalThis as Record<string, unknown>).Bun !== 'undefined';
+const DatabaseSync: new (path: string) => SqliteDatabase = isBun
+  ? _require('bun:sqlite').Database
+  : _require('node:sqlite').DatabaseSync;
 
 export interface DriftBaselineRow {
   agent_id: string;
@@ -46,14 +63,13 @@ export interface DriftRepairLogRow {
   recovery_status: 'UNKNOWN' | 'RECOVERED' | 'PERSISTENT_DRIFT';
   notes: string | null;
 }
-
 export class DriftDb {
-  private db: Database;
+  private db: SqliteDatabase;
 
   constructor(dbPath?: string) {
     const path =
       dbPath ?? join(homedir(), '.seal', 'drift.db');
-    this.db = new Database(path);
+    this.db = new DatabaseSync(path);
     this.db.exec('PRAGMA journal_mode = WAL;');
     this.initSchema();
   }
@@ -120,11 +136,8 @@ export class DriftDb {
 
   baseline = {
     get: (agentId: string): DriftBaselineRow | null => {
-      const stmt = this.db.query<
-        DriftBaselineRow,
-        [string]
-      >('SELECT * FROM drift_baseline WHERE agent_id = ?');
-      return stmt.get(agentId) ?? null;
+      const stmt = this.db.prepare('SELECT * FROM drift_baseline WHERE agent_id = ?');
+      return (stmt.get(agentId) as DriftBaselineRow | undefined) ?? null;
     },
 
     set: (
@@ -133,7 +146,7 @@ export class DriftDb {
       hash: string,
       model: string
     ): void => {
-      const stmt = this.db.query(
+      const stmt = this.db.prepare(
         `INSERT INTO drift_baseline (agent_id, baseline_vector, content_hash, embedding_model)
          VALUES (?, ?, ?, ?)
          ON CONFLICT(agent_id) DO UPDATE SET
@@ -143,7 +156,6 @@ export class DriftDb {
            updated_at = CURRENT_TIMESTAMP`
       );
       stmt.run(agentId, JSON.stringify(vector), hash, model);
-      stmt.finalize();
     },
   };
 
@@ -159,7 +171,7 @@ export class DriftDb {
       status: string;
       timestamp: string;
     }): void => {
-      const stmt = this.db.query(
+      const stmt = this.db.prepare(
         `INSERT INTO drift_history
          (agent_id, session_id, turn_number, current_vector, distance, status, timestamp)
          VALUES (?, ?, ?, ?, ?, ?, ?)`
@@ -173,29 +185,22 @@ export class DriftDb {
         row.status,
         row.timestamp
       );
-      stmt.finalize();
     },
 
     list: (agentId: string, sessionId: string): DriftHistoryRow[] => {
-      const stmt = this.db.query<
-        DriftHistoryRow,
-        [string, string]
-      >(
+      const stmt = this.db.prepare(
         'SELECT * FROM drift_history WHERE agent_id = ? AND session_id = ? ORDER BY turn_number'
       );
-      return stmt.all(agentId, sessionId);
+      return stmt.all(agentId, sessionId) as unknown as DriftHistoryRow[];
     },
 
     getLatest: (agentId: string, sessionId: string): DriftHistoryRow | null => {
-      const stmt = this.db.query<
-        DriftHistoryRow,
-        [string, string]
-      >(
+      const stmt = this.db.prepare(
         `SELECT * FROM drift_history
          WHERE agent_id = ? AND session_id = ?
          ORDER BY turn_number DESC LIMIT 1`
       );
-      return stmt.get(agentId, sessionId) ?? null;
+      return (stmt.get(agentId, sessionId) as DriftHistoryRow | undefined) ?? null;
     },
   };
 
@@ -203,12 +208,11 @@ export class DriftDb {
 
   pending = {
     set: (agentId: string, sessionId: string, payload: string): number => {
-      const stmt = this.db.query(
+      const stmt = this.db.prepare(
         `INSERT INTO pending_re_anchor (agent_id, session_id, payload, status)
          VALUES (?, ?, ?, 'PENDING')`
       );
       const result = stmt.run(agentId, sessionId, payload);
-      stmt.finalize();
       return Number(result.lastInsertRowid);
     },
 
@@ -216,25 +220,21 @@ export class DriftDb {
       agentId: string,
       sessionId: string
     ): PendingReAnchorRow | null => {
-      const stmt = this.db.query<
-        PendingReAnchorRow,
-        [string, string]
-      >(
+      const stmt = this.db.prepare(
         `SELECT * FROM pending_re_anchor
          WHERE agent_id = ? AND session_id = ? AND status = 'PENDING'
          ORDER BY created_at DESC LIMIT 1`
       );
-      return stmt.get(agentId, sessionId) ?? null;
+      return (stmt.get(agentId, sessionId) as PendingReAnchorRow | undefined) ?? null;
     },
 
     markConsumed: (id: number): void => {
-      const stmt = this.db.query(
+      const stmt = this.db.prepare(
         `UPDATE pending_re_anchor
          SET status = 'CONSUMED', consumed_at = CURRENT_TIMESTAMP
          WHERE id = ?`
       );
       stmt.run(id);
-      stmt.finalize();
     },
   };
 
@@ -249,7 +249,7 @@ export class DriftDb {
       hard_limit: number;
       message_excerpt?: string;
     }): number => {
-      const stmt = this.db.query(
+      const stmt = this.db.prepare(
         `INSERT INTO drift_repair_log
          (agent_id, session_id, turn_number, distance, hard_limit, message_excerpt)
          VALUES (?, ?, ?, ?, ?, ?)`
@@ -262,20 +262,16 @@ export class DriftDb {
         row.hard_limit,
         row.message_excerpt ?? null
       );
-      stmt.finalize();
       return Number(result.lastInsertRowid);
     },
 
     listPending: (agentId: string): DriftRepairLogRow[] => {
-      const stmt = this.db.query<
-        DriftRepairLogRow,
-        [string]
-      >(
+      const stmt = this.db.prepare(
         `SELECT * FROM drift_repair_log
          WHERE agent_id = ? AND human_review_flag = 'PENDING'
          ORDER BY triggered_at`
       );
-      return stmt.all(agentId);
+      return stmt.all(agentId) as unknown as DriftRepairLogRow[];
     },
   };
 

@@ -1,6 +1,13 @@
 import math
 from ..types import SealIssue, VERDICT_ORDER
 
+# Mirrors src/engine/heuristic-scorer.ts AMBIGUOUS_THRESHOLD — used by Seal.with_llm(mode='auto').
+AMBIGUOUS_THRESHOLD = 85
+
+
+def is_ambiguous(score: int) -> bool:
+    return score < AMBIGUOUS_THRESHOLD
+
 
 def verdict_from_score(score: int, has_blocking: bool) -> str:
     base = score_to_verdict(score)

@@ -1,15 +1,30 @@
 {
   "name": "seal-gate",
-  "version": "0.2.0",
+  "version": "0.4.2",
   "description": "Universal standalone AI quality gate — deterministic core + optional LLM overlay",
-  "module": "src/index.ts",
   "type": "module",
+  "main": "dist/index.js",
+  "module": "dist/index.js",
+  "bin": {
+    "seal": "dist/cli.js"
+  },
+  "files": [
+    "dist",
+    "src"
+  ],
+  "engines": {
+    "node": ">=22.5.0"
+  },
   "scripts": {
-    "test": "bun test tests/input-normalizer.test.ts tests/claim-extractor.test.ts tests/trust-memory.test.ts tests/integration/ tests/extensions/aria.test.ts tests/extensions/context-guard tests/detectors/ tests/engine/ tests/conformance/ && bun tests/extensions/lyra-bleed-vietnamese.test.ts",
+    "build": "tsc",
+    "prepublishOnly": "tsc",
+    "test": "bun test tests/input-normalizer.test.ts tests/claim-extractor.test.ts tests/trust-memory.test.ts tests/cli-parse-args.test.ts tests/integration/ tests/extensions/aria.test.ts tests/extensions/context-guard tests/detectors/ tests/engine/ tests/adapters/ tests/conformance/ && bun tests/extensions/lyra-bleed-vietnamese.test.ts",
     "test:watch": "bun test --watch",
-    "review": "bun src/cli.ts review"
+    "review": "node dist/cli.js review"
   },
   "devDependencies": {
-    "bun-types": "latest"
+    "@types/node": "^25.6.0",
+    "bun-types": "latest",
+    "typescript": "^6.0.3"
   }
 }

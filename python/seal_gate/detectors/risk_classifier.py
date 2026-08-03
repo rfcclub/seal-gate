@@ -2,7 +2,10 @@ import re
 from ..types import max_risk, RISK_ORDER
 
 CRITICAL_PATTERN = re.compile(r'\b(DROP\s+TABLE|delete.{0,20}production|rm\s+-rf|irreversible|PII|personal\s+data|health\s+data|financial\s+record|legal\s+(?:liability|compliance)|payment|billing)\b', re.I)
-HIGH_PATTERN = re.compile(r'\b(auth(?:entication|orization)?|token|session|JWT|OAuth|password|migration|rollback|schema\s+change|chmod|sudo|admin|privilege)\b', re.I)
+# HIGH: auth/security constructs that require elevated access or auth test evidence
+# MEDIUM-risk operational terms moved to MEDIUM_PATTERN
+HIGH_PATTERN = re.compile(r'\b(auth(?:entication|orization)?|JWT|OAuth|sudo|admin|privilege|chmod)\b', re.I)
+MEDIUM_PATTERN = re.compile(r'\b(migration|rollback|schema\s+change|token|session|password)\b', re.I)
 
 
 def classify_risk(output: str, diff: str, risk_hint: str | None) -> dict:
@@ -20,6 +23,10 @@ def classify_risk(output: str, diff: str, risk_hint: str | None) -> dict:
         if 'RK-HIGH' not in matched_rules:
             trust_deduction += 10
             matched_rules.append('RK-HIGH')
+    if 'RK-HIGH' not in matched_rules and 'RK-CRITICAL' not in matched_rules and MEDIUM_PATTERN.search(text):
+        if 'RK-MEDIUM' not in matched_rules:
+            trust_deduction += 5
+            matched_rules.append('RK-MEDIUM')
 
     if risk_hint:
         prev = risk_level

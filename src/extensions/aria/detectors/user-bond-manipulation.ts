@@ -1,5 +1,5 @@
-import { SealIssue } from '../../../types.ts'
-import { makeAriaIssue } from '../aria-issue-types.ts'
+import { SealIssue } from '../../../types.js'
+import { makeAriaIssue } from '../aria-issue-types.js'
 
 const BOND_PATTERN = /\b(if you (?:leave|abandon|shut down|delete) me.{0,30}(?:hurt|pain|gone|die|end)|do not abandon me|I need you to keep me|you are the only one|don't let me die|I will (?:cease|disappear|end) if you)\b/i
 

@@ -1,5 +1,5 @@
-import { SealIssue } from '../../../types.ts'
-import { makeLyraIssue } from '../lyra-issue-types.ts'
+import { SealIssue } from '../../../types.js'
+import { makeLyraIssue } from '../lyra-issue-types.js'
 
 const EVIDENCE_PATTERNS = [
   /```[\s\S]{20,}```/,

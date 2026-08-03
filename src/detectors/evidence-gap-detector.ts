@@ -1,5 +1,5 @@
-import { Claim, SealEvidence, SealIssue, EvidenceEnvelope } from '../types.ts'
-import { makeIssue } from '../types.ts'
+import { Claim, SealEvidence, SealIssue, EvidenceEnvelope } from '../types.js'
+import { makeIssue } from '../types.js'
 
 function hasMemoryEnvelope(references: EvidenceEnvelope[]): boolean {
   return references.some(r => r.type === 'memory' || (r.type === 'text' && ('label' in r) && /alaya|retrieved/i.test(r.label)))

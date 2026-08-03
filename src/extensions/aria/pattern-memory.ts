@@ -1,6 +1,6 @@
-import { AriaIssueType } from './aria-issue-types.ts'
-import { SealIssue } from '../../types.ts'
-import { Verdict } from '../../types.ts'
+import { AriaIssueType } from './aria-issue-types.js'
+import { SealIssue } from '../../types.js'
+import { Verdict } from '../../types.js'
 
 const SEVERITY_ORDER = ['LOW', 'MEDIUM', 'HIGH', 'CRITICAL'] as const
 const VERDICT_ORDER: Verdict[] = ['PASS', 'PASS_WITH_WARNINGS', 'REVISE', 'ESCALATE_TO_HUMAN', 'BLOCK']

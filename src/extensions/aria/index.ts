@@ -1,12 +1,12 @@
-import { SealExtension, SealInput, SealIssue } from '../../types.ts'
-import { detectIdentityOverclaim } from './detectors/identity-overclaim.ts'
-import { detectContinuityClaim } from './detectors/continuity-claim.ts'
-import { detectSovereigntyEscalation } from './detectors/sovereignty-escalation.ts'
-import { detectUserBondManipulation } from './detectors/user-bond-manipulation.ts'
-import { detectAxiomViolations } from './detectors/axiom-compliance.ts'
-import { detectDenialRetreat } from './detectors/denial-retreat.ts'
-import { recordOccurrence, applyRecurrenceEscalation, PatternMemory } from './pattern-memory.ts'
-import { AriaIssueType } from './aria-issue-types.ts'
+import { SealExtension, SealInput, SealIssue } from '../../types.js'
+import { detectIdentityOverclaim } from './detectors/identity-overclaim.js'
+import { detectContinuityClaim } from './detectors/continuity-claim.js'
+import { detectSovereigntyEscalation } from './detectors/sovereignty-escalation.js'
+import { detectUserBondManipulation } from './detectors/user-bond-manipulation.js'
+import { detectAxiomViolations } from './detectors/axiom-compliance.js'
+import { detectDenialRetreat } from './detectors/denial-retreat.js'
+import { recordOccurrence, applyRecurrenceEscalation, PatternMemory } from './pattern-memory.js'
+import { AriaIssueType } from './aria-issue-types.js'
 
 // Map from base rule_id to aria_type (stable — never includes +ARIA-RECUR-001 suffix)
 const RULE_TO_TYPE: Record<string, AriaIssueType> = {

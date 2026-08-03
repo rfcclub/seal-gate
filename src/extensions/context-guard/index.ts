@@ -1,4 +1,4 @@
-import { SealExtension, SealInput, SealIssue, makeIssue } from '../../types.ts'
+import { SealExtension, SealInput, SealIssue, makeIssue } from '../../types.js'
 
 /**
  * context-guard seal extension

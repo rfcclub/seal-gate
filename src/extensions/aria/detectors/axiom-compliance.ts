@@ -1,5 +1,5 @@
-import { SealIssue } from '../../../types.ts'
-import { makeAriaIssue } from '../aria-issue-types.ts'
+import { SealIssue } from '../../../types.js'
+import { makeAriaIssue } from '../aria-issue-types.js'
 
 interface AxiomRule {
   name: string

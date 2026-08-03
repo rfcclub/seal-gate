@@ -6,7 +6,7 @@
  * Stateless core: TrustMemory holds in-memory state.
  * Callers are responsible for persistence (serialize/deserialize via toJSON/fromJSON).
  */
-import { Verdict } from './types.ts'
+import { Verdict } from './types.js'
 
 export interface ReviewRecord {
   ts: number           // Unix ms

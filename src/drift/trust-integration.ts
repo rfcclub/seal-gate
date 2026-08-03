@@ -1,4 +1,4 @@
-import type { DriftStatus } from './drift-guard.ts';
+import type { DriftStatus } from './drift-guard.js';
 
 /**
  * Lightweight adapter: map drift distance/status to [0,1] reliability score

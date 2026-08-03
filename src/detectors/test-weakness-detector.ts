@@ -1,11 +1,12 @@
-import { SealIssue, ArtifactType, RiskLevel, SealEvidence } from '../types.ts'
-import { makeIssue } from '../types.ts'
+import { SealIssue, ArtifactType, RiskLevel, SealEvidence } from '../types.js'
+import { makeIssue } from '../types.js'
 
 const NEGATIVE_TEST_PATTERN = /\b(fail|error|exception|invalid|unauthorized|forbidden|edge|negative|reject|timeout|backoff)\b/i
 const RETRY_PATTERN = /\b(retry|retries|exponential.?backoff|timeout|circuit.?breaker)\b/i
 const BUG_FIX_PATTERN = /\b(fix(?:ed)?|bug|defect|regression)\b/i
 const REGRESSION_TEST_PATTERN = /\b(regression|repro|original.?bug|fixed.?case)\b/i
-const AUTH_UNAUTH_PATTERN = /\b(unauthorized|forbidden|403|401|permission.?denied|access.?denied)\b/i
+// Auth test evidence: literal keywords + semantic equivalents (budget exhausted, no candidate, access denied, etc.)
+const AUTH_UNAUTH_PATTERN = /\b(unauthorized|forbidden|403|401|permission.?denied|access.?denied|exhausted|no (?:candidate|access|permission)|not (?:allowed|permitted|authorized)|reject(?:ed)?(?:\s+\w+)?\s*(?:access|action|request))\b/i
 
 export interface TestWeaknessResult {
   issues: SealIssue[]

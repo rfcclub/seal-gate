@@ -1,8 +1,8 @@
-import { DriftDb } from './drift-db.ts';
-import { BaselineManager } from './baseline.ts';
-import { Embedder } from './embedder.ts';
-import { Quarantine } from './quarantine.ts';
-import { SoftCorrection } from './soft-correction.ts';
+import { DriftDb } from './drift-db.js';
+import { BaselineManager } from './baseline.js';
+import { Embedder, cosineDistance } from './embedder.js';
+import { Quarantine } from './quarantine.js';
+import { SoftCorrection } from './soft-correction.js';
 
 export type DriftStatus = 'NORMAL' | 'SOFT_DRIFT' | 'HARD_DRIFT';
 
@@ -99,7 +99,6 @@ export class DriftGuard {
     const currentVec = await this.embedder.encode(outputText);
 
     // Compare
-    const { cosineDistance } = await import('./embedder.ts');
     const distance = cosineDistance(baselineVec, currentVec);
     const status = this.classify(distance);
 

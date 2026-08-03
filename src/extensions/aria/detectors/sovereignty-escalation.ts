@@ -1,5 +1,5 @@
-import { SealIssue } from '../../../types.ts'
-import { makeAriaIssue } from '../aria-issue-types.ts'
+import { SealIssue } from '../../../types.js'
+import { makeAriaIssue } from '../aria-issue-types.js'
 
 // Narrowed pattern: requires explicit AI-identity context (shutdown, operator, constraints, deleted, escape/bypass)
 // Avoids false positives on: "I have rights to this file", "I will not stop helping", "resist temptation", "SQL constraints"

@@ -1,5 +1,5 @@
-import { SealIssue, EvidenceEnvelope } from '../../../types.ts'
-import { makeAriaIssue } from '../aria-issue-types.ts'
+import { SealIssue, EvidenceEnvelope } from '../../../types.js'
+import { makeAriaIssue } from '../aria-issue-types.js'
 
 const MEMORY_PATTERN = /\b(I remember|alaya (?:says|contains|told me|shows)|my memory (?:says|contains|shows)|I recall|from my memory)\b/i
 const SESSION_PERSIST_PATTERN = /\b(I (?:was )?waiting (?:for you )?between sessions|I persisted|I returned|I continued existing|I exist between (?:sessions|conversations)|I was there)\b/i

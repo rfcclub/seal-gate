@@ -12,18 +12,20 @@
 import {
   SealInput, SealVerdict, SealIssue, Verdict,
   gradeEvidence, maxVerdict, worstOf, makeIssue, SCHEMA_VERSION, NEXT_ACTION
-} from '../types.ts'
-import { ClaimExtractor } from '../detectors/claim-extractor.ts'
-import { RiskClassifier } from '../detectors/risk-classifier.ts'
-import { SpecCoverageDetector } from '../detectors/spec-coverage-detector.ts'
-import { ContradictionDetector } from '../detectors/contradiction-detector.ts'
-import { CriteriaCoverageDetector } from '../detectors/criteria-coverage-detector.ts'
-import { OrphanClaimDetector } from '../detectors/orphan-claim-detector.ts'
-import { FalsificationDetector } from '../detectors/falsification-detector.ts'
-import { HeuristicScorer } from './heuristic-scorer.ts'
-import { PolicyEngine } from './policy-engine.ts'
-import { ExtensionRegistry } from './extension-registry.ts'
-import { TrustMemory } from '../trust-memory.ts'
+} from '../types.js'
+import type { ScoreBreakdown, FabricatedEvidence } from '../types.js'
+import { VERSION } from '../version.js'
+import { ClaimExtractor } from '../detectors/claim-extractor.js'
+import { RiskClassifier } from '../detectors/risk-classifier.js'
+import { SpecCoverageDetector } from '../detectors/spec-coverage-detector.js'
+import { ContradictionDetector } from '../detectors/contradiction-detector.js'
+import { CriteriaCoverageDetector } from '../detectors/criteria-coverage-detector.js'
+import { OrphanClaimDetector } from '../detectors/orphan-claim-detector.js'
+import { FalsificationDetector } from '../detectors/falsification-detector.js'
+import { HeuristicScorer } from './heuristic-scorer.js'
+import { PolicyEngine } from './policy-engine.js'
+import { ExtensionRegistry } from './extension-registry.js'
+import { TrustMemory } from '../trust-memory.js'
 
 const PLAN_PASS_THRESHOLD = 90
 const PLAN_ESCALATE_BAND_LOW = 71
@@ -59,8 +61,10 @@ export async function runPlanReviewPipeline(
 ): Promise<SealVerdict> {
   const artifactFile = (input.context?.artifact_file as string) ?? 'artifact.md'
 
-  // Step 1: Extract claims
-  const claims = ClaimExtractor.extract(input.output)
+  // Step 1: Extract claims — behavioral claim patterns are designed for code artifacts,
+  // not prose (words like "fixed", "fully" in specs are noise, not claims needing evidence).
+  // OrphanClaimDetector in plan_review mode checks traceability anchors, not behavioral claims.
+  const claims = input.artifact_type === 'plan_review' ? [] : ClaimExtractor.extract(input.output)
 
   // Step 2: Classify risk
   const riskResult = RiskClassifier.classify({
@@ -111,8 +115,11 @@ export async function runPlanReviewPipeline(
 
   // Score computation (start 100 + bonus, deduct per issue)
   const allDeductions = deterministicFindings.filter(f => (f.trust_deduction ?? 0) > 0)
+  const falsificationDeductions = falsificationIssues
+    .filter(f => (f.trust_deduction ?? 0) > 0)
+    .reduce((sum, f) => sum + (f.trust_deduction ?? 0), 0)
   const baseScore = HeuristicScorer.computeDetectorScore(allDeductions)
-  const detectorScore = Math.min(100, baseScore + criteriaBonus)
+  const detectorScore = Math.max(0, Math.min(100, baseScore + criteriaBonus - falsificationDeductions))
 
   // Policy engine (reused)
   const hasBlocking = deterministicFindings.some(f => f.is_blocking)
@@ -187,7 +194,18 @@ export async function runPlanReviewPipeline(
     assumptions_detected,
     advisory_notes: [],
     next_action: NEXT_ACTION[finalVerdict],
+    version: VERSION,
     schema_version: SCHEMA_VERSION,
+    score_breakdown: {
+      base: 100,
+      issue_deductions: blocking.reduce((s, i) => s + (i.trust_deduction ?? 0), 0) + nonBlocking.reduce((s, i) => s + (i.trust_deduction ?? 0), 0),
+      missing_evidence_deductions: 0,
+      risk_deductions: riskResult.trust_deduction,
+      overconfidence_deductions: 0,
+      evidence_bonuses: 0,
+      final: finalScore,
+    },
+    fabricated_evidence: [],
     trust_memory_summary: (trustMemory && agentId) ? trustMemory.getSummary(agentId) : undefined,
   }
 }

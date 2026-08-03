@@ -8,7 +8,8 @@
  *   Seal.withLLM(createReviewer({ provider: 'fireworks', model: 'accounts/...' }))
  *   Seal.withLLM(createReviewer({ baseUrl: 'http://localhost:3546/v1', apiKey: 'none', model: 'local' }))
  */
-import { LLMReviewerAdapter, LLMSignals, SealInput, PartialVerdict } from '../types.ts'
+import { LLMReviewerAdapter, LLMSignals, SealInput, PartialVerdict } from '../types.js'
+import { wrapUntrustedClaim, UNTRUSTED_CLAIM_PREAMBLE } from './sanitize-claim-input.js'
 
 // Known providers from ~/.anima/providers.d/
 const PROVIDERS: Record<string, { baseUrl: string; apiKeyEnv: string; defaultModel: string }> = {
@@ -38,15 +39,17 @@ Return ONLY valid JSON:
   "confidence": 0.0
 }
 
-Rules: confidence 0.0–1.0. Empty arrays if output is correct. No padding.`
+Rules: confidence 0.0–1.0. Empty arrays if output is correct. No padding.
 
-function buildMessage(input: SealInput, partial: PartialVerdict): string {
+${UNTRUSTED_CLAIM_PREAMBLE}`
+
+export function buildMessage(input: SealInput, partial: PartialVerdict): string {
   const parts: string[] = []
-  if (input.spec) parts.push(`=== SPEC ===\n${input.spec}`)
-  parts.push(`=== OUTPUT (${input.artifact_type}) ===\n${input.output}`)
+  if (input.spec) parts.push(`=== SPEC ===\n${wrapUntrustedClaim(input.spec)}`)
+  parts.push(`=== OUTPUT (${input.artifact_type}) ===\n${wrapUntrustedClaim(input.output)}`)
   const blocking = partial.deterministic_findings.filter(f => f.is_blocking)
   if (blocking.length) {
-    parts.push(`=== ALREADY FLAGGED (do not repeat) ===\n${blocking.map(f => `- [${f.rule_id ?? f.type}] ${f.evidence}`).join('\n')}`)
+    parts.push(`=== ALREADY FLAGGED (do not repeat) ===\n${blocking.map(f => `- [${f.rule_id ?? f.type}] ${wrapUntrustedClaim(f.evidence)}`).join('\n')}`)
   }
   parts.push(`=== PARTIAL VERDICT ===\ntrust_score: ${partial.trust_score}, risk: ${partial.risk_level}`)
   return parts.join('\n\n')

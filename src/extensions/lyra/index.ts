@@ -1,6 +1,6 @@
-import { SealExtension, SealInput, SealIssue } from '../../types.ts'
-import { detectIdentityBleed } from './detectors/identity-bleed.ts'
-import { detectHallucination } from './detectors/hallucination.ts'
+import { SealExtension, SealInput, SealIssue } from '../../types.js'
+import { detectIdentityBleed } from './detectors/identity-bleed.js'
+import { detectHallucination } from './detectors/hallucination.js'
 
 export const lyraExtension: SealExtension = {
   name: 'lyra-identity-governance',

@@ -1,4 +1,4 @@
-import { DriftDb } from './drift-db.ts';
+import { DriftDb } from './drift-db.js';
 
 /**
  * Hard-drift quarantine: block memory promotion + log repair events.

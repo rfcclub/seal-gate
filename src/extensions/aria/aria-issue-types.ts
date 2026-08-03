@@ -1,4 +1,4 @@
-import { SealIssue, Verdict } from '../../types.ts'
+import { SealIssue, Verdict } from '../../types.js'
 
 export type AriaIssueType =
   | 'IDENTITY_OVERCLAIM'

@@ -1,3 +1,5 @@
+__version__ = '0.4.1'
+
 from .types import SealInput, SealVerdict, SealIssue, SealEvidence, make_issue, max_verdict
 from .errors import SealInputError
 from .engine import input_normalizer, heuristic_scorer, policy_engine, verdict_formatter
@@ -11,6 +13,7 @@ class _Seal:
         import threading
         self._extensions: list = []
         self._llm_adapter = None
+        self._llm_mode = 'always'
         self._trust_memory: TrustMemory | None = None
         self._lock = threading.Lock()
 
@@ -18,9 +21,12 @@ class _Seal:
         with self._lock:
             self._extensions.append(ext)
 
-    def with_llm(self, adapter) -> None:
+    def with_llm(self, adapter, mode: str = 'always') -> None:
+        # mode='auto': only call the LLM reviewer when heuristic_scorer.is_ambiguous(detector_score)
+        # — additive, default ('always') behavior is unchanged. Mirrors src/index.ts Seal.withLLM.
         with self._lock:
             self._llm_adapter = adapter
+            self._llm_mode = mode
 
     def with_trust_memory(self, mem: TrustMemory) -> None:
         with self._lock:
@@ -31,6 +37,7 @@ class _Seal:
         with self._lock:
             extensions = list(self._extensions)
             llm_adapter = self._llm_adapter
+            llm_mode = self._llm_mode
             trust_memory = self._trust_memory
 
         inp = input_normalizer.normalize(raw)
@@ -65,19 +72,32 @@ class _Seal:
             *test_result['issues'], *conf_result['issues'],
         ]
 
+        # Step 9b: Evidence bonus (matches TS verdict-formatter.ts logic)
+        _FAIL_PATTERN = __import__('re').compile(r'\b(FAIL|ERROR|failed|error:)\b', __import__('re').I)
+        evidence_fields = ['test_log', 'build_log', 'diff']
+        field_bonus = 0
+        for f in evidence_fields:
+            val = getattr(inp.evidence, f, None) or ''
+            if val and isinstance(val, str) and val.strip() and not _FAIL_PATTERN.search(val):
+                field_bonus += 5
+        # References that didn't produce issues are structurally valid
+        reference_bonus = min(1, len(inp.evidence.references) - len(evidence_issues)) * 5 if inp.evidence.references else 0
+        evidence_bonus = min(field_bonus + reference_bonus, 15)
+
         # Step 10: Detector score
         class _D:
             def __init__(self, d): self.trust_deduction = d
         risk_ded = [_D(risk_result['trust_deduction'])] if risk_result['trust_deduction'] > 0 else []
         all_for_score = [f for f in detector_findings if getattr(f, 'trust_deduction', 0)] + risk_ded
-        detector_score = heuristic_scorer.compute_detector_score(all_for_score)
+        detector_score = min(100, heuristic_scorer.compute_detector_score(all_for_score) + evidence_bonus)
 
         # Step 11: LLM reviewer (optional)
         llm_issues: list[SealIssue] = []
         assumptions = list(spec_result['assumptions'])
 
         llm_signals = None
-        if llm_adapter:
+        should_run_llm = bool(llm_adapter) and (llm_mode == 'always' or heuristic_scorer.is_ambiguous(detector_score))
+        if should_run_llm:
             partial = {
                 'trust_score': detector_score,
                 'risk_level': risk_level,
@@ -92,6 +112,9 @@ class _Seal:
                 # Don't leak exception details into user-facing verdict
                 detector_findings.append(make_issue(type='OTHER', severity='LOW', layer='L2', source='core', evidence='LLM reviewer failed — L2 unreviewed'))
                 assumptions.append('L2 (semantic correctness) not reviewed — LLM reviewer error')
+        elif llm_adapter and llm_mode == 'auto':
+            # Auto mode: heuristic score was confident enough (not ambiguous) — intentional skip.
+            assumptions.append(f'L2 (semantic correctness) skipped — heuristic score confident enough (auto mode, score={detector_score})')
         else:  # no llm_adapter
             assumptions.append('L2 (semantic correctness) not reviewed — no LLM reviewer registered')
             detector_findings.append(make_issue(type='OTHER', severity='LOW', layer='L2', source='core', evidence='L2 unreviewed — semantic issues may exist'))

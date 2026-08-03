@@ -1,4 +1,4 @@
-import { SealIssue, makeIssue } from '../types.ts'
+import { SealIssue, makeIssue } from '../types.js'
 
 export interface LockedCriterion {
   id: string

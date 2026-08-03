@@ -14,6 +14,7 @@ import re
 import urllib.request
 import urllib.error
 from typing import Optional
+from .sanitize_claim_input import wrap_untrusted_claim, UNTRUSTED_CLAIM_PREAMBLE
 
 PROVIDERS = {
     'minimax':   {'base_url': 'https://api.minimax.io/v1',               'api_key_env': 'MINIMAX_PLAN_KEY',    'default_model': 'MiniMax-M3'},
@@ -42,14 +43,16 @@ Return ONLY valid JSON:
   "confidence": 0.0
 }
 
-Rules: confidence 0.0–1.0. Empty arrays if output is correct. No padding."""
+Rules: confidence 0.0–1.0. Empty arrays if output is correct. No padding.
+
+""" + UNTRUSTED_CLAIM_PREAMBLE
 
 
 def _build_message(input_data: dict, partial: dict) -> str:
     parts = []
     if input_data.get('spec'):
         parts.append(f"=== SPEC ===\n{input_data['spec']}")
-    parts.append(f"=== OUTPUT ({input_data.get('artifact_type', 'unknown')}) ===\n{input_data.get('output', '')}")
+    parts.append(f"=== OUTPUT ({input_data.get('artifact_type', 'unknown')}) ===\n{wrap_untrusted_claim(input_data.get('output', ''))}")
     blocking = [f for f in partial.get('deterministic_findings', []) if getattr(f, 'is_blocking', False)]
     if blocking:
         flagged = '\n'.join(f"- [{getattr(f, 'rule_id', getattr(f, 'type', ''))}] {getattr(f, 'evidence', '')}" for f in blocking)

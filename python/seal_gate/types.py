@@ -5,7 +5,7 @@ from typing import Any, Literal, Optional
 ArtifactType = Literal['llm_response', 'code_diff', 'test_plan', 'design', 'migration']
 RiskLevel = Literal['LOW', 'MEDIUM', 'HIGH', 'CRITICAL']
 Verdict = Literal['PASS', 'PASS_WITH_WARNINGS', 'REVISE', 'ESCALATE_TO_HUMAN', 'BLOCK']
-IssueType = Literal['SPEC_MISMATCH', 'LOGIC_BUG', 'TEST_GAP', 'MISSING_EVIDENCE', 'SECURITY_RISK', 'DATA_RISK', 'HALLUCINATION', 'AMBIGUITY', 'OTHER']
+IssueType = Literal['SPEC_MISMATCH', 'LOGIC_BUG', 'TEST_GAP', 'MISSING_EVIDENCE', 'SECURITY_RISK', 'DATA_RISK', 'HALLUCINATION', 'AMBIGUITY', 'FABRICATED_EVIDENCE', 'OTHER']
 IssueLayer = Literal['L1', 'L2', 'L3', 'L4', 'EXTENSION', 'LLM_OVERLAY']
 ClaimType = Literal['test_result_claim', 'implementation_claim', 'compatibility_claim', 'risk_claim', 'build_claim', 'production_claim', 'generic_claim']
 
@@ -90,6 +90,7 @@ class SealVerdict:
     missing_evidence: list[str]
     assumptions_detected: list[str]
     next_action: str
+    version: str
     schema_version: str
     trust_memory_summary: Optional[dict] = None
 
@@ -106,6 +107,7 @@ class SealVerdict:
             'missing_evidence': self.missing_evidence,
             'assumptions_detected': self.assumptions_detected,
             'next_action': self.next_action,
+            'version': self.version,
             'schema_version': self.schema_version,
         }
         if self.trust_memory_summary is not None:

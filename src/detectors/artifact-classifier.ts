@@ -1,4 +1,4 @@
-import { ArtifactType } from '../types.ts'
+import { ArtifactType } from '../types.js'
 
 export interface ArtifactContext {
   artifact_type: ArtifactType
