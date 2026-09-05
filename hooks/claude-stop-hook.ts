@@ -15,6 +15,7 @@ import { readFileSync } from 'fs'
 import { Seal } from '../src/index.ts'
 import { ariaExtension } from '../src/extensions/aria/index.ts'
 import { createMinimaxReviewer } from '../src/adapters/minimax-llm-reviewer.ts'
+import { extractRecentTurns, formatRecentContext } from '../src/adapters/claude-transcript.ts'
 
 Seal.extend(ariaExtension)
 Seal.withLLM(createMinimaxReviewer())
@@ -89,13 +90,22 @@ function extractLastUserMessage(transcriptPath: string): string {
 
 const lastUserMessage = transcriptPath ? extractLastUserMessage(transcriptPath) : ''
 
+// A reviewer scoring "did this introduce behavior not requested?" against
+// only the literal last user line can't see whether the turn was an
+// ongoing Q&A ("hiển thị theo table" = format the chat answer) or a build
+// request ("hiển thị theo table" = add a UI feature) — that ambiguity only
+// resolves with the surrounding conversation. Widen spec to the last few
+// turns instead of one line (found 2026-09-05: this exact ambiguity shipped
+// an unrequested castle UI table and the Stop hook didn't flag it).
+const recentContext = transcriptPath ? formatRecentContext(extractRecentTurns(transcriptPath, 6)) : ''
+
 // ─── Seal review with LLM overlay ──────────────────────────────────────────
 
 let verdict
 try {
   verdict = await Seal.review({
     artifact_type: 'llm_response',
-    spec: lastUserMessage || null,
+    spec: recentContext || lastUserMessage || null,
     output: lastMessage,
     evidence: { test_log: '', build_log: '', diff: '', references: [] },
     risk_hint: null,
