@@ -19,3 +19,8 @@ __pycache__/
 
 # Bun lockfile is optional (runtime-agnostic lib); uncomment to track
 # bun.lock
+
+# Workflow state + generated graph — not part of the published package
+openspec/
+loomkit/
+graphify-out/
