@@ -1,6 +1,6 @@
 {
   "name": "seal-gate",
-  "version": "0.5.0-beta.0",
+  "version": "0.5.0",
   "description": "Universal standalone AI quality gate — deterministic core + optional LLM overlay",
   "type": "module",
   "main": "dist/index.js",
