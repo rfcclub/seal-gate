@@ -24,3 +24,6 @@ __pycache__/
 openspec/
 loomkit/
 graphify-out/
+
+# Local AI-tool cache/config — machine-specific, never publish
+.serena/
