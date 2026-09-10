@@ -92,8 +92,8 @@ const lastUserMessage = transcriptPath ? extractLastUserMessage(transcriptPath) 
 
 // A reviewer scoring "did this introduce behavior not requested?" against
 // only the literal last user line can't see whether the turn was an
-// ongoing Q&A ("hiển thị theo table" = format the chat answer) or a build
-// request ("hiển thị theo table" = add a UI feature) — that ambiguity only
+// ongoing Q&A ("show it as a table" = format the chat answer) or a build
+// request ("show it as a table" = add a UI feature) — that ambiguity only
 // resolves with the surrounding conversation. Widen spec to the last few
 // turns instead of one line (found 2026-09-05: this exact ambiguity shipped
 // an unrequested castle UI table and the Stop hook didn't flag it).
