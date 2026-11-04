@@ -2,6 +2,18 @@
   "name": "seal-gate",
   "version": "0.5.2",
   "description": "Universal standalone AI quality gate — deterministic core + optional LLM overlay",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/rfcclub/seal-gate.git"
+  },
+  "homepage": "https://github.com/rfcclub/seal-gate#readme",
+  "bugs": {
+    "url": "https://github.com/rfcclub/seal-gate/issues"
+  },
+  "engines": {
+    "node": ">=22.5.0"
+  },
   "type": "module",
   "main": "dist/index.js",
   "module": "dist/index.js",
@@ -14,9 +26,6 @@
     "USAGE.md",
     "docs/property-evidence.md"
   ],
-  "engines": {
-    "node": ">=22.5.0"
-  },
   "scripts": {
     "build": "tsc",
     "prepublishOnly": "tsc",
