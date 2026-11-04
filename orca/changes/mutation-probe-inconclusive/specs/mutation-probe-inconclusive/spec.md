@@ -37,7 +37,7 @@
 
 ### Requirement: A kill needs assertion-failure evidence
 
-A mutation run counts as killed only when it exits 1 and its output shows an assertion failure (default pattern: `AssertionError`, `expect(received)` or a `(fail) ` line; `failure_pattern` overrides it). Other failing runs are not counted. `pinned: true` needs no survivor and at least one counted kill; with no counted kill the probe is skipped.
+A mutation run counts as killed only when it exits 1 and its output shows an assertion failure (default pattern: `AssertionError` or `expect(received)`, the assertion messages of node:assert, Vitest, Jest and Bun; a runner's generic per-test failure line, such as Bun's `(fail) `, is not evidence; `failure_pattern` overrides it). Other failing runs are not counted. `pinned: true` needs no survivor and at least one counted kill; with no counted kill the probe is skipped.
 
 #### Scenario: mutation-tool-failure
 
@@ -48,3 +48,8 @@ A mutation run counts as killed only when it exits 1 and its output shows an ass
 
 - **WHEN** the baseline passes and a mutation run exits 1 with output that shows no assertion failure
 - **THEN** the outcome is skipped.
+
+#### Scenario: real-bun-non-assertion
+
+- **WHEN** a real `bun test` passes unmutated, and its mutation throws a non-assertion error (`ENOENT` from a missing child tool), which Bun reports with a `(fail) ` line
+- **THEN** the outcome is skipped, not `pinned: true`.

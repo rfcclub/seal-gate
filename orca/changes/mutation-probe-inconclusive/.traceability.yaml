@@ -20,3 +20,6 @@ scenarios:
   - scenario: a-kill-needs-assertion-failure-evidence-mutation-unproven-failure
     test: tests/spec/mutation-probe.test.ts
     assertion: "mutation-probe: inconclusive outcomes mutation-unproven-failure: exit 1 without assertion evidence is not a kill"
+  - scenario: a-kill-needs-assertion-failure-evidence-real-bun-non-assertion
+    test: tests/spec/mutation-probe.test.ts
+    assertion: "mutation-probe: inconclusive outcomes real-bun-non-assertion: a bun (fail) without an assertion is not a kill"

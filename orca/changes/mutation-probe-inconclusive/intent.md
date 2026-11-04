@@ -16,7 +16,7 @@ New mutation operators, telling a syntax-breaking mutation apart from a real kil
 - SC-1: A runner that cannot start, or that times out, never yields `pinned: true`; the outcome is skipped with a reason.
 - SC-2: A test that fails without any mutation makes the probe skipped, not pinned.
 - SC-3: A runner error during a mutation run makes the probe skipped; a passing baseline whose mutations all fail is still `pinned: true`.
-- SC-5: A mutation run counts as killed only with exit 1 and assertion-failure evidence in its output. A tool failure after a passing baseline (Coda, review of #11: a child executable missing, exit 127) and an unproven exit 1 are both skipped. A real `bun test` assertion failure still pins.
+- SC-5: A mutation run counts as killed only with exit 1 and assertion-failure evidence in its output. A tool failure after a passing baseline (Coda, review of #11: a child executable missing, exit 127) and an unproven exit 1 are both skipped. A real `bun test` assertion failure still pins, and a real `bun test` non-assertion error, which Bun also marks `(fail)`, does not (Coda, review 2 of #11).
 - SC-4: `bun run test` runs `tests/spec/` and `src/drift/__tests__/`.
 
 ## Intent Approval

@@ -230,6 +230,15 @@ process.exit(127)
     expect(res).toMatchObject({ skipped: true })
   })
 
+  it('real-bun-non-assertion: a bun (fail) without an assertion is not a kill', async () => {
+    const dir = mkdtempSync(join(tmpdir(), 'seal-mut-real-'))
+    const testFile = join(dir, 'tool.test.ts')
+    // Mutating `true` to `false` makes the test throw ENOENT; bun reports it as "(fail)", with no assertion.
+    writeFileSync(testFile, "import { test } from 'bun:test'\nimport { spawnSync } from 'node:child_process'\nconst gate = true\ntest('missing tool', () => { if (!gate) { const r = spawnSync('/definitely/nonexistent/child'); throw r.error } })\n")
+    const res = await checkTestPinsBehavior({ test_file: testFile, run_command: [process.argv0.includes('bun') ? process.execPath : 'bun', ['test', testFile]], workdir: dir })
+    expect(res).toMatchObject({ skipped: true })
+  }, 30_000)
+
   it('real-runner-pin: a real bun test assertion failure pins', async () => {
     const dir = mkdtempSync(join(tmpdir(), 'seal-mut-real-'))
     const testFile = join(dir, 'real.test.ts')

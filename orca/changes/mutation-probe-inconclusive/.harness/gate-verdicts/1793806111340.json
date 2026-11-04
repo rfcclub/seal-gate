@@ -1,0 +1,147 @@
+{
+  "verdict": "REVISE",
+  "trust_score": 85,
+  "risk_level": "MEDIUM",
+  "summary": "REVISE (trust_score=85, risk=MEDIUM): 1 blocking, 4 non-blocking, 0 fabricated",
+  "deterministic_findings": [
+    {
+      "type": "MISSING_EVIDENCE",
+      "severity": "MEDIUM",
+      "layer": "L3",
+      "source": "core",
+      "evidence": "Malformed evidence envelope: Missing command, exit_code, or output",
+      "is_blocking": false,
+      "citation_status": "not_applicable"
+    },
+    {
+      "type": "SPEC_MISMATCH",
+      "severity": "MEDIUM",
+      "layer": "L1",
+      "source": "core",
+      "rule_id": "SV101",
+      "trust_deduction": 10,
+      "evidence": "Acceptance criterion not covered at execution level: \"**WHEN** `run_command` names an executable that does not exist\"",
+      "suggested_fix": "Add a test or assertion covering: **WHEN** `run_command` names an executable that does not exist",
+      "is_blocking": false,
+      "citation_status": "not_applicable"
+    },
+    {
+      "type": "SPEC_MISMATCH",
+      "severity": "MEDIUM",
+      "layer": "L1",
+      "source": "core",
+      "rule_id": "SV101",
+      "trust_deduction": 10,
+      "evidence": "Acceptance criterion not covered at execution level: \"**THEN** the outcome is skipped with a reason and has no `pinned` field.\"",
+      "suggested_fix": "Add a test or assertion covering: **THEN** the outcome is skipped with a reason and has no `pinned` field.",
+      "is_blocking": false,
+      "citation_status": "not_applicable"
+    },
+    {
+      "type": "TEST_GAP",
+      "severity": "HIGH",
+      "layer": "L4",
+      "source": "core",
+      "rule_id": "TW203",
+      "evidence": "Bug fix detected but no regression test evidence found",
+      "required_fix": "Add regression test that reproduces the original bug",
+      "is_blocking": true,
+      "citation_status": "not_applicable"
+    },
+    {
+      "type": "OTHER",
+      "severity": "LOW",
+      "layer": "L2",
+      "source": "core",
+      "evidence": "L2 unreviewed — semantic issues may exist",
+      "is_blocking": false
+    }
+  ],
+  "llm_findings": [],
+  "blocking_issues": [
+    {
+      "type": "TEST_GAP",
+      "severity": "HIGH",
+      "layer": "L4",
+      "source": "core",
+      "rule_id": "TW203",
+      "evidence": "Bug fix detected but no regression test evidence found",
+      "required_fix": "Add regression test that reproduces the original bug",
+      "is_blocking": true,
+      "citation_status": "not_applicable"
+    }
+  ],
+  "non_blocking_issues": [
+    {
+      "type": "MISSING_EVIDENCE",
+      "severity": "MEDIUM",
+      "layer": "L3",
+      "source": "core",
+      "evidence": "Malformed evidence envelope: Missing command, exit_code, or output",
+      "is_blocking": false,
+      "citation_status": "not_applicable"
+    },
+    {
+      "type": "SPEC_MISMATCH",
+      "severity": "MEDIUM",
+      "layer": "L1",
+      "source": "core",
+      "rule_id": "SV101",
+      "trust_deduction": 10,
+      "evidence": "Acceptance criterion not covered at execution level: \"**WHEN** `run_command` names an executable that does not exist\"",
+      "suggested_fix": "Add a test or assertion covering: **WHEN** `run_command` names an executable that does not exist",
+      "is_blocking": false,
+      "citation_status": "not_applicable"
+    },
+    {
+      "type": "SPEC_MISMATCH",
+      "severity": "MEDIUM",
+      "layer": "L1",
+      "source": "core",
+      "rule_id": "SV101",
+      "trust_deduction": 10,
+      "evidence": "Acceptance criterion not covered at execution level: \"**THEN** the outcome is skipped with a reason and has no `pinned` field.\"",
+      "suggested_fix": "Add a test or assertion covering: **THEN** the outcome is skipped with a reason and has no `pinned` field.",
+      "is_blocking": false,
+      "citation_status": "not_applicable"
+    },
+    {
+      "type": "OTHER",
+      "severity": "LOW",
+      "layer": "L2",
+      "source": "core",
+      "evidence": "L2 unreviewed — semantic issues may exist",
+      "is_blocking": false
+    }
+  ],
+  "missing_evidence": [],
+  "assumptions_detected": [
+    "L2 (semantic correctness) not reviewed — no LLM reviewer registered"
+  ],
+  "advisory_notes": [],
+  "score_breakdown": {
+    "base": 100,
+    "issue_deductions": 20,
+    "missing_evidence_deductions": 0,
+    "risk_deductions": 0,
+    "overconfidence_deductions": 5,
+    "evidence_bonuses": 5,
+    "final": 80
+  },
+  "fabricated_evidence": [],
+  "next_action": "Return to producing agent with blocking_issues",
+  "version": "0.5.2",
+  "schema_version": "0.2.0",
+  "trust_memory_summary": {
+    "agent_id": "orca-agent",
+    "reliability_score": 53,
+    "drift_trend": "stable",
+    "review_count": 4,
+    "last_reviewed_at": 1793806111340
+  },
+  "bound_diff_sha256": "932349aa6c0d5414673240142e93b339567742f1e625e68679aacd5f84d0325d",
+  "evidence_bound": {
+    "test_log_sha256": "2cf7c9c1854b17f1cf11f096d0596e6e63aa589d93b2cae53122d3fa7fb7f98b",
+    "build_log_sha256": null
+  }
+}

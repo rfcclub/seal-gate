@@ -43,8 +43,12 @@ export interface MutationProbeOpts {
 
 interface RunResult { exit_code: number; output: string; error?: string }
 
-/** Assertion-failure output of node:assert/vitest (AssertionError), bun and jest (expect(received)) and bun's (fail) line. */
-export const DEFAULT_FAILURE_PATTERN = /AssertionError|expect\(received\)|^\(fail\) /m
+/**
+ * Assertion-failure output of node:assert and Vitest (AssertionError) and of Bun and Jest
+ * (expect(received)). A runner's generic per-test failure line, such as Bun's "(fail) ", is
+ * printed for any thrown error and is not evidence.
+ */
+export const DEFAULT_FAILURE_PATTERN = /AssertionError|expect\(received\)/
 
 /** Single-point mutation operators. Each returns a list of mutated sources. */
 export function breedMutations(source: string): string[] {
