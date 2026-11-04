@@ -13,6 +13,13 @@
       "trust_score": 75,
       "risk_level": "HIGH",
       "blocking_count": 1
+    },
+    {
+      "ts": 1793802575859,
+      "verdict": "REVISE",
+      "trust_score": 85,
+      "risk_level": "MEDIUM",
+      "blocking_count": 1
     }
   ]
 }

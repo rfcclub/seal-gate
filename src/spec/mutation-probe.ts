@@ -35,11 +35,16 @@ export interface MutationProbeOpts {
   cap?: number
   /** optional: per-run timeout for the default runner (default 60s) */
   timeout_ms?: number
+  /** optional: output that proves a failing run was an assertion failure (default: DEFAULT_FAILURE_PATTERN) */
+  failure_pattern?: RegExp
   /** override exec for tests (inject a fake runTest); `error` marks a runner failure, not a test failure */
   _runTest?: (workdir: string, cmd: string, args: string[]) => Promise<RunResult>
 }
 
 interface RunResult { exit_code: number; output: string; error?: string }
+
+/** Assertion-failure output of node:assert/vitest (AssertionError), bun and jest (expect(received)) and bun's (fail) line. */
+export const DEFAULT_FAILURE_PATTERN = /AssertionError|expect\(received\)|^\(fail\) /m
 
 /** Single-point mutation operators. Each returns a list of mutated sources. */
 export function breedMutations(source: string): string[] {
@@ -140,6 +145,8 @@ export async function checkTestPinsBehavior(opts: MutationProbeOpts): Promise<Mu
   }
 
   const survivors: string[] = []
+  const unproven: string[] = []
+  let kills = 0
 
   for (const mutated of mutations) {
     writeFileSync(test_file, mutated, 'utf-8') // swap in the mutation
@@ -153,12 +160,19 @@ export async function checkTestPinsBehavior(opts: MutationProbeOpts): Promise<Mu
     if (probe.exit_code === 0) {
       survivors.push(mutated)
       if (cap && survivors.length >= cap) break
+      continue
     }
+    // A failing run is a kill only if it looks like a failed assertion. A missing tool, a crash
+    // or a mutation that breaks the syntax also exits nonzero; such runs are not counted.
+    if (probe.exit_code === 1 && (opts.failure_pattern ?? DEFAULT_FAILURE_PATTERN).test(probe.output)) kills++
+    else unproven.push(`exit ${probe.exit_code}`)
   }
 
-  return survivors.length > 0
-    ? { pinned: false, survivors }
-    : { pinned: true, survivors: [] }
+  if (survivors.length > 0) return { pinned: false, survivors }
+  if (kills === 0) {
+    return { skipped: true, reason: `inconclusive: no mutation run failed with assertion-failure evidence (${unproven.join(', ')})` }
+  }
+  return { pinned: true, survivors: [] }
 }
 
 /** Format surviving mutations as an evidence snippet for SPEC_UNTESTED. */

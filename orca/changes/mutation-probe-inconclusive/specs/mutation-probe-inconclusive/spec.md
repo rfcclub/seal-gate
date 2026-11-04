@@ -34,3 +34,17 @@
 
 - **WHEN** the unmutated test passes and every mutation run fails
 - **THEN** the outcome is `pinned: true` with no survivors, and the baseline ran exactly once.
+
+### Requirement: A kill needs assertion-failure evidence
+
+A mutation run counts as killed only when it exits 1 and its output shows an assertion failure (default pattern: `AssertionError`, `expect(received)` or a `(fail) ` line; `failure_pattern` overrides it). Other failing runs are not counted. `pinned: true` needs no survivor and at least one counted kill; with no counted kill the probe is skipped.
+
+#### Scenario: mutation-tool-failure
+
+- **WHEN** the baseline passes and every mutation run fails because a required child process does not start (exit 127, `ENOENT` in the output)
+- **THEN** the outcome is skipped, not `pinned: true`.
+
+#### Scenario: mutation-unproven-failure
+
+- **WHEN** the baseline passes and a mutation run exits 1 with output that shows no assertion failure
+- **THEN** the outcome is skipped.

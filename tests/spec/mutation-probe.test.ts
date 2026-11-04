@@ -88,7 +88,7 @@ describe('mutation-probe: checkTestPinsBehavior', () => {
     writeFileSync(testFile, 'expect(add(1, 2)).toBe(3) // guard', 'utf-8')
 
     const original = 'expect(add(1, 2)).toBe(3) // guard'
-    const killRunner = async () => ({ exit_code: readFileSync(testFile, 'utf-8') === original ? 0 : 1, output: 'run' })
+    const killRunner = async () => readFileSync(testFile, 'utf-8') === original ? { exit_code: 0, output: 'pass' } : { exit_code: 1, output: 'AssertionError: expected 3 not to be 3' }
     const res = await checkTestPinsBehavior({
       test_file: testFile,
       run_command: ['bun', ['test', testFile]],
@@ -145,7 +145,7 @@ describe('SpecCoverageValidator.validateWithProbe', () => {
     writeFileSync(testFile, testLog, 'utf-8')
 
     // Passes the unmutated test (the probe's baseline) and fails every mutation.
-    const killRunner = async () => ({ exit_code: readFileSync(testFile, 'utf-8') === testLog ? 0 : 1, output: 'run' })
+    const killRunner = async () => readFileSync(testFile, 'utf-8') === testLog ? { exit_code: 0, output: 'pass' } : { exit_code: 1, output: 'AssertionError: expected undefined to be defined' }
     const result = await SpecCoverageValidator.validateWithProbe(
       spec,
       testLog,
@@ -168,7 +168,7 @@ describe('mutation-probe: inconclusive outcomes', () => {
     return { dir, testFile }
   }
   // Passes the unmutated source and fails every mutation, counting runs of each.
-  const discriminating = (testFile: string, onMutation: () => { exit_code: number; output: string; error?: string } = () => ({ exit_code: 1, output: 'fail' })) => {
+  const discriminating = (testFile: string, onMutation: () => { exit_code: number; output: string; error?: string } = () => ({ exit_code: 1, output: 'AssertionError: expected 3 to be 4' })) => {
     const runs = { baseline: 0, mutation: 0 }
     const runTest = async () => {
       if (readFileSync(testFile, 'utf-8') === ORIGINAL) { runs.baseline++; return { exit_code: 0, output: 'pass' } }
@@ -206,6 +206,37 @@ describe('mutation-probe: inconclusive outcomes', () => {
     expect(res).toMatchObject({ skipped: true })
     expect('skipped' in res && res.reason).toContain('baseline')
   })
+
+  it('mutation-tool-failure: a required tool that fails after a passing baseline is not a kill', async () => {
+    const { dir, testFile } = probeFile()
+    // A real runner: passes the unmutated file, then needs a child tool that does not exist.
+    const runner = join(dir, 'runner.mjs')
+    writeFileSync(runner, `import { readFileSync } from 'node:fs'
+import { spawnSync } from 'node:child_process'
+if (readFileSync(${JSON.stringify(testFile)}, 'utf8') === ${JSON.stringify(ORIGINAL)}) process.exit(0)
+const child = spawnSync('/definitely/nonexistent/seal-child')
+console.error(String(child.error))
+process.exit(127)
+`)
+    const res = await checkTestPinsBehavior({ test_file: testFile, run_command: [process.execPath, [runner]], workdir: dir })
+    expect(res).toMatchObject({ skipped: true })
+    expect(readFileSync(testFile, 'utf-8')).toBe(ORIGINAL)
+  })
+
+  it('mutation-unproven-failure: exit 1 without assertion evidence is not a kill', async () => {
+    const { dir, testFile } = probeFile()
+    const { runTest } = discriminating(testFile, () => ({ exit_code: 1, output: 'Error: Cannot find module ./config' }))
+    const res = await checkTestPinsBehavior({ test_file: testFile, run_command: ['bun', ['test', testFile]], workdir: dir, _runTest: runTest })
+    expect(res).toMatchObject({ skipped: true })
+  })
+
+  it('real-runner-pin: a real bun test assertion failure pins', async () => {
+    const dir = mkdtempSync(join(tmpdir(), 'seal-mut-real-'))
+    const testFile = join(dir, 'real.test.ts')
+    writeFileSync(testFile, "import { test, expect } from 'bun:test'\ntest('adds', () => { expect(1 + 2).toBe(3) })\n")
+    const res = await checkTestPinsBehavior({ test_file: testFile, run_command: [process.argv0.includes('bun') ? process.execPath : 'bun', ['test', testFile]], workdir: dir })
+    expect(res).toEqual({ pinned: true, survivors: [] })
+  }, 30_000)
 
   it('baseline-then-kills: a passing baseline with killed mutations pins', async () => {
     const { dir, testFile } = probeFile()

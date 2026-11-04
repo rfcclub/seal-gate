@@ -14,3 +14,9 @@ scenarios:
   - scenario: real-kills-still-pin-baseline-then-kills
     test: tests/spec/mutation-probe.test.ts
     assertion: "mutation-probe: inconclusive outcomes baseline-then-kills: a passing baseline with killed mutations pins"
+  - scenario: a-kill-needs-assertion-failure-evidence-mutation-tool-failure
+    test: tests/spec/mutation-probe.test.ts
+    assertion: "mutation-probe: inconclusive outcomes mutation-tool-failure: a required tool that fails after a passing baseline is not a kill"
+  - scenario: a-kill-needs-assertion-failure-evidence-mutation-unproven-failure
+    test: tests/spec/mutation-probe.test.ts
+    assertion: "mutation-probe: inconclusive outcomes mutation-unproven-failure: exit 1 without assertion evidence is not a kill"

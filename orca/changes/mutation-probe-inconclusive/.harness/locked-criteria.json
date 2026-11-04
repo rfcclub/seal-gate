@@ -19,8 +19,14 @@
   },
   {
     "id": "SC-4",
-    "text": "SC-4: `bun run test` runs `tests/spec/` and `src/drift/__tests__/`.",
+    "text": "SC-5: A mutation run counts as killed only with exit 1 and assertion-failure evidence in its output. A tool failure after a passing baseline (Coda, review of #11: a child executable missing, exit 127) and an unproven exit 1 are both skipped. A real `bun test` assertion failure still pins.",
     "source_file": "intent.md",
     "source_line": 19
+  },
+  {
+    "id": "SC-5",
+    "text": "SC-4: `bun run test` runs `tests/spec/` and `src/drift/__tests__/`.",
+    "source_file": "intent.md",
+    "source_line": 20
   }
 ]
