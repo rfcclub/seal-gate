@@ -27,7 +27,11 @@
 ```
 
 ## Known Limitations
-- The kill evidence is still a text pattern. A test that prints assertion-like text **only** on the mutated path, or throws a non-assertion error whose message starts with `AssertionError`, still counts; in both cases the test itself produces the text. A runner-level structured report (per-assertion results) would be needed to close this completely.
+- **Deferred, by decision:** the kill evidence is output text. It shows that *an* assertion failed, not whose. These still count as kills:
+  - assertion-like text the test prints only on the mutated path;
+  - a non-assertion error whose message starts with `AssertionError`;
+  - **assertion failures inside a tool the test runs**: Coda, review 5 of #11, had a simulated compiler child `assert.fail` and forwarded its stderr, then the test threw `Error('compiler crashed')`, and the result was `pinned: true`.
+  Exact attribution needs a structured per-assertion report from the runner, tracked as seal-gate#14. The limitation is also stated on `DEFAULT_FAILURE_PATTERN` in the source.
 - The `DEFAULT_FAILURE_PATTERN` unit test lives in `tests/spec/failure-pattern.test.ts`, so `tests/spec/mutation-probe.test.ts` still loads on master for `record-red`. A custom runner whose failures don't match the default pattern makes every probe skipped until `failure_pattern` is set. Either way it fails toward inconclusive, never toward a false pin from a silent tool failure.
 - RED for round 2 was recorded against master's `mutation-probe.ts` (8 fail).
 - `real-runner-pin` runs real `bun test`; one of its three mutations (`=>` to `= <`) breaks the syntax and is now not counted, while the other two are evidenced kills.

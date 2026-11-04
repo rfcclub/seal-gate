@@ -47,6 +47,12 @@ interface RunResult { exit_code: number; output: string; error?: string }
 const stripAnsi = (text: string) => text.replace(/\x1b\[[0-9;]*m/g, '')
 
 /**
+ * Limitation: this is evidence read from output text, so it shows that *an* assertion failed, not
+ * whose. A failing mutation run counts as a kill if any line matches, including assertion text the
+ * test prints only on the mutated path and assertion failures inside a tool the test runs (a child
+ * process whose own `AssertionError` is forwarded to the output). Exact attribution needs a
+ * structured per-assertion report from the runner (seal-gate#14).
+ *
  * A diagnostic line of a failed assertion: node:assert and Vitest print `AssertionError: …`,
  * Bun prints `error: expect(received)…` and Jest `expect(received)…`. Anchored to the line start,
  * so the same words in a test name (`(fail) …`, `× …`, `FAIL … > …`) or in a source excerpt
