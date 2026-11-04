@@ -58,3 +58,8 @@ A mutation run counts as killed only when it exits 1 and its output shows an ass
 
 - **WHEN** a real `bun test` named `expect(received) reports missing tool` passes unmutated, and its mutation throws a non-assertion ENOENT
 - **THEN** the outcome is skipped, not `pinned: true`.
+
+#### Scenario: baseline-prints-evidence
+
+- **WHEN** a real `bun test` passes unmutated while its output already contains a line matching the failure pattern (`console.error('AssertionError: logged fixture data')`), and its mutation throws a non-assertion ENOENT
+- **THEN** the outcome is skipped: the probe cannot tell a kill from logged text.

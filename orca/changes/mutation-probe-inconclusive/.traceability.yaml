@@ -26,3 +26,6 @@ scenarios:
   - scenario: a-kill-needs-assertion-failure-evidence-assertion-word-in-test-name
     test: tests/spec/mutation-probe.test.ts
     assertion: "mutation-probe: inconclusive outcomes assertion-word-in-test-name: an assertion word in a test name is not evidence"
+  - scenario: a-kill-needs-assertion-failure-evidence-baseline-prints-evidence
+    test: tests/spec/mutation-probe.test.ts
+    assertion: "mutation-probe: inconclusive outcomes baseline-prints-evidence: logged assertion text makes the probe inconclusive"

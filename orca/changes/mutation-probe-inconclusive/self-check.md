@@ -8,6 +8,8 @@
 - Review round 1 (Coda, #11): after a passing baseline, a runner whose required child executable was missing exited 127 on every mutation, and that was still reported as `pinned: true`. `mutation-tool-failure` covers it with the real default runner.
 - Review round 2 (Coda, #11): Bun prints `(fail) ` for any thrown error, so a real Bun test that threw ENOENT after mutation still counted as a kill. `(fail) ` was removed from the default pattern, and `real-bun-non-assertion` covers it with real `bun test`.
 - Review round 3 (Coda, #11): naming a test `expect(received) reports missing tool` made a zero-assertion ENOENT match, because the words appeared in the `(fail)` line. The pattern is now anchored to diagnostic lines. `assertion-word-in-test-name` covers it with real `bun test`, and a pattern test checks real Vitest and Bun lines.
+- If the passing baseline's own output already matches the failure pattern, the probe is skipped: logged text cannot be told apart from a diagnostic.
+- Review round 4 (Coda, #11): a real Bun test logged `console.error('AssertionError: logged fixture data')` in its passing baseline; its mutation threw ENOENT, and the logged line counted as a kill. `baseline-prints-evidence` covers it with real `bun test`.
 - `MutationProbeOpts.timeout_ms` (default 60s) sets the default runner's timeout, and `_runTest` may return `error`.
 - The `test` script now also runs `tests/spec/` and `src/drift/__tests__/`. `vitest.config.mjs` includes `tests/spec/**` for Orca's executable evidence.
 
@@ -17,15 +19,16 @@
   { "type": "file", "file": "orca/changes/mutation-probe-inconclusive/.harness/red/red-2026-11-04.txt", "content": "RED before the change: 5 fail (runner-missing, runner-timeout, mutation-runner-error, baseline-failing, baseline-then-kills)" },
   { "type": "command", "command": "orca record-red mutation-probe-inconclusive", "exit_code": 0, "output": "Verdict: RED_RECORDED (5 scenarios)" },
   { "type": "file", "file": "orca/changes/mutation-probe-inconclusive/.harness/red/red-kill-evidence-2026-11-04.txt", "content": "RED for all seven scenarios against master's mutation-probe.ts: 7 (fail)" },
-  { "type": "command", "command": "bun run test", "exit_code": 0, "output": "267 pass, 1 skip, 0 fail; 8 pass / 0 fail" },
-  { "type": "command", "command": "npx vitest run", "exit_code": 0, "output": "41 passed, 1 skipped" },
+  { "type": "command", "command": "bun run test", "exit_code": 0, "output": "268 pass, 1 skip, 0 fail; 8 pass / 0 fail" },
+  { "type": "command", "command": "npx vitest run", "exit_code": 0, "output": "42 passed, 1 skipped" },
   { "type": "command", "command": "npx tsc --noEmit -p .", "exit_code": 0, "output": "" },
-  { "type": "command", "command": "orca verify mutation-probe-inconclusive", "exit_code": 0, "output": "Coverage: 100% (9/9) Verdict: PASS" }
+  { "type": "command", "command": "orca verify mutation-probe-inconclusive", "exit_code": 0, "output": "Coverage: 100% (10/10) Verdict: PASS" }
 ]
 ```
 
 ## Known Limitations
-- The kill evidence is a text pattern, so a test that itself prints a line starting with `AssertionError` (or throws a non-assertion error whose message starts that way) and exits 1 is still counted. A custom runner whose failures don't match the default pattern makes every probe skipped until `failure_pattern` is set. Either way it fails toward inconclusive, never toward a false pin from a silent tool failure.
+- The kill evidence is still a text pattern. A test that prints assertion-like text **only** on the mutated path, or throws a non-assertion error whose message starts with `AssertionError`, still counts; in both cases the test itself produces the text. A runner-level structured report (per-assertion results) would be needed to close this completely.
+- The `DEFAULT_FAILURE_PATTERN` unit test lives in `tests/spec/failure-pattern.test.ts`, so `tests/spec/mutation-probe.test.ts` still loads on master for `record-red`. A custom runner whose failures don't match the default pattern makes every probe skipped until `failure_pattern` is set. Either way it fails toward inconclusive, never toward a false pin from a silent tool failure.
 - RED for round 2 was recorded against master's `mutation-probe.ts` (8 fail).
 - `real-runner-pin` runs real `bun test`; one of its three mutations (`=>` to `= <`) breaks the syntax and is now not counted, while the other two are evidenced kills.
 - The second RED was recorded by restoring master's `mutation-probe.ts` for one run; all seven scenarios fail on that code.

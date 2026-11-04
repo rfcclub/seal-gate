@@ -43,6 +43,9 @@ export interface MutationProbeOpts {
 
 interface RunResult { exit_code: number; output: string; error?: string }
 
+// eslint-disable-next-line no-control-regex
+const stripAnsi = (text: string) => text.replace(/\x1b\[[0-9;]*m/g, '')
+
 /**
  * A diagnostic line of a failed assertion: node:assert and Vitest print `AssertionError: …`,
  * Bun prints `error: expect(received)…` and Jest `expect(received)…`. Anchored to the line start,
@@ -148,6 +151,12 @@ export async function checkTestPinsBehavior(opts: MutationProbeOpts): Promise<Mu
   if (baseline.exit_code !== 0) {
     return { skipped: true, reason: `inconclusive: baseline test fails unmutated (exit ${baseline.exit_code})` }
   }
+  // If the passing test already prints text that looks like an assertion failure, that text in a
+  // failing mutation run proves nothing: the probe cannot tell a kill from logged output.
+  const failurePattern = opts.failure_pattern ?? DEFAULT_FAILURE_PATTERN
+  if (failurePattern.test(stripAnsi(baseline.output))) {
+    return { skipped: true, reason: 'inconclusive: the passing baseline already prints assertion-failure text' }
+  }
 
   const survivors: string[] = []
   const unproven: string[] = []
@@ -169,9 +178,7 @@ export async function checkTestPinsBehavior(opts: MutationProbeOpts): Promise<Mu
     }
     // A failing run is a kill only if it looks like a failed assertion. A missing tool, a crash
     // or a mutation that breaks the syntax also exits nonzero; such runs are not counted.
-    // eslint-disable-next-line no-control-regex
-    const output = probe.output.replace(/\x1b\[[0-9;]*m/g, '')
-    if (probe.exit_code === 1 && (opts.failure_pattern ?? DEFAULT_FAILURE_PATTERN).test(output)) kills++
+    if (probe.exit_code === 1 && failurePattern.test(stripAnsi(probe.output))) kills++
     else unproven.push(`exit ${probe.exit_code}`)
   }
 

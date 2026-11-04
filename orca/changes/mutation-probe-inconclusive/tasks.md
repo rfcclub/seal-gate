@@ -10,9 +10,11 @@
 
 - [x] M6 (SC-5): Add a failing real-bun test whose name contains expect(received); anchor DEFAULT_FAILURE_PATTERN to diagnostic lines.
 
+- [x] M7 (SC-5): Add a failing real-bun test whose passing baseline logs assertion text; skip the probe when the baseline output matches the failure pattern.
+
 ## Locked criteria mapping
 - SC-1: M1/M2 runner-missing, runner-timeout.
 - SC-2: M1/M2 baseline-failing.
 - SC-3: M1/M2 mutation-runner-error, baseline-then-kills.
 - SC-4: M3 the test script and its full run.
-- SC-5: M4/M5 mutation-tool-failure, mutation-unproven-failure, real-bun-non-assertion, assertion-word-in-test-name and an unmapped real-bun pin regression test.
+- SC-5: M4/M5 mutation-tool-failure, mutation-unproven-failure, real-bun-non-assertion, assertion-word-in-test-name, baseline-prints-evidence and an unmapped real-bun pin regression test.

@@ -2,7 +2,7 @@ import { describe, it, expect } from 'bun:test'
 import { mkdtempSync, readFileSync, writeFileSync } from 'fs'
 import { tmpdir } from 'os'
 import { join } from 'path'
-import { breedMutations, checkTestPinsBehavior, DEFAULT_FAILURE_PATTERN, mutationSurvivorEvidence } from '../../src/spec/mutation-probe.ts'
+import { breedMutations, checkTestPinsBehavior, mutationSurvivorEvidence } from '../../src/spec/mutation-probe.ts'
 import { SpecCoverageValidator } from '../../src/detectors/spec-coverage-validator.ts'
 
 /** Fake runner: mutation-survives iff the mutated source does NOT reference a sentinel. */
@@ -247,6 +247,14 @@ process.exit(127)
     expect(res).toMatchObject({ skipped: true })
   }, 30_000)
 
+  it('baseline-prints-evidence: logged assertion text makes the probe inconclusive', async () => {
+    const dir = mkdtempSync(join(tmpdir(), 'seal-mut-real-'))
+    const testFile = join(dir, 'logs.test.ts')
+    writeFileSync(testFile, "import { test } from 'bun:test'\nimport { spawnSync } from 'node:child_process'\nconst gate = true\ntest('fixture', () => { console.error('AssertionError: logged fixture data'); if (!gate) { const r = spawnSync('/definitely/nonexistent/child'); throw r.error } })\n")
+    const res = await checkTestPinsBehavior({ test_file: testFile, run_command: [process.argv0.includes('bun') ? process.execPath : 'bun', ['test', testFile]], workdir: dir })
+    expect(res).toMatchObject({ skipped: true })
+  }, 30_000)
+
   it('real-runner-pin: a real bun test assertion failure pins', async () => {
     const dir = mkdtempSync(join(tmpdir(), 'seal-mut-real-'))
     const testFile = join(dir, 'real.test.ts')
@@ -265,12 +273,3 @@ process.exit(127)
   })
 })
 
-describe('mutation-probe: DEFAULT_FAILURE_PATTERN', () => {
-  // Lines captured from real piped `vitest run` and `bun test` failures.
-  it('matches assertion diagnostics, not test names or source excerpts', () => {
-    const diagnostics = ['AssertionError: expected 3 to be 4 // Object.is equality', 'error: expect(received).not.toBe(expected)', '    expect(received).toBe(expected)']
-    const names = ['   × AssertionError in name 2ms', ' FAIL  v.test.ts > AssertionError in name', '(fail) expect(received) reports missing tool [0.4ms]', "      2| it('AssertionError in name', () => { expect(1 + 2).toBe(4) })", 'error: ENOENT: no such file or directory']
-    expect(diagnostics.map(l => DEFAULT_FAILURE_PATTERN.test(l))).toEqual([true, true, true])
-    expect(names.map(l => DEFAULT_FAILURE_PATTERN.test(l))).toEqual([false, false, false, false, false])
-  })
-})

@@ -34,6 +34,13 @@
       "trust_score": 85,
       "risk_level": "MEDIUM",
       "blocking_count": 1
+    },
+    {
+      "ts": 1793806959032,
+      "verdict": "REVISE",
+      "trust_score": 85,
+      "risk_level": "MEDIUM",
+      "blocking_count": 1
     }
   ]
 }
