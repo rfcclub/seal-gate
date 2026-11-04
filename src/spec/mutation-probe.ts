@@ -33,9 +33,13 @@ export interface MutationProbeOpts {
   workdir: string
   /** optional: stop after this many surviving mutations (0 = report all) */
   cap?: number
-  /** override exec for tests (inject a fake runTest) */
-  _runTest?: (workdir: string, cmd: string, args: string[]) => Promise<{ exit_code: number; output: string }>
+  /** optional: per-run timeout for the default runner (default 60s) */
+  timeout_ms?: number
+  /** override exec for tests (inject a fake runTest); `error` marks a runner failure, not a test failure */
+  _runTest?: (workdir: string, cmd: string, args: string[]) => Promise<RunResult>
 }
+
+interface RunResult { exit_code: number; output: string; error?: string }
 
 /** Single-point mutation operators. Each returns a list of mutated sources. */
 export function breedMutations(source: string): string[] {
@@ -82,14 +86,18 @@ async function defaultRunTest(
   workdir: string,
   cmd: string,
   args: string[],
-): Promise<{ exit_code: number; output: string }> {
+  timeoutMs = 60_000,
+): Promise<RunResult> {
   try {
-    const { stdout, stderr } = await execFileAsync(cmd, args, { cwd: workdir, timeout: 60_000 })
+    const { stdout, stderr } = await execFileAsync(cmd, args, { cwd: workdir, timeout: timeoutMs })
     return { exit_code: 0, output: `${stdout}\n${stderr}` }
   } catch (e) {
-    const err = e as { code?: number; stdout?: string; stderr?: string; message?: string }
-    // execFile treats non-zero exit as an error — that's a "killed" mutation.
-    return { exit_code: err.code ?? 1, output: `${err.stdout ?? ''}\n${err.stderr ?? ''}` }
+    const err = e as { code?: number | string; killed?: boolean; signal?: string | null; stdout?: string; stderr?: string; message?: string }
+    const output = `${err.stdout ?? ''}\n${err.stderr ?? ''}`
+    // A numeric exit code is the test failing — a "killed" mutation. A string code (ENOENT),
+    // a kill (how a timeout ends) or no code means the runner itself failed.
+    if (typeof err.code === 'number' && !err.killed && !err.signal) return { exit_code: err.code, output }
+    return { exit_code: 1, output, error: err.killed || err.signal ? `runner timed out or was killed (${err.signal ?? 'killed'})` : `runner failed: ${err.message ?? err.code}` }
   }
 }
 
@@ -115,7 +123,7 @@ export async function checkTestPinsBehavior(opts: MutationProbeOpts): Promise<Mu
     return { skipped: true, reason: `workdir does not exist: ${workdir}` }
   }
 
-  const runTest = _runTest ?? defaultRunTest
+  const runTest = _runTest ?? ((dir: string, c: string, a: string[]) => defaultRunTest(dir, c, a, opts.timeout_ms))
   const original = readFileSync(test_file, 'utf-8')
   const mutations = breedMutations(original)
 
@@ -124,16 +132,24 @@ export async function checkTestPinsBehavior(opts: MutationProbeOpts): Promise<Mu
   }
 
   const [cmd, args] = run_command
+  // A kill only means something if the unmutated test runs and passes.
+  const baseline = await runTest(workdir, cmd, args)
+  if (baseline.error) return { skipped: true, reason: `inconclusive: baseline ${baseline.error}` }
+  if (baseline.exit_code !== 0) {
+    return { skipped: true, reason: `inconclusive: baseline test fails unmutated (exit ${baseline.exit_code})` }
+  }
+
   const survivors: string[] = []
 
   for (const mutated of mutations) {
     writeFileSync(test_file, mutated, 'utf-8') // swap in the mutation
-    let probe: { exit_code: number; output: string }
+    let probe: RunResult
     try {
       probe = await runTest(workdir, cmd, args)
     } finally {
       writeFileSync(test_file, original, 'utf-8') // always restore, even on throw
     }
+    if (probe.error) return { skipped: true, reason: `inconclusive: mutation run ${probe.error}` }
     if (probe.exit_code === 0) {
       survivors.push(mutated)
       if (cap && survivors.length >= cap) break

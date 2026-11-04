@@ -1,0 +1,26 @@
+[
+  {
+    "id": "SC-1",
+    "text": "SC-1: A runner that cannot start, or that times out, never yields `pinned: true`; the outcome is skipped with a reason.",
+    "source_file": "intent.md",
+    "source_line": 16
+  },
+  {
+    "id": "SC-2",
+    "text": "SC-2: A test that fails without any mutation makes the probe skipped, not pinned.",
+    "source_file": "intent.md",
+    "source_line": 17
+  },
+  {
+    "id": "SC-3",
+    "text": "SC-3: A runner error during a mutation run makes the probe skipped; a passing baseline whose mutations all fail is still `pinned: true`.",
+    "source_file": "intent.md",
+    "source_line": 18
+  },
+  {
+    "id": "SC-4",
+    "text": "SC-4: `bun run test` runs `tests/spec/` and `src/drift/__tests__/`.",
+    "source_file": "intent.md",
+    "source_line": 19
+  }
+]

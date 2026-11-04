@@ -1,0 +1,149 @@
+{
+  "verdict": "ESCALATE_TO_HUMAN",
+  "trust_score": 75,
+  "risk_level": "HIGH",
+  "summary": "ESCALATE_TO_HUMAN (trust_score=75, risk=HIGH): 1 blocking, 4 non-blocking, 0 fabricated",
+  "deterministic_findings": [
+    {
+      "type": "MISSING_EVIDENCE",
+      "severity": "MEDIUM",
+      "layer": "L3",
+      "source": "core",
+      "evidence": "Malformed evidence envelope: Missing command, exit_code, or output",
+      "is_blocking": false,
+      "citation_status": "not_applicable"
+    },
+    {
+      "type": "SPEC_MISMATCH",
+      "severity": "MEDIUM",
+      "layer": "L1",
+      "source": "core",
+      "rule_id": "SV101",
+      "trust_deduction": 10,
+      "evidence": "Acceptance criterion not covered at execution level: \"**WHEN** `run_command` names an executable that does not exist\"",
+      "suggested_fix": "Add a test or assertion covering: **WHEN** `run_command` names an executable that does not exist",
+      "is_blocking": false,
+      "citation_status": "not_applicable"
+    },
+    {
+      "type": "SPEC_MISMATCH",
+      "severity": "MEDIUM",
+      "layer": "L1",
+      "source": "core",
+      "rule_id": "SV101",
+      "trust_deduction": 10,
+      "evidence": "Acceptance criterion not covered at execution level: \"**THEN** the outcome is skipped with a reason and has no `pinned` field.\"",
+      "suggested_fix": "Add a test or assertion covering: **THEN** the outcome is skipped with a reason and has no `pinned` field.",
+      "is_blocking": false,
+      "citation_status": "not_applicable"
+    },
+    {
+      "type": "TEST_GAP",
+      "severity": "CRITICAL",
+      "layer": "L4",
+      "source": "core",
+      "rule_id": "TW205",
+      "required_verdict": "ESCALATE_TO_HUMAN",
+      "evidence": "Auth-related change detected but no unauthorized/forbidden test evidence",
+      "required_fix": "Add tests for unauthorized and forbidden access scenarios",
+      "is_blocking": true,
+      "citation_status": "not_applicable"
+    },
+    {
+      "type": "OTHER",
+      "severity": "LOW",
+      "layer": "L2",
+      "source": "core",
+      "evidence": "L2 unreviewed — semantic issues may exist",
+      "is_blocking": false
+    }
+  ],
+  "llm_findings": [],
+  "blocking_issues": [
+    {
+      "type": "TEST_GAP",
+      "severity": "CRITICAL",
+      "layer": "L4",
+      "source": "core",
+      "rule_id": "TW205",
+      "required_verdict": "ESCALATE_TO_HUMAN",
+      "evidence": "Auth-related change detected but no unauthorized/forbidden test evidence",
+      "required_fix": "Add tests for unauthorized and forbidden access scenarios",
+      "is_blocking": true,
+      "citation_status": "not_applicable"
+    }
+  ],
+  "non_blocking_issues": [
+    {
+      "type": "MISSING_EVIDENCE",
+      "severity": "MEDIUM",
+      "layer": "L3",
+      "source": "core",
+      "evidence": "Malformed evidence envelope: Missing command, exit_code, or output",
+      "is_blocking": false,
+      "citation_status": "not_applicable"
+    },
+    {
+      "type": "SPEC_MISMATCH",
+      "severity": "MEDIUM",
+      "layer": "L1",
+      "source": "core",
+      "rule_id": "SV101",
+      "trust_deduction": 10,
+      "evidence": "Acceptance criterion not covered at execution level: \"**WHEN** `run_command` names an executable that does not exist\"",
+      "suggested_fix": "Add a test or assertion covering: **WHEN** `run_command` names an executable that does not exist",
+      "is_blocking": false,
+      "citation_status": "not_applicable"
+    },
+    {
+      "type": "SPEC_MISMATCH",
+      "severity": "MEDIUM",
+      "layer": "L1",
+      "source": "core",
+      "rule_id": "SV101",
+      "trust_deduction": 10,
+      "evidence": "Acceptance criterion not covered at execution level: \"**THEN** the outcome is skipped with a reason and has no `pinned` field.\"",
+      "suggested_fix": "Add a test or assertion covering: **THEN** the outcome is skipped with a reason and has no `pinned` field.",
+      "is_blocking": false,
+      "citation_status": "not_applicable"
+    },
+    {
+      "type": "OTHER",
+      "severity": "LOW",
+      "layer": "L2",
+      "source": "core",
+      "evidence": "L2 unreviewed — semantic issues may exist",
+      "is_blocking": false
+    }
+  ],
+  "missing_evidence": [],
+  "assumptions_detected": [
+    "L2 (semantic correctness) not reviewed — no LLM reviewer registered"
+  ],
+  "advisory_notes": [],
+  "score_breakdown": {
+    "base": 100,
+    "issue_deductions": 20,
+    "missing_evidence_deductions": 0,
+    "risk_deductions": 10,
+    "overconfidence_deductions": 5,
+    "evidence_bonuses": 5,
+    "final": 70
+  },
+  "fabricated_evidence": [],
+  "next_action": "Halt — requires human review before continuing",
+  "version": "0.5.2",
+  "schema_version": "0.2.0",
+  "trust_memory_summary": {
+    "agent_id": "orca-agent",
+    "reliability_score": 37,
+    "drift_trend": "stable",
+    "review_count": 1,
+    "last_reviewed_at": 1793801202871
+  },
+  "bound_diff_sha256": "694143911ceabaad01daf47c45a20c57d623e95deb5a704642aa4aac9319f071",
+  "evidence_bound": {
+    "test_log_sha256": "684531ac5dcfe5470fd0b952e7b84bd774fa5781f5d738d6a661819d162f1591",
+    "build_log_sha256": null
+  }
+}

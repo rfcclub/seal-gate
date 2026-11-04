@@ -1,0 +1,16 @@
+scenarios:
+  - scenario: runner-failure-is-inconclusive-runner-missing
+    test: tests/spec/mutation-probe.test.ts
+    assertion: "mutation-probe: inconclusive outcomes runner-missing: a runner that cannot start is not a pin"
+  - scenario: runner-failure-is-inconclusive-runner-timeout
+    test: tests/spec/mutation-probe.test.ts
+    assertion: "mutation-probe: inconclusive outcomes runner-timeout: a runner past its timeout is not a pin"
+  - scenario: runner-failure-is-inconclusive-mutation-runner-error
+    test: tests/spec/mutation-probe.test.ts
+    assertion: "mutation-probe: inconclusive outcomes mutation-runner-error: a runner error during a mutation is not a kill"
+  - scenario: a-failing-baseline-is-inconclusive-baseline-failing
+    test: tests/spec/mutation-probe.test.ts
+    assertion: "mutation-probe: inconclusive outcomes baseline-failing: a test that fails unmutated pins nothing"
+  - scenario: real-kills-still-pin-baseline-then-kills
+    test: tests/spec/mutation-probe.test.ts
+    assertion: "mutation-probe: inconclusive outcomes baseline-then-kills: a passing baseline with killed mutations pins"

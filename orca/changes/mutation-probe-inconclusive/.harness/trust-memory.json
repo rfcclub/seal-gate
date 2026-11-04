@@ -1,0 +1,18 @@
+{
+  "orca-agent": [
+    {
+      "ts": 1793801202871,
+      "verdict": "ESCALATE_TO_HUMAN",
+      "trust_score": 75,
+      "risk_level": "HIGH",
+      "blocking_count": 1
+    },
+    {
+      "ts": 1793801211638,
+      "verdict": "ESCALATE_TO_HUMAN",
+      "trust_score": 75,
+      "risk_level": "HIGH",
+      "blocking_count": 1
+    }
+  ]
+}
