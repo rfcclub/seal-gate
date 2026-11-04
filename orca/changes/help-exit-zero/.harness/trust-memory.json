@@ -1,0 +1,11 @@
+{
+  "orca-agent": [
+    {
+      "ts": 1793805603317,
+      "verdict": "PASS",
+      "trust_score": 85,
+      "risk_level": "MEDIUM",
+      "blocking_count": 0
+    }
+  ]
+}

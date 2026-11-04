@@ -1,0 +1,4 @@
+scenarios:
+  - scenario: help-is-not-an-error-help-flags
+    test: tests/cli/help.test.ts
+    assertion: "help-flags: --help, help and -h exit 0; misuse exits 2"

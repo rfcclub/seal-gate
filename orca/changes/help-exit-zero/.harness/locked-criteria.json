@@ -1,0 +1,8 @@
+[
+  {
+    "id": "SC-1",
+    "text": "SC-1: `seal --help`, `seal help` and `seal -h` print the usage and exit 0; `seal` with no command and an unknown command still exit 2.",
+    "source_file": "intent.md",
+    "source_line": 16
+  }
+]
