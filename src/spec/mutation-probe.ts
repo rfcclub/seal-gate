@@ -44,11 +44,12 @@ export interface MutationProbeOpts {
 interface RunResult { exit_code: number; output: string; error?: string }
 
 /**
- * Assertion-failure output of node:assert and Vitest (AssertionError) and of Bun and Jest
- * (expect(received)). A runner's generic per-test failure line, such as Bun's "(fail) ", is
- * printed for any thrown error and is not evidence.
+ * A diagnostic line of a failed assertion: node:assert and Vitest print `AssertionError: …`,
+ * Bun prints `error: expect(received)…` and Jest `expect(received)…`. Anchored to the line start,
+ * so the same words in a test name (`(fail) …`, `× …`, `FAIL … > …`) or in a source excerpt
+ * (`2| …`) are not evidence; neither is a runner's generic failure line such as Bun's `(fail)`.
  */
-export const DEFAULT_FAILURE_PATTERN = /AssertionError|expect\(received\)/
+export const DEFAULT_FAILURE_PATTERN = /^\s*(?:error: )?(?:AssertionError\b|expect\(received\))/m
 
 /** Single-point mutation operators. Each returns a list of mutated sources. */
 export function breedMutations(source: string): string[] {
@@ -168,7 +169,9 @@ export async function checkTestPinsBehavior(opts: MutationProbeOpts): Promise<Mu
     }
     // A failing run is a kill only if it looks like a failed assertion. A missing tool, a crash
     // or a mutation that breaks the syntax also exits nonzero; such runs are not counted.
-    if (probe.exit_code === 1 && (opts.failure_pattern ?? DEFAULT_FAILURE_PATTERN).test(probe.output)) kills++
+    // eslint-disable-next-line no-control-regex
+    const output = probe.output.replace(/\x1b\[[0-9;]*m/g, '')
+    if (probe.exit_code === 1 && (opts.failure_pattern ?? DEFAULT_FAILURE_PATTERN).test(output)) kills++
     else unproven.push(`exit ${probe.exit_code}`)
   }
 

@@ -23,3 +23,6 @@ scenarios:
   - scenario: a-kill-needs-assertion-failure-evidence-real-bun-non-assertion
     test: tests/spec/mutation-probe.test.ts
     assertion: "mutation-probe: inconclusive outcomes real-bun-non-assertion: a bun (fail) without an assertion is not a kill"
+  - scenario: a-kill-needs-assertion-failure-evidence-assertion-word-in-test-name
+    test: tests/spec/mutation-probe.test.ts
+    assertion: "mutation-probe: inconclusive outcomes assertion-word-in-test-name: an assertion word in a test name is not evidence"
