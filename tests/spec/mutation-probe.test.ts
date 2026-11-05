@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'bun:test'
-import { mkdtempSync, writeFileSync } from 'fs'
+import { mkdtempSync, readFileSync, writeFileSync } from 'fs'
 import { tmpdir } from 'os'
 import { join } from 'path'
 import { breedMutations, checkTestPinsBehavior, mutationSurvivorEvidence } from '../../src/spec/mutation-probe.ts'
@@ -87,17 +87,15 @@ describe('mutation-probe: checkTestPinsBehavior', () => {
     const testFile = join(dir, 'demo.test.ts')
     writeFileSync(testFile, 'expect(add(1, 2)).toBe(3) // guard', 'utf-8')
 
-    const killRunner = async () => ({ exit_code: 1, output: 'fail' })
+    const original = 'expect(add(1, 2)).toBe(3) // guard'
+    const killRunner = async () => readFileSync(testFile, 'utf-8') === original ? { exit_code: 0, output: 'pass' } : { exit_code: 1, output: 'AssertionError: expected 3 not to be 3' }
     const res = await checkTestPinsBehavior({
       test_file: testFile,
       run_command: ['bun', ['test', testFile]],
       workdir: dir,
       _runTest: killRunner,
     })
-    if ('pinned' in res) {
-      expect(res.pinned).toBe(true)
-      expect(res.survivors).toEqual([])
-    }
+    expect(res).toEqual({ pinned: true, survivors: [] })
   })
 })
 
@@ -146,7 +144,8 @@ describe('SpecCoverageValidator.validateWithProbe', () => {
     const testFile = join(dir, 'auth.test.ts')
     writeFileSync(testFile, testLog, 'utf-8')
 
-    const killRunner = async () => ({ exit_code: 1, output: 'fail' })
+    // Passes the unmutated test (the probe's baseline) and fails every mutation.
+    const killRunner = async () => readFileSync(testFile, 'utf-8') === testLog ? { exit_code: 0, output: 'pass' } : { exit_code: 1, output: 'AssertionError: expected undefined to be defined' }
     const result = await SpecCoverageValidator.validateWithProbe(
       spec,
       testLog,
@@ -160,3 +159,117 @@ describe('SpecCoverageValidator.validateWithProbe', () => {
     expect(result.issues.some(i => i.type === 'SPEC_UNTESTED')).toBe(false)
   })
 })
+describe('mutation-probe: inconclusive outcomes', () => {
+  const ORIGINAL = 'expect(add(1, 2)).toBe(3) // guard'
+  const probeFile = () => {
+    const dir = mkdtempSync(join(tmpdir(), 'seal-mut-inconclusive-'))
+    const testFile = join(dir, 'demo.test.ts')
+    writeFileSync(testFile, ORIGINAL, 'utf-8')
+    return { dir, testFile }
+  }
+  // Passes the unmutated source and fails every mutation, counting runs of each.
+  const discriminating = (testFile: string, onMutation: () => { exit_code: number; output: string; error?: string } = () => ({ exit_code: 1, output: 'AssertionError: expected 3 to be 4' })) => {
+    const runs = { baseline: 0, mutation: 0 }
+    const runTest = async () => {
+      if (readFileSync(testFile, 'utf-8') === ORIGINAL) { runs.baseline++; return { exit_code: 0, output: 'pass' } }
+      runs.mutation++
+      return onMutation()
+    }
+    return { runs, runTest }
+  }
+
+  it('runner-missing: a runner that cannot start is not a pin', async () => {
+    const { dir, testFile } = probeFile()
+    const res = await checkTestPinsBehavior({ test_file: testFile, run_command: ['/definitely/nonexistent/seal-test-runner', []], workdir: dir })
+    expect(res).toMatchObject({ skipped: true })
+    expect('pinned' in res).toBe(false)
+  })
+
+  it('runner-timeout: a runner past its timeout is not a pin', async () => {
+    const { dir, testFile } = probeFile()
+    const res = await checkTestPinsBehavior({ test_file: testFile, run_command: ['sh', ['-c', 'sleep 1']], workdir: dir, timeout_ms: 200 })
+    expect(res).toMatchObject({ skipped: true })
+    expect('skipped' in res && res.reason).toContain('runner')
+  }, 10_000)
+
+  it('mutation-runner-error: a runner error during a mutation is not a kill', async () => {
+    const { dir, testFile } = probeFile()
+    const { runTest } = discriminating(testFile, () => ({ exit_code: 1, output: '', error: 'spawn EACCES' }))
+    const res = await checkTestPinsBehavior({ test_file: testFile, run_command: ['bun', ['test', testFile]], workdir: dir, _runTest: runTest })
+    expect(res).toMatchObject({ skipped: true })
+    expect(readFileSync(testFile, 'utf-8')).toBe(ORIGINAL)
+  })
+
+  it('baseline-failing: a test that fails unmutated pins nothing', async () => {
+    const { dir, testFile } = probeFile()
+    const res = await checkTestPinsBehavior({ test_file: testFile, run_command: ['bun', ['test', testFile]], workdir: dir, _runTest: async () => ({ exit_code: 1, output: 'fail' }) })
+    expect(res).toMatchObject({ skipped: true })
+    expect('skipped' in res && res.reason).toContain('baseline')
+  })
+
+  it('mutation-tool-failure: a required tool that fails after a passing baseline is not a kill', async () => {
+    const { dir, testFile } = probeFile()
+    // A real runner: passes the unmutated file, then needs a child tool that does not exist.
+    const runner = join(dir, 'runner.mjs')
+    writeFileSync(runner, `import { readFileSync } from 'node:fs'
+import { spawnSync } from 'node:child_process'
+if (readFileSync(${JSON.stringify(testFile)}, 'utf8') === ${JSON.stringify(ORIGINAL)}) process.exit(0)
+const child = spawnSync('/definitely/nonexistent/seal-child')
+console.error(String(child.error))
+process.exit(127)
+`)
+    const res = await checkTestPinsBehavior({ test_file: testFile, run_command: [process.execPath, [runner]], workdir: dir })
+    expect(res).toMatchObject({ skipped: true })
+    expect(readFileSync(testFile, 'utf-8')).toBe(ORIGINAL)
+  })
+
+  it('mutation-unproven-failure: exit 1 without assertion evidence is not a kill', async () => {
+    const { dir, testFile } = probeFile()
+    const { runTest } = discriminating(testFile, () => ({ exit_code: 1, output: 'Error: Cannot find module ./config' }))
+    const res = await checkTestPinsBehavior({ test_file: testFile, run_command: ['bun', ['test', testFile]], workdir: dir, _runTest: runTest })
+    expect(res).toMatchObject({ skipped: true })
+  })
+
+  it('real-bun-non-assertion: a bun (fail) without an assertion is not a kill', async () => {
+    const dir = mkdtempSync(join(tmpdir(), 'seal-mut-real-'))
+    const testFile = join(dir, 'tool.test.ts')
+    // Mutating `true` to `false` makes the test throw ENOENT; bun reports it as "(fail)", with no assertion.
+    writeFileSync(testFile, "import { test } from 'bun:test'\nimport { spawnSync } from 'node:child_process'\nconst gate = true\ntest('missing tool', () => { if (!gate) { const r = spawnSync('/definitely/nonexistent/child'); throw r.error } })\n")
+    const res = await checkTestPinsBehavior({ test_file: testFile, run_command: [process.argv0.includes('bun') ? process.execPath : 'bun', ['test', testFile]], workdir: dir })
+    expect(res).toMatchObject({ skipped: true })
+  }, 30_000)
+
+  it('assertion-word-in-test-name: an assertion word in a test name is not evidence', async () => {
+    const dir = mkdtempSync(join(tmpdir(), 'seal-mut-real-'))
+    const testFile = join(dir, 'named.test.ts')
+    writeFileSync(testFile, "import { test } from 'bun:test'\nimport { spawnSync } from 'node:child_process'\nconst gate = true\ntest('expect(received) reports missing tool AssertionError', () => { if (!gate) { const r = spawnSync('/definitely/nonexistent/child'); throw r.error } })\n")
+    const res = await checkTestPinsBehavior({ test_file: testFile, run_command: [process.argv0.includes('bun') ? process.execPath : 'bun', ['test', testFile]], workdir: dir })
+    expect(res).toMatchObject({ skipped: true })
+  }, 30_000)
+
+  it('baseline-prints-evidence: logged assertion text makes the probe inconclusive', async () => {
+    const dir = mkdtempSync(join(tmpdir(), 'seal-mut-real-'))
+    const testFile = join(dir, 'logs.test.ts')
+    writeFileSync(testFile, "import { test } from 'bun:test'\nimport { spawnSync } from 'node:child_process'\nconst gate = true\ntest('fixture', () => { console.error('AssertionError: logged fixture data'); if (!gate) { const r = spawnSync('/definitely/nonexistent/child'); throw r.error } })\n")
+    const res = await checkTestPinsBehavior({ test_file: testFile, run_command: [process.argv0.includes('bun') ? process.execPath : 'bun', ['test', testFile]], workdir: dir })
+    expect(res).toMatchObject({ skipped: true })
+  }, 30_000)
+
+  it('real-runner-pin: a real bun test assertion failure pins', async () => {
+    const dir = mkdtempSync(join(tmpdir(), 'seal-mut-real-'))
+    const testFile = join(dir, 'real.test.ts')
+    writeFileSync(testFile, "import { test, expect } from 'bun:test'\ntest('adds', () => { expect(1 + 2).toBe(3) })\n")
+    const res = await checkTestPinsBehavior({ test_file: testFile, run_command: [process.argv0.includes('bun') ? process.execPath : 'bun', ['test', testFile]], workdir: dir })
+    expect(res).toEqual({ pinned: true, survivors: [] })
+  }, 30_000)
+
+  it('baseline-then-kills: a passing baseline with killed mutations pins', async () => {
+    const { dir, testFile } = probeFile()
+    const { runs, runTest } = discriminating(testFile)
+    const res = await checkTestPinsBehavior({ test_file: testFile, run_command: ['bun', ['test', testFile]], workdir: dir, _runTest: runTest })
+    expect(res).toEqual({ pinned: true, survivors: [] })
+    expect(runs.baseline).toBe(1)
+    expect(runs.mutation).toBeGreaterThan(0)
+  })
+})
+

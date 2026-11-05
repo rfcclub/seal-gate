@@ -1,0 +1,11 @@
+{
+  "kind": "plan",
+  "verdict": "PASS",
+  "trust_score": 100,
+  "artifact": "tasks.md",
+  "bound_artifact_sha256": "2b406f557682b814d55218086e8a15a3ae68dcbc652d95e8370143d6a0aba46d",
+  "criteria_count": 5,
+  "blocking_issues": [],
+  "next_action": "Proceed",
+  "advisory_notes": []
+}

@@ -1,0 +1,220 @@
+{
+  "version": 1,
+  "mode": "executable",
+  "change": "mutation-probe-inconclusive",
+  "timestamp": "2026-11-04T15:41:57.197Z",
+  "total_scenarios": 10,
+  "passing": 0,
+  "coverage": 0,
+  "threshold": 100,
+  "passed": false,
+  "execution_verified": false,
+  "red_recorded": true,
+  "execution": {
+    "version": 1,
+    "outcome": "red",
+    "source": {
+      "head": "0949b6d81f9b98b6fa9cc64df3920ceacd3a1bb8",
+      "diff_sha256": "caa8dc98468721afc630f515c4d8608f86518244b9e3219273f456f21bed241a",
+      "tree_sha256": "a0ed358ebe4446b2dda2040efbc2d453561879833bfcab01fb23d13dc471f268"
+    },
+    "tests": {
+      "tests/spec/mutation-probe.test.ts": "8c9292c4389fd08ffd21ce861e08478d6d1313f506626566845f7132258ef475"
+    },
+    "runner": {
+      "entry": "/Users/thoor/work/seal-gate-wt/mutation-probe/node_modules/vitest/vitest.mjs",
+      "sha256": "39db22f579acf5639bbb17a261408debbde03f4692c0c439e77e7f13aeba74d6",
+      "version": "4.1.11",
+      "node_version": "v26.5.0"
+    },
+    "selection": [
+      {
+        "id": "runner-failure-is-inconclusive-runner-missing",
+        "test": "tests/spec/mutation-probe.test.ts",
+        "assertion": "mutation-probe: inconclusive outcomes runner-missing: a runner that cannot start is not a pin"
+      },
+      {
+        "id": "runner-failure-is-inconclusive-runner-timeout",
+        "test": "tests/spec/mutation-probe.test.ts",
+        "assertion": "mutation-probe: inconclusive outcomes runner-timeout: a runner past its timeout is not a pin"
+      },
+      {
+        "id": "runner-failure-is-inconclusive-mutation-runner-error",
+        "test": "tests/spec/mutation-probe.test.ts",
+        "assertion": "mutation-probe: inconclusive outcomes mutation-runner-error: a runner error during a mutation is not a kill"
+      },
+      {
+        "id": "a-failing-baseline-is-inconclusive-baseline-failing",
+        "test": "tests/spec/mutation-probe.test.ts",
+        "assertion": "mutation-probe: inconclusive outcomes baseline-failing: a test that fails unmutated pins nothing"
+      },
+      {
+        "id": "real-kills-still-pin-baseline-then-kills",
+        "test": "tests/spec/mutation-probe.test.ts",
+        "assertion": "mutation-probe: inconclusive outcomes baseline-then-kills: a passing baseline with killed mutations pins"
+      },
+      {
+        "id": "a-kill-needs-assertion-failure-evidence-mutation-tool-failure",
+        "test": "tests/spec/mutation-probe.test.ts",
+        "assertion": "mutation-probe: inconclusive outcomes mutation-tool-failure: a required tool that fails after a passing baseline is not a kill"
+      },
+      {
+        "id": "a-kill-needs-assertion-failure-evidence-mutation-unproven-failure",
+        "test": "tests/spec/mutation-probe.test.ts",
+        "assertion": "mutation-probe: inconclusive outcomes mutation-unproven-failure: exit 1 without assertion evidence is not a kill"
+      },
+      {
+        "id": "a-kill-needs-assertion-failure-evidence-real-bun-non-assertion",
+        "test": "tests/spec/mutation-probe.test.ts",
+        "assertion": "mutation-probe: inconclusive outcomes real-bun-non-assertion: a bun (fail) without an assertion is not a kill"
+      },
+      {
+        "id": "a-kill-needs-assertion-failure-evidence-assertion-word-in-test-name",
+        "test": "tests/spec/mutation-probe.test.ts",
+        "assertion": "mutation-probe: inconclusive outcomes assertion-word-in-test-name: an assertion word in a test name is not evidence"
+      },
+      {
+        "id": "a-kill-needs-assertion-failure-evidence-baseline-prints-evidence",
+        "test": "tests/spec/mutation-probe.test.ts",
+        "assertion": "mutation-probe: inconclusive outcomes baseline-prints-evidence: logged assertion text makes the probe inconclusive"
+      }
+    ],
+    "command": {
+      "executable": "/opt/homebrew/Cellar/node/26.5.0/bin/node",
+      "args": [
+        "/Users/thoor/work/seal-gate-wt/mutation-probe/node_modules/vitest/vitest.mjs",
+        "run",
+        "tests/spec/mutation-probe.test.ts",
+        "--root",
+        "/Users/thoor/work/seal-gate-wt/mutation-probe",
+        "--reporter=json",
+        "--outputFile=/var/folders/xx/_15f_6pn4dgb5l2tr2wll6fh0000gn/T/orca-vitest-TERKlg/report.json",
+        "--maxWorkers=1",
+        "--no-file-parallelism",
+        "--expect.requireAssertions"
+      ],
+      "exit_code": 1,
+      "stdout": "JSON report written to /var/folders/xx/_15f_6pn4dgb5l2tr2wll6fh0000gn/T/orca-vitest-TERKlg/report.json\n",
+      "stderr": ""
+    },
+    "report": "{\"numTotalTestSuites\":6,\"numPassedTestSuites\":4,\"numFailedTestSuites\":2,\"numPendingTestSuites\":0,\"numTotalTests\":23,\"numPassedTests\":13,\"numFailedTests\":10,\"numPendingTests\":0,\"numTodoTests\":0,\"snapshot\":{\"added\":0,\"failure\":false,\"filesAdded\":0,\"filesRemoved\":0,\"filesRemovedList\":[],\"filesUnmatched\":0,\"filesUpdated\":0,\"matched\":0,\"total\":0,\"unchecked\":0,\"uncheckedKeysByFile\":[],\"unmatched\":0,\"updated\":0,\"didUpdate\":false},\"startTime\":1793806913761,\"success\":false,\"testResults\":[{\"assertionResults\":[{\"ancestorTitles\":[\"mutation-probe: breedMutations\"],\"fullName\":\"mutation-probe: breedMutations flips expect().toBe(x) to .not.toBe(x)\",\"status\":\"passed\",\"title\":\"flips expect().toBe(x) to .not.toBe(x)\",\"duration\":0.8448749999999876,\"failureMessages\":[],\"meta\":{},\"tags\":[]},{\"ancestorTitles\":[\"mutation-probe: breedMutations\"],\"fullName\":\"mutation-probe: breedMutations flips === to !==\",\"status\":\"passed\",\"title\":\"flips === to !==\",\"duration\":0.07995900000000233,\"failureMessages\":[],\"meta\":{},\"tags\":[]},{\"ancestorTitles\":[\"mutation-probe: breedMutations\"],\"fullName\":\"mutation-probe: breedMutations flips boolean literal true to false\",\"status\":\"passed\",\"title\":\"flips boolean literal true to false\",\"duration\":0.055832999999992694,\"failureMessages\":[],\"meta\":{},\"tags\":[]},{\"ancestorTitles\":[\"mutation-probe: breedMutations\"],\"fullName\":\"mutation-probe: breedMutations bumps a numeric literal\",\"status\":\"passed\",\"title\":\"bumps a numeric literal\",\"duration\":0.05470900000000256,\"failureMessages\":[],\"meta\":{},\"tags\":[]},{\"ancestorTitles\":[\"mutation-probe: breedMutations\"],\"fullName\":\"mutation-probe: breedMutations dedupes mutations\",\"status\":\"passed\",\"title\":\"dedupes mutations\",\"duration\":0.05662499999999682,\"failureMessages\":[],\"meta\":{},\"tags\":[]},{\"ancestorTitles\":[\"mutation-probe: checkTestPinsBehavior\"],\"fullName\":\"mutation-probe: checkTestPinsBehavior skips when run_command is missing (never throws)\",\"status\":\"passed\",\"title\":\"skips when run_command is missing (never throws)\",\"duration\":0.10308299999999804,\"failureMessages\":[],\"meta\":{},\"tags\":[]},{\"ancestorTitles\":[\"mutation-probe: checkTestPinsBehavior\"],\"fullName\":\"mutation-probe: checkTestPinsBehavior skips when test file does not exist\",\"status\":\"passed\",\"title\":\"skips when test file does not exist\",\"duration\":0.050750000000007844,\"failureMessages\":[],\"meta\":{},\"tags\":[]},{\"ancestorTitles\":[\"mutation-probe: checkTestPinsBehavior\"],\"fullName\":\"mutation-probe: checkTestPinsBehavior reports pinned:false when a mutation survives (fake runner always passes)\",\"status\":\"passed\",\"title\":\"reports pinned:false when a mutation survives (fake runner always passes)\",\"duration\":0.488749999999996,\"failureMessages\":[],\"meta\":{},\"tags\":[]},{\"ancestorTitles\":[\"mutation-probe: checkTestPinsBehavior\"],\"fullName\":\"mutation-probe: checkTestPinsBehavior reports pinned:true when every mutation kills the test (fake runner fails on mutation)\",\"status\":\"passed\",\"title\":\"reports pinned:true when every mutation kills the test (fake runner fails on mutation)\",\"duration\":0.5669579999999996,\"failureMessages\":[],\"meta\":{},\"tags\":[]},{\"ancestorTitles\":[\"mutation-probe: mutationSurvivorEvidence\"],\"fullName\":\"mutation-probe: mutationSurvivorEvidence formats a compact evidence snippet\",\"status\":\"passed\",\"title\":\"formats a compact evidence snippet\",\"duration\":0.14729099999999562,\"failureMessages\":[],\"meta\":{},\"tags\":[]},{\"ancestorTitles\":[\"SpecCoverageValidator.validateWithProbe\"],\"fullName\":\"SpecCoverageValidator.validateWithProbe downgrades an unpinned (vacuous) test to SPEC_UNTESTED\",\"status\":\"passed\",\"title\":\"downgrades an unpinned (vacuous) test to SPEC_UNTESTED\",\"duration\":0.7816250000000053,\"failureMessages\":[],\"meta\":{},\"tags\":[]},{\"ancestorTitles\":[\"SpecCoverageValidator.validateWithProbe\"],\"fullName\":\"SpecCoverageValidator.validateWithProbe leaves a pinned test as level 1 with no SPEC_UNTESTED\",\"status\":\"passed\",\"title\":\"leaves a pinned test as level 1 with no SPEC_UNTESTED\",\"duration\":0.4964999999999975,\"failureMessages\":[],\"meta\":{},\"tags\":[]},{\"ancestorTitles\":[\"mutation-probe: inconclusive outcomes\"],\"fullName\":\"mutation-probe: inconclusive outcomes runner-missing: a runner that cannot start is not a pin\",\"status\":\"failed\",\"title\":\"runner-missing: a runner that cannot start is not a pin\",\"duration\":5.242041999999998,\"failureMessages\":[\"AssertionError: expected { pinned: true, survivors: [] } to match object { skipped: true }\\n(2 matching properties omitted from actual)\\n    at Proxy.<anonymous> (file:///Users/thoor/work/seal-gate-wt/mutation-probe/node_modules/@vitest/expect/dist/index.js:1283:10)\\n    at Proxy.<anonymous> (file:///Users/thoor/work/seal-gate-wt/mutation-probe/node_modules/@vitest/expect/dist/index.js:1156:15)\\n    at Proxy.methodWrapper (file:///Users/thoor/work/seal-gate-wt/mutation-probe/node_modules/chai/index.js:1737:25)\\n    at /Users/thoor/work/seal-gate-wt/mutation-probe/tests/spec/mutation-probe.test.ts:184:17\\n    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)\\n    at async file:///Users/thoor/work/seal-gate-wt/mutation-probe/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:20\"],\"meta\":{},\"tags\":[]},{\"ancestorTitles\":[\"mutation-probe: inconclusive outcomes\"],\"fullName\":\"mutation-probe: inconclusive outcomes runner-timeout: a runner past its timeout is not a pin\",\"status\":\"failed\",\"title\":\"runner-timeout: a runner past its timeout is not a pin\",\"duration\":2042.7802499999998,\"failureMessages\":[\"AssertionError: expected { pinned: false, survivors: [ …(2) ] } to match object { skipped: true }\\n(2 matching properties omitted from actual)\\n    at Proxy.<anonymous> (file:///Users/thoor/work/seal-gate-wt/mutation-probe/node_modules/@vitest/expect/dist/index.js:1283:10)\\n    at Proxy.<anonymous> (file:///Users/thoor/work/seal-gate-wt/mutation-probe/node_modules/@vitest/expect/dist/index.js:1156:15)\\n    at Proxy.methodWrapper (file:///Users/thoor/work/seal-gate-wt/mutation-probe/node_modules/chai/index.js:1737:25)\\n    at /Users/thoor/work/seal-gate-wt/mutation-probe/tests/spec/mutation-probe.test.ts:191:17\\n    at async file:///Users/thoor/work/seal-gate-wt/mutation-probe/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:20\"],\"meta\":{},\"tags\":[]},{\"ancestorTitles\":[\"mutation-probe: inconclusive outcomes\"],\"fullName\":\"mutation-probe: inconclusive outcomes mutation-runner-error: a runner error during a mutation is not a kill\",\"status\":\"failed\",\"title\":\"mutation-runner-error: a runner error during a mutation is not a kill\",\"duration\":2.538332999999966,\"failureMessages\":[\"AssertionError: expected { pinned: true, survivors: [] } to match object { skipped: true }\\n(2 matching properties omitted from actual)\\n    at Proxy.<anonymous> (file:///Users/thoor/work/seal-gate-wt/mutation-probe/node_modules/@vitest/expect/dist/index.js:1283:10)\\n    at Proxy.<anonymous> (file:///Users/thoor/work/seal-gate-wt/mutation-probe/node_modules/@vitest/expect/dist/index.js:1156:15)\\n    at Proxy.methodWrapper (file:///Users/thoor/work/seal-gate-wt/mutation-probe/node_modules/chai/index.js:1737:25)\\n    at /Users/thoor/work/seal-gate-wt/mutation-probe/tests/spec/mutation-probe.test.ts:199:17\\n    at async file:///Users/thoor/work/seal-gate-wt/mutation-probe/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:20\"],\"meta\":{},\"tags\":[]},{\"ancestorTitles\":[\"mutation-probe: inconclusive outcomes\"],\"fullName\":\"mutation-probe: inconclusive outcomes baseline-failing: a test that fails unmutated pins nothing\",\"status\":\"failed\",\"title\":\"baseline-failing: a test that fails unmutated pins nothing\",\"duration\":1.8299999999999272,\"failureMessages\":[\"AssertionError: expected { pinned: true, survivors: [] } to match object { skipped: true }\\n(2 matching properties omitted from actual)\\n    at Proxy.<anonymous> (file:///Users/thoor/work/seal-gate-wt/mutation-probe/node_modules/@vitest/expect/dist/index.js:1283:10)\\n    at Proxy.<anonymous> (file:///Users/thoor/work/seal-gate-wt/mutation-probe/node_modules/@vitest/expect/dist/index.js:1156:15)\\n    at Proxy.methodWrapper (file:///Users/thoor/work/seal-gate-wt/mutation-probe/node_modules/chai/index.js:1737:25)\\n    at /Users/thoor/work/seal-gate-wt/mutation-probe/tests/spec/mutation-probe.test.ts:206:17\\n    at async file:///Users/thoor/work/seal-gate-wt/mutation-probe/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:20\"],\"meta\":{},\"tags\":[]},{\"ancestorTitles\":[\"mutation-probe: inconclusive outcomes\"],\"fullName\":\"mutation-probe: inconclusive outcomes mutation-tool-failure: a required tool that fails after a passing baseline is not a kill\",\"status\":\"failed\",\"title\":\"mutation-tool-failure: a required tool that fails after a passing baseline is not a kill\",\"duration\":81.19808300000022,\"failureMessages\":[\"AssertionError: expected { pinned: true, survivors: [] } to match object { skipped: true }\\n(2 matching properties omitted from actual)\\n    at Proxy.<anonymous> (file:///Users/thoor/work/seal-gate-wt/mutation-probe/node_modules/@vitest/expect/dist/index.js:1283:10)\\n    at Proxy.<anonymous> (file:///Users/thoor/work/seal-gate-wt/mutation-probe/node_modules/@vitest/expect/dist/index.js:1156:15)\\n    at Proxy.methodWrapper (file:///Users/thoor/work/seal-gate-wt/mutation-probe/node_modules/chai/index.js:1737:25)\\n    at /Users/thoor/work/seal-gate-wt/mutation-probe/tests/spec/mutation-probe.test.ts:222:17\\n    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)\\n    at async file:///Users/thoor/work/seal-gate-wt/mutation-probe/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:20\"],\"meta\":{},\"tags\":[]},{\"ancestorTitles\":[\"mutation-probe: inconclusive outcomes\"],\"fullName\":\"mutation-probe: inconclusive outcomes mutation-unproven-failure: exit 1 without assertion evidence is not a kill\",\"status\":\"failed\",\"title\":\"mutation-unproven-failure: exit 1 without assertion evidence is not a kill\",\"duration\":0.5905000000002474,\"failureMessages\":[\"AssertionError: expected { pinned: true, survivors: [] } to match object { skipped: true }\\n(2 matching properties omitted from actual)\\n    at Proxy.<anonymous> (file:///Users/thoor/work/seal-gate-wt/mutation-probe/node_modules/@vitest/expect/dist/index.js:1283:10)\\n    at Proxy.<anonymous> (file:///Users/thoor/work/seal-gate-wt/mutation-probe/node_modules/@vitest/expect/dist/index.js:1156:15)\\n    at Proxy.methodWrapper (file:///Users/thoor/work/seal-gate-wt/mutation-probe/node_modules/chai/index.js:1737:25)\\n    at /Users/thoor/work/seal-gate-wt/mutation-probe/tests/spec/mutation-probe.test.ts:230:17\\n    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)\\n    at async file:///Users/thoor/work/seal-gate-wt/mutation-probe/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:20\"],\"meta\":{},\"tags\":[]},{\"ancestorTitles\":[\"mutation-probe: inconclusive outcomes\"],\"fullName\":\"mutation-probe: inconclusive outcomes real-bun-non-assertion: a bun (fail) without an assertion is not a kill\",\"status\":\"failed\",\"title\":\"real-bun-non-assertion: a bun (fail) without an assertion is not a kill\",\"duration\":253.8382499999998,\"failureMessages\":[\"AssertionError: expected { pinned: true, survivors: [] } to match object { skipped: true }\\n(2 matching properties omitted from actual)\\n    at Proxy.<anonymous> (file:///Users/thoor/work/seal-gate-wt/mutation-probe/node_modules/@vitest/expect/dist/index.js:1283:10)\\n    at Proxy.<anonymous> (file:///Users/thoor/work/seal-gate-wt/mutation-probe/node_modules/@vitest/expect/dist/index.js:1156:15)\\n    at Proxy.methodWrapper (file:///Users/thoor/work/seal-gate-wt/mutation-probe/node_modules/chai/index.js:1737:25)\\n    at /Users/thoor/work/seal-gate-wt/mutation-probe/tests/spec/mutation-probe.test.ts:239:17\\n    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)\\n    at async file:///Users/thoor/work/seal-gate-wt/mutation-probe/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:20\"],\"meta\":{},\"tags\":[]},{\"ancestorTitles\":[\"mutation-probe: inconclusive outcomes\"],\"fullName\":\"mutation-probe: inconclusive outcomes assertion-word-in-test-name: an assertion word in a test name is not evidence\",\"status\":\"failed\",\"title\":\"assertion-word-in-test-name: an assertion word in a test name is not evidence\",\"duration\":253.3425000000002,\"failureMessages\":[\"AssertionError: expected { pinned: true, survivors: [] } to match object { skipped: true }\\n(2 matching properties omitted from actual)\\n    at Proxy.<anonymous> (file:///Users/thoor/work/seal-gate-wt/mutation-probe/node_modules/@vitest/expect/dist/index.js:1283:10)\\n    at Proxy.<anonymous> (file:///Users/thoor/work/seal-gate-wt/mutation-probe/node_modules/@vitest/expect/dist/index.js:1156:15)\\n    at Proxy.methodWrapper (file:///Users/thoor/work/seal-gate-wt/mutation-probe/node_modules/chai/index.js:1737:25)\\n    at /Users/thoor/work/seal-gate-wt/mutation-probe/tests/spec/mutation-probe.test.ts:247:17\\n    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)\\n    at async file:///Users/thoor/work/seal-gate-wt/mutation-probe/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:20\"],\"meta\":{},\"tags\":[]},{\"ancestorTitles\":[\"mutation-probe: inconclusive outcomes\"],\"fullName\":\"mutation-probe: inconclusive outcomes baseline-prints-evidence: logged assertion text makes the probe inconclusive\",\"status\":\"failed\",\"title\":\"baseline-prints-evidence: logged assertion text makes the probe inconclusive\",\"duration\":269.3993340000002,\"failureMessages\":[\"AssertionError: expected { pinned: true, survivors: [] } to match object { skipped: true }\\n(2 matching properties omitted from actual)\\n    at Proxy.<anonymous> (file:///Users/thoor/work/seal-gate-wt/mutation-probe/node_modules/@vitest/expect/dist/index.js:1283:10)\\n    at Proxy.<anonymous> (file:///Users/thoor/work/seal-gate-wt/mutation-probe/node_modules/@vitest/expect/dist/index.js:1156:15)\\n    at Proxy.methodWrapper (file:///Users/thoor/work/seal-gate-wt/mutation-probe/node_modules/chai/index.js:1737:25)\\n    at /Users/thoor/work/seal-gate-wt/mutation-probe/tests/spec/mutation-probe.test.ts:255:17\\n    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)\\n    at async file:///Users/thoor/work/seal-gate-wt/mutation-probe/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:20\"],\"meta\":{},\"tags\":[]},{\"ancestorTitles\":[\"mutation-probe: inconclusive outcomes\"],\"fullName\":\"mutation-probe: inconclusive outcomes real-runner-pin: a real bun test assertion failure pins\",\"status\":\"passed\",\"title\":\"real-runner-pin: a real bun test assertion failure pins\",\"duration\":371.70074999999997,\"failureMessages\":[],\"meta\":{},\"tags\":[]},{\"ancestorTitles\":[\"mutation-probe: inconclusive outcomes\"],\"fullName\":\"mutation-probe: inconclusive outcomes baseline-then-kills: a passing baseline with killed mutations pins\",\"status\":\"failed\",\"title\":\"baseline-then-kills: a passing baseline with killed mutations pins\",\"duration\":0.8762910000000375,\"failureMessages\":[\"AssertionError: expected +0 to be 1 // Object.is equality\\n    at /Users/thoor/work/seal-gate-wt/mutation-probe/tests/spec/mutation-probe.test.ts:271:27\\n    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)\\n    at async file:///Users/thoor/work/seal-gate-wt/mutation-probe/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:20\"],\"meta\":{},\"tags\":[]}],\"startTime\":1793806913864,\"endTime\":1793806917150.8762,\"status\":\"failed\",\"message\":\"\",\"name\":\"/Users/thoor/work/seal-gate-wt/mutation-probe/tests/spec/mutation-probe.test.ts\"}]}",
+    "report_sha256": "ef4179fad9e48063ec74a3a0ab34d1ac224ba627964fc4a836e8ff865ed0b842",
+    "property_report": "[]",
+    "property_report_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+    "property_invocation": "982538c9-79ca-4f72-8b86-2dc508b0fe9c",
+    "assertions": [
+      {
+        "id": "runner-failure-is-inconclusive-runner-missing",
+        "test": "tests/spec/mutation-probe.test.ts",
+        "name": "mutation-probe: inconclusive outcomes runner-missing: a runner that cannot start is not a pin",
+        "status": "failed",
+        "failures": [
+          "AssertionError: expected { pinned: true, survivors: [] } to match object { skipped: true }\n(2 matching properties omitted from actual)\n    at Proxy.<anonymous> (file:///Users/thoor/work/seal-gate-wt/mutation-probe/node_modules/@vitest/expect/dist/index.js:1283:10)\n    at Proxy.<anonymous> (file:///Users/thoor/work/seal-gate-wt/mutation-probe/node_modules/@vitest/expect/dist/index.js:1156:15)\n    at Proxy.methodWrapper (file:///Users/thoor/work/seal-gate-wt/mutation-probe/node_modules/chai/index.js:1737:25)\n    at /Users/thoor/work/seal-gate-wt/mutation-probe/tests/spec/mutation-probe.test.ts:184:17\n    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)\n    at async file:///Users/thoor/work/seal-gate-wt/mutation-probe/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:20"
+        ]
+      },
+      {
+        "id": "runner-failure-is-inconclusive-runner-timeout",
+        "test": "tests/spec/mutation-probe.test.ts",
+        "name": "mutation-probe: inconclusive outcomes runner-timeout: a runner past its timeout is not a pin",
+        "status": "failed",
+        "failures": [
+          "AssertionError: expected { pinned: false, survivors: [ …(2) ] } to match object { skipped: true }\n(2 matching properties omitted from actual)\n    at Proxy.<anonymous> (file:///Users/thoor/work/seal-gate-wt/mutation-probe/node_modules/@vitest/expect/dist/index.js:1283:10)\n    at Proxy.<anonymous> (file:///Users/thoor/work/seal-gate-wt/mutation-probe/node_modules/@vitest/expect/dist/index.js:1156:15)\n    at Proxy.methodWrapper (file:///Users/thoor/work/seal-gate-wt/mutation-probe/node_modules/chai/index.js:1737:25)\n    at /Users/thoor/work/seal-gate-wt/mutation-probe/tests/spec/mutation-probe.test.ts:191:17\n    at async file:///Users/thoor/work/seal-gate-wt/mutation-probe/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:20"
+        ]
+      },
+      {
+        "id": "runner-failure-is-inconclusive-mutation-runner-error",
+        "test": "tests/spec/mutation-probe.test.ts",
+        "name": "mutation-probe: inconclusive outcomes mutation-runner-error: a runner error during a mutation is not a kill",
+        "status": "failed",
+        "failures": [
+          "AssertionError: expected { pinned: true, survivors: [] } to match object { skipped: true }\n(2 matching properties omitted from actual)\n    at Proxy.<anonymous> (file:///Users/thoor/work/seal-gate-wt/mutation-probe/node_modules/@vitest/expect/dist/index.js:1283:10)\n    at Proxy.<anonymous> (file:///Users/thoor/work/seal-gate-wt/mutation-probe/node_modules/@vitest/expect/dist/index.js:1156:15)\n    at Proxy.methodWrapper (file:///Users/thoor/work/seal-gate-wt/mutation-probe/node_modules/chai/index.js:1737:25)\n    at /Users/thoor/work/seal-gate-wt/mutation-probe/tests/spec/mutation-probe.test.ts:199:17\n    at async file:///Users/thoor/work/seal-gate-wt/mutation-probe/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:20"
+        ]
+      },
+      {
+        "id": "a-failing-baseline-is-inconclusive-baseline-failing",
+        "test": "tests/spec/mutation-probe.test.ts",
+        "name": "mutation-probe: inconclusive outcomes baseline-failing: a test that fails unmutated pins nothing",
+        "status": "failed",
+        "failures": [
+          "AssertionError: expected { pinned: true, survivors: [] } to match object { skipped: true }\n(2 matching properties omitted from actual)\n    at Proxy.<anonymous> (file:///Users/thoor/work/seal-gate-wt/mutation-probe/node_modules/@vitest/expect/dist/index.js:1283:10)\n    at Proxy.<anonymous> (file:///Users/thoor/work/seal-gate-wt/mutation-probe/node_modules/@vitest/expect/dist/index.js:1156:15)\n    at Proxy.methodWrapper (file:///Users/thoor/work/seal-gate-wt/mutation-probe/node_modules/chai/index.js:1737:25)\n    at /Users/thoor/work/seal-gate-wt/mutation-probe/tests/spec/mutation-probe.test.ts:206:17\n    at async file:///Users/thoor/work/seal-gate-wt/mutation-probe/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:20"
+        ]
+      },
+      {
+        "id": "real-kills-still-pin-baseline-then-kills",
+        "test": "tests/spec/mutation-probe.test.ts",
+        "name": "mutation-probe: inconclusive outcomes baseline-then-kills: a passing baseline with killed mutations pins",
+        "status": "failed",
+        "failures": [
+          "AssertionError: expected +0 to be 1 // Object.is equality\n    at /Users/thoor/work/seal-gate-wt/mutation-probe/tests/spec/mutation-probe.test.ts:271:27\n    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)\n    at async file:///Users/thoor/work/seal-gate-wt/mutation-probe/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:20"
+        ]
+      },
+      {
+        "id": "a-kill-needs-assertion-failure-evidence-mutation-tool-failure",
+        "test": "tests/spec/mutation-probe.test.ts",
+        "name": "mutation-probe: inconclusive outcomes mutation-tool-failure: a required tool that fails after a passing baseline is not a kill",
+        "status": "failed",
+        "failures": [
+          "AssertionError: expected { pinned: true, survivors: [] } to match object { skipped: true }\n(2 matching properties omitted from actual)\n    at Proxy.<anonymous> (file:///Users/thoor/work/seal-gate-wt/mutation-probe/node_modules/@vitest/expect/dist/index.js:1283:10)\n    at Proxy.<anonymous> (file:///Users/thoor/work/seal-gate-wt/mutation-probe/node_modules/@vitest/expect/dist/index.js:1156:15)\n    at Proxy.methodWrapper (file:///Users/thoor/work/seal-gate-wt/mutation-probe/node_modules/chai/index.js:1737:25)\n    at /Users/thoor/work/seal-gate-wt/mutation-probe/tests/spec/mutation-probe.test.ts:222:17\n    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)\n    at async file:///Users/thoor/work/seal-gate-wt/mutation-probe/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:20"
+        ]
+      },
+      {
+        "id": "a-kill-needs-assertion-failure-evidence-mutation-unproven-failure",
+        "test": "tests/spec/mutation-probe.test.ts",
+        "name": "mutation-probe: inconclusive outcomes mutation-unproven-failure: exit 1 without assertion evidence is not a kill",
+        "status": "failed",
+        "failures": [
+          "AssertionError: expected { pinned: true, survivors: [] } to match object { skipped: true }\n(2 matching properties omitted from actual)\n    at Proxy.<anonymous> (file:///Users/thoor/work/seal-gate-wt/mutation-probe/node_modules/@vitest/expect/dist/index.js:1283:10)\n    at Proxy.<anonymous> (file:///Users/thoor/work/seal-gate-wt/mutation-probe/node_modules/@vitest/expect/dist/index.js:1156:15)\n    at Proxy.methodWrapper (file:///Users/thoor/work/seal-gate-wt/mutation-probe/node_modules/chai/index.js:1737:25)\n    at /Users/thoor/work/seal-gate-wt/mutation-probe/tests/spec/mutation-probe.test.ts:230:17\n    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)\n    at async file:///Users/thoor/work/seal-gate-wt/mutation-probe/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:20"
+        ]
+      },
+      {
+        "id": "a-kill-needs-assertion-failure-evidence-real-bun-non-assertion",
+        "test": "tests/spec/mutation-probe.test.ts",
+        "name": "mutation-probe: inconclusive outcomes real-bun-non-assertion: a bun (fail) without an assertion is not a kill",
+        "status": "failed",
+        "failures": [
+          "AssertionError: expected { pinned: true, survivors: [] } to match object { skipped: true }\n(2 matching properties omitted from actual)\n    at Proxy.<anonymous> (file:///Users/thoor/work/seal-gate-wt/mutation-probe/node_modules/@vitest/expect/dist/index.js:1283:10)\n    at Proxy.<anonymous> (file:///Users/thoor/work/seal-gate-wt/mutation-probe/node_modules/@vitest/expect/dist/index.js:1156:15)\n    at Proxy.methodWrapper (file:///Users/thoor/work/seal-gate-wt/mutation-probe/node_modules/chai/index.js:1737:25)\n    at /Users/thoor/work/seal-gate-wt/mutation-probe/tests/spec/mutation-probe.test.ts:239:17\n    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)\n    at async file:///Users/thoor/work/seal-gate-wt/mutation-probe/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:20"
+        ]
+      },
+      {
+        "id": "a-kill-needs-assertion-failure-evidence-assertion-word-in-test-name",
+        "test": "tests/spec/mutation-probe.test.ts",
+        "name": "mutation-probe: inconclusive outcomes assertion-word-in-test-name: an assertion word in a test name is not evidence",
+        "status": "failed",
+        "failures": [
+          "AssertionError: expected { pinned: true, survivors: [] } to match object { skipped: true }\n(2 matching properties omitted from actual)\n    at Proxy.<anonymous> (file:///Users/thoor/work/seal-gate-wt/mutation-probe/node_modules/@vitest/expect/dist/index.js:1283:10)\n    at Proxy.<anonymous> (file:///Users/thoor/work/seal-gate-wt/mutation-probe/node_modules/@vitest/expect/dist/index.js:1156:15)\n    at Proxy.methodWrapper (file:///Users/thoor/work/seal-gate-wt/mutation-probe/node_modules/chai/index.js:1737:25)\n    at /Users/thoor/work/seal-gate-wt/mutation-probe/tests/spec/mutation-probe.test.ts:247:17\n    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)\n    at async file:///Users/thoor/work/seal-gate-wt/mutation-probe/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:20"
+        ]
+      },
+      {
+        "id": "a-kill-needs-assertion-failure-evidence-baseline-prints-evidence",
+        "test": "tests/spec/mutation-probe.test.ts",
+        "name": "mutation-probe: inconclusive outcomes baseline-prints-evidence: logged assertion text makes the probe inconclusive",
+        "status": "failed",
+        "failures": [
+          "AssertionError: expected { pinned: true, survivors: [] } to match object { skipped: true }\n(2 matching properties omitted from actual)\n    at Proxy.<anonymous> (file:///Users/thoor/work/seal-gate-wt/mutation-probe/node_modules/@vitest/expect/dist/index.js:1283:10)\n    at Proxy.<anonymous> (file:///Users/thoor/work/seal-gate-wt/mutation-probe/node_modules/@vitest/expect/dist/index.js:1156:15)\n    at Proxy.methodWrapper (file:///Users/thoor/work/seal-gate-wt/mutation-probe/node_modules/chai/index.js:1737:25)\n    at /Users/thoor/work/seal-gate-wt/mutation-probe/tests/spec/mutation-probe.test.ts:255:17\n    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)\n    at async file:///Users/thoor/work/seal-gate-wt/mutation-probe/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:20"
+        ]
+      }
+    ],
+    "reasons": [],
+    "started_at": "2026-11-04T15:41:53.592Z",
+    "finished_at": "2026-11-04T15:41:57.197Z"
+  },
+  "replay": null,
+  "inputs": {
+    "orca/changes/mutation-probe-inconclusive/specs/mutation-probe-inconclusive/spec.md": "9a1a9e3861454f610a4318fc5ac0b1c6038557eeb75a6b0055d777c304bc4a33",
+    "orca/changes/mutation-probe-inconclusive/.traceability.yaml": "a189cd70d0bcb89893ee4f9229be8661194c422ae5b05fca384cef5ffa628fde",
+    "orca/changes/mutation-probe-inconclusive/intent.md": "4ff26528719432615a53fb57d93f24f20b4ab9bcf5bca97283253d786765c53c"
+  },
+  "reasons": [],
+  "uncovered": [
+    "runner-failure-is-inconclusive-runner-missing",
+    "runner-failure-is-inconclusive-runner-timeout",
+    "runner-failure-is-inconclusive-mutation-runner-error",
+    "a-failing-baseline-is-inconclusive-baseline-failing",
+    "real-kills-still-pin-baseline-then-kills",
+    "a-kill-needs-assertion-failure-evidence-mutation-tool-failure",
+    "a-kill-needs-assertion-failure-evidence-mutation-unproven-failure",
+    "a-kill-needs-assertion-failure-evidence-real-bun-non-assertion",
+    "a-kill-needs-assertion-failure-evidence-assertion-word-in-test-name",
+    "a-kill-needs-assertion-failure-evidence-baseline-prints-evidence"
+  ]
+}

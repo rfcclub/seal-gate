@@ -1,0 +1,105 @@
+bun test v1.3.14 (0d9b296a)
+
+tests/spec/mutation-probe.test.ts:
+180 |   }
+181 | 
+182 |   it('runner-missing: a runner that cannot start is not a pin', async () => {
+183 |     const { dir, testFile } = probeFile()
+184 |     const res = await checkTestPinsBehavior({ test_file: testFile, run_command: ['/definitely/nonexistent/seal-test-runner', []], workdir: dir })
+185 |     expect(res).toMatchObject({ skipped: true })
+                      ^
+error: expect(received).toMatchObject(expected)
+
+  {
+-   "skipped": true,
++   "pinned": true,
++   "survivors": [],
+  }
+
+- Expected  - 1
++ Received  + 2
+
+      at <anonymous> (/Users/thoor/work/seal-gate-wt/mutation-probe/tests/spec/mutation-probe.test.ts:185:17)
+(fail) mutation-probe: inconclusive outcomes > runner-missing: a runner that cannot start is not a pin [2.35ms]
+187 |   })
+188 | 
+189 |   it('runner-timeout: a runner past its timeout is not a pin', async () => {
+190 |     const { dir, testFile } = probeFile()
+191 |     const res = await checkTestPinsBehavior({ test_file: testFile, run_command: ['sh', ['-c', 'sleep 1']], workdir: dir, timeout_ms: 200 })
+192 |     expect(res).toMatchObject({ skipped: true })
+                      ^
+error: expect(received).toMatchObject(expected)
+
+  {
+-   "skipped": true,
++   "pinned": false,
++   "survivors": [
++     "expect(add(1, 2)).not.toBe(3) // guard",
++     "expect(add(1, 3)).toBe(3) // guard",
++   ],
+  }
+
+- Expected  - 1
++ Received  + 5
+
+      at <anonymous> (/Users/thoor/work/seal-gate-wt/mutation-probe/tests/spec/mutation-probe.test.ts:192:17)
+(fail) mutation-probe: inconclusive outcomes > runner-timeout: a runner past its timeout is not a pin [2021.86ms]
+195 | 
+196 |   it('mutation-runner-error: a runner error during a mutation is not a kill', async () => {
+197 |     const { dir, testFile } = probeFile()
+198 |     const { runTest } = discriminating(testFile, () => ({ exit_code: 1, output: '', error: 'spawn EACCES' }))
+199 |     const res = await checkTestPinsBehavior({ test_file: testFile, run_command: ['bun', ['test', testFile]], workdir: dir, _runTest: runTest })
+200 |     expect(res).toMatchObject({ skipped: true })
+                      ^
+error: expect(received).toMatchObject(expected)
+
+  {
+-   "skipped": true,
++   "pinned": true,
++   "survivors": [],
+  }
+
+- Expected  - 1
++ Received  + 2
+
+      at <anonymous> (/Users/thoor/work/seal-gate-wt/mutation-probe/tests/spec/mutation-probe.test.ts:200:17)
+(fail) mutation-probe: inconclusive outcomes > mutation-runner-error: a runner error during a mutation is not a kill [1.01ms]
+202 |   })
+203 | 
+204 |   it('baseline-failing: a test that fails unmutated pins nothing', async () => {
+205 |     const { dir, testFile } = probeFile()
+206 |     const res = await checkTestPinsBehavior({ test_file: testFile, run_command: ['bun', ['test', testFile]], workdir: dir, _runTest: async () => ({ exit_code: 1, output: 'fail' }) })
+207 |     expect(res).toMatchObject({ skipped: true })
+                      ^
+error: expect(received).toMatchObject(expected)
+
+  {
+-   "skipped": true,
++   "pinned": true,
++   "survivors": [],
+  }
+
+- Expected  - 1
++ Received  + 2
+
+      at <anonymous> (/Users/thoor/work/seal-gate-wt/mutation-probe/tests/spec/mutation-probe.test.ts:207:17)
+(fail) mutation-probe: inconclusive outcomes > baseline-failing: a test that fails unmutated pins nothing [0.77ms]
+211 |   it('baseline-then-kills: a passing baseline with killed mutations pins', async () => {
+212 |     const { dir, testFile } = probeFile()
+213 |     const { runs, runTest } = discriminating(testFile)
+214 |     const res = await checkTestPinsBehavior({ test_file: testFile, run_command: ['bun', ['test', testFile]], workdir: dir, _runTest: runTest })
+215 |     expect(res).toEqual({ pinned: true, survivors: [] })
+216 |     expect(runs.baseline).toBe(1)
+                                ^
+error: expect(received).toBe(expected)
+
+Expected: 1
+Received: 0
+
+      at <anonymous> (/Users/thoor/work/seal-gate-wt/mutation-probe/tests/spec/mutation-probe.test.ts:216:27)
+(fail) mutation-probe: inconclusive outcomes > baseline-then-kills: a passing baseline with killed mutations pins [0.97ms]
+
+ 12 pass
+ 5 fail
+ 25 expect() calls
+Ran 17 tests across 1 file. [2.05s]

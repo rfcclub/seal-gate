@@ -1,0 +1,32 @@
+[
+  {
+    "id": "SC-1",
+    "text": "SC-1: A runner that cannot start, or that times out, never yields `pinned: true`; the outcome is skipped with a reason.",
+    "source_file": "intent.md",
+    "source_line": 16
+  },
+  {
+    "id": "SC-2",
+    "text": "SC-2: A test that fails without any mutation makes the probe skipped, not pinned.",
+    "source_file": "intent.md",
+    "source_line": 17
+  },
+  {
+    "id": "SC-3",
+    "text": "SC-3: A runner error during a mutation run makes the probe skipped; a passing baseline whose mutations all fail is still `pinned: true`.",
+    "source_file": "intent.md",
+    "source_line": 18
+  },
+  {
+    "id": "SC-4",
+    "text": "SC-5: A mutation run counts as killed only with exit 1 and assertion-failure evidence in its output. A tool failure after a passing baseline (Coda, review of #11: a child executable missing, exit 127) and an unproven exit 1 are both skipped. A real `bun test` assertion failure still pins, and a real `bun test` non-assertion error, which Bun also marks `(fail)`, does not (Coda, review 2 of #11).",
+    "source_file": "intent.md",
+    "source_line": 19
+  },
+  {
+    "id": "SC-5",
+    "text": "SC-4: `bun run test` runs `tests/spec/` and `src/drift/__tests__/`.",
+    "source_file": "intent.md",
+    "source_line": 20
+  }
+]
