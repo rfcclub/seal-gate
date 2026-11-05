@@ -19,6 +19,11 @@
 - **WHEN** a unified diff changes a file under an `auth` path and its changed lines contain no auth keyword
 - **THEN** the review has a TW205 finding
 
+#### Scenario: prose-after-hunk
+
+- **WHEN** the reviewed output has a unified diff hunk followed by indented prose containing an auth keyword
+- **THEN** the hunk ends at its header's line counts, the prose is classified, and the review has a TW205 finding
+
 ### Requirement: Regression evidence is structured
 
 #### Scenario: malformed-records

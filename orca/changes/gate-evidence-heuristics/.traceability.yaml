@@ -17,3 +17,6 @@ scenarios:
   - scenario: regression-evidence-is-structured-malformed-records
     test: tests/gate/evidence-heuristics.test.ts
     assertion: "gate evidence heuristics review fixes malformed-records: records without a test, a name or a SHA-256 do not satisfy TW203"
+  - scenario: heuristics-read-changed-lines-prose-after-hunk
+    test: tests/gate/evidence-heuristics.test.ts
+    assertion: "gate evidence heuristics third review prose-after-hunk: indented prose after a hunk is classified, not dropped as context"

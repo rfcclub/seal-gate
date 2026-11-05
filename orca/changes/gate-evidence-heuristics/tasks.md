@@ -6,6 +6,7 @@
 - [x] G4 (SC-3): Remove keyword-only acceptance; the finding names evidence.regression.
 - [x] G6 (SC-1): Keep diff file paths for classification; only unchanged context lines and @@ headers are dropped (Coda review, auth-path).
 - [x] G7 (SC-2): Validate record test, name and SHA-256 shape before matching (Coda review, malformed-records).
+- [x] G8 (SC-1): End each hunk at its header's old/new line counts so text after it is classified (Lila/Coda review, prose-after-hunk).
 - [x] G5: Full tests, build, verify and gates; self-check.
 
 ## Locked criteria mapping

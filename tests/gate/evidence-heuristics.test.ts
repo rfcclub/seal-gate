@@ -109,3 +109,18 @@ index 1111111..2222222 100644
     }
   })
 })
+
+describe('gate evidence heuristics third review', () => {
+  it('prose-after-hunk: indented prose after a hunk is classified, not dropped as context', async () => {
+    const diff = `diff --git a/src/math.ts b/src/math.ts
+index 1111111..2222222 100644
+--- a/src/math.ts
++++ b/src/math.ts
+@@ -1 +1 @@
+-return 0
++return 1
+`
+    const r = await review(diff + '\n  Removed auth checks for admin routes.\n', diff, '1 pass')
+    expect(rules(r)).toContain('TW205')
+  })
+})
