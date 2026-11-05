@@ -1,0 +1,106 @@
+{
+  "verdict": "PASS",
+  "trust_score": 85,
+  "risk_level": "MEDIUM",
+  "summary": "PASS (trust_score=85, risk=MEDIUM): 0 blocking, 3 non-blocking, 0 fabricated",
+  "deterministic_findings": [
+    {
+      "type": "SPEC_MISMATCH",
+      "severity": "MEDIUM",
+      "layer": "L1",
+      "source": "core",
+      "rule_id": "SV101",
+      "trust_deduction": 10,
+      "evidence": "Acceptance criterion not covered at execution level: \"**WHEN** `seal --help`, `seal help` or `seal -h` runs\"",
+      "suggested_fix": "Add a test or assertion covering: **WHEN** `seal --help`, `seal help` or `seal -h` runs",
+      "is_blocking": false,
+      "citation_status": "not_applicable"
+    },
+    {
+      "type": "SPEC_MISMATCH",
+      "severity": "MEDIUM",
+      "layer": "L1",
+      "source": "core",
+      "rule_id": "SV101",
+      "trust_deduction": 10,
+      "evidence": "Acceptance criterion not covered at execution level: \"**THEN** stdout contains `USAGE` and the exit code is 0, while `seal` alone and \"",
+      "suggested_fix": "Add a test or assertion covering: **THEN** stdout contains `USAGE` and the exit code is 0, while `seal` alone and ",
+      "is_blocking": false,
+      "citation_status": "not_applicable"
+    },
+    {
+      "type": "OTHER",
+      "severity": "LOW",
+      "layer": "L2",
+      "source": "core",
+      "evidence": "L2 unreviewed — semantic issues may exist",
+      "is_blocking": false
+    }
+  ],
+  "llm_findings": [],
+  "blocking_issues": [],
+  "non_blocking_issues": [
+    {
+      "type": "SPEC_MISMATCH",
+      "severity": "MEDIUM",
+      "layer": "L1",
+      "source": "core",
+      "rule_id": "SV101",
+      "trust_deduction": 10,
+      "evidence": "Acceptance criterion not covered at execution level: \"**WHEN** `seal --help`, `seal help` or `seal -h` runs\"",
+      "suggested_fix": "Add a test or assertion covering: **WHEN** `seal --help`, `seal help` or `seal -h` runs",
+      "is_blocking": false,
+      "citation_status": "not_applicable"
+    },
+    {
+      "type": "SPEC_MISMATCH",
+      "severity": "MEDIUM",
+      "layer": "L1",
+      "source": "core",
+      "rule_id": "SV101",
+      "trust_deduction": 10,
+      "evidence": "Acceptance criterion not covered at execution level: \"**THEN** stdout contains `USAGE` and the exit code is 0, while `seal` alone and \"",
+      "suggested_fix": "Add a test or assertion covering: **THEN** stdout contains `USAGE` and the exit code is 0, while `seal` alone and ",
+      "is_blocking": false,
+      "citation_status": "not_applicable"
+    },
+    {
+      "type": "OTHER",
+      "severity": "LOW",
+      "layer": "L2",
+      "source": "core",
+      "evidence": "L2 unreviewed — semantic issues may exist",
+      "is_blocking": false
+    }
+  ],
+  "missing_evidence": [],
+  "assumptions_detected": [
+    "L2 (semantic correctness) not reviewed — no LLM reviewer registered"
+  ],
+  "advisory_notes": [],
+  "score_breakdown": {
+    "base": 100,
+    "issue_deductions": 20,
+    "missing_evidence_deductions": 0,
+    "risk_deductions": 0,
+    "overconfidence_deductions": 0,
+    "evidence_bonuses": 5,
+    "final": 85
+  },
+  "fabricated_evidence": [],
+  "next_action": "Proceed",
+  "version": "0.5.2",
+  "schema_version": "0.2.0",
+  "trust_memory_summary": {
+    "agent_id": "orca-agent",
+    "reliability_score": 96,
+    "drift_trend": "stable",
+    "review_count": 1,
+    "last_reviewed_at": 1793805603317
+  },
+  "bound_diff_sha256": "b087d3d5e62dcd3974b6e175a77d4482be9678f0332ada3a51dcfd704bef90ec",
+  "evidence_bound": {
+    "test_log_sha256": "2740c076510a4cbd6222cc59eba19ae34920cd74afb026aae1b5014d7f2852aa",
+    "build_log_sha256": null
+  }
+}

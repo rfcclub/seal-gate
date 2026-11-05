@@ -1,0 +1,38 @@
+bun test v1.3.14 (0d9b296a)
+
+tests/cli/help.test.ts:
+ 5 | const cli = fileURLToPath(new URL('../../dist/cli.js', import.meta.url))
+ 6 | const run = (...args: string[]) => spawnSync('node', [cli, ...args], { encoding: 'utf-8' })
+ 7 | 
+ 8 | it('help-flags: --help, help and -h exit 0; misuse exits 2', () => {
+ 9 |   const help = ['--help', 'help', '-h'].map(flag => run(flag))
+10 |   expect(help.map(r => [r.status, r.stdout.includes('USAGE')])).toEqual([[0, true], [0, true], [0, true]])
+                                                                     ^
+error: expect(received).toEqual(expected)
+
+@@ -2,3 +2,3 @@
+    [
+-     0,
++     2,
+      true,
+@@ -6,3 +6,3 @@
+    [
+-     0,
++     2,
+      true,
+@@ -10,3 +10,3 @@
+    [
+-     0,
++     2,
+      true,
+
+- Expected  - 3
++ Received  + 3
+
+      at <anonymous> (/Users/thoor/work/seal-gate-wt/help-exit/tests/cli/help.test.ts:10:65)
+(fail) help-flags: --help, help and -h exit 0; misuse exits 2 [130.20ms]
+
+ 0 pass
+ 1 fail
+ 1 expect() calls
+Ran 1 test across 1 file. [139.00ms]

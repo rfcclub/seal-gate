@@ -19,7 +19,7 @@ function colorForVerdict(v: string): string {
   return RED
 }
 
-function usage() {
+function usage(code = 2): never {
   console.log(`
 ${BOLD}seal${RESET} v${VERSION} — AI quality gate
 
@@ -53,7 +53,7 @@ ${BOLD}EXAMPLES${RESET}
   ${DIM}# Full control mode${RESET}
   seal review output.md --artifact-type plan_review --locked-criteria criteria.json
 `)
-  process.exit(2)
+  process.exit(code)
 }
 
 export function parseArgs(args: string[]) {
@@ -130,7 +130,9 @@ async function run(args: string[]) {
   const cmd = positional[0]
 
   if (parsed['version'] || cmd === 'version' || cmd === '-v') { console.log(`seal v${VERSION}`); process.exit(0) }
-  if (!cmd || cmd === 'help' || cmd === '--help' || cmd === '-h') usage()
+  // An explicit help request is not an error; a missing command is.
+  if (cmd === 'help' || cmd === '--help' || cmd === '-h' || (!cmd && parsed['help'] !== undefined)) usage(0)
+  if (!cmd) usage()
 
   // Wire LLM reviewer if --llm flag is present
   let llmFlagUsed = false
