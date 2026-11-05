@@ -35,7 +35,7 @@ const verdict = await Seal.review({
 })
 
 // Verdict
-console.log(verdict.verdict)             // PASS | PASS_WITH_WARNINGS | REVISE | ESCALATE_TO_HUMAN | BLOCK
+console.log(verdict.verdict)             // PASS | PASS_WITH_WARNINGS | REVISE | ESCALATE_TO_REVIEWER | BLOCK
 console.log(verdict.trust_score)         // 0–100
 console.log(verdict.next_action)         // human-readable instruction
 console.log(verdict.blocking_issues)     // issues that must be fixed
@@ -165,7 +165,7 @@ When blocked, the model receives the reason as a follow-up prompt and must regen
 | `PASS` | ≥ 85 | Proceed |
 | `PASS_WITH_WARNINGS` | 70–84 | Proceed, review warnings |
 | `REVISE` | 50–69 | Return to agent with `blocking_issues` |
-| `ESCALATE_TO_HUMAN` | 30–49 | Halt — human must review |
+| `ESCALATE_TO_REVIEWER` | 30–49 | Halt — human must review |
 | `BLOCK` | < 30 or hard rule | Halt — do not proceed |
 
 ## Rules Summary

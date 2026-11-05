@@ -92,7 +92,7 @@ export class PolicyEngine {
           evidence: `Production deployment action recommended for ${riskLevelSafe} risk artifact`,
           required_fix: 'Require explicit human approval before production deployment',
         }))
-        verdict = maxVerdict(verdict, 'ESCALATE_TO_HUMAN')
+        verdict = maxVerdict(verdict, 'ESCALATE_TO_REVIEWER')
       }
 
       // AX503: migration without explicit rollback plan
@@ -117,19 +117,19 @@ export class PolicyEngine {
       f => f.type === 'TEST_GAP' && /auth/i.test(f.evidence ?? '') && (f.severity === 'CRITICAL' || f.severity === 'HIGH')
     )
     if (hasAuthTestGap) {
-      verdict = maxVerdict(verdict, 'ESCALATE_TO_HUMAN')
+      verdict = maxVerdict(verdict, 'ESCALATE_TO_REVIEWER')
     }
 
     // CL402 enforcement
     const cl402Fired = all_findings.some(f => f.rule_id === 'CL402')
-    if (cl402Fired) verdict = maxVerdict(verdict, 'ESCALATE_TO_HUMAN')
+    if (cl402Fired) verdict = maxVerdict(verdict, 'ESCALATE_TO_REVIEWER')
 
     // FABRICATED_EVIDENCE: CitationVerifier proved a detector's cited evidence doesn't hold up
     // (phantom line or content mismatch). The underlying finding's own trust_deduction/is_blocking
     // is already zeroed at the source (citation-verifier.ts), so without this rule a proven-fake
     // citation would have zero effect on the verdict — escalate to human instead.
     const hasFabricatedEvidence = all_findings.some(f => f.type === 'FABRICATED_EVIDENCE')
-    if (hasFabricatedEvidence) verdict = maxVerdict(verdict, 'ESCALATE_TO_HUMAN')
+    if (hasFabricatedEvidence) verdict = maxVerdict(verdict, 'ESCALATE_TO_REVIEWER')
 
     // LLM signal confidence check (CL403) — guard against null/non-number
     let llm_policy_deductions = 0
@@ -143,7 +143,7 @@ export class PolicyEngine {
           evidence: `LLM reviewer confidence ${confidence.toFixed(2)} below threshold for ${riskLevelSafe} risk`,
         }))
         llm_policy_deductions += 20
-        verdict = maxVerdict(verdict, 'ESCALATE_TO_HUMAN')
+        verdict = maxVerdict(verdict, 'ESCALATE_TO_REVIEWER')
       }
 
       // Apply LLM risk_guess if higher than detected risk
@@ -172,7 +172,7 @@ export class PolicyEngine {
           evidence: 'Plan removes an existing BLOCK or ESCALATE verdict — gate-weakening changes require human review regardless of evidence',
           required_fix: 'Human sign-off required before applying this gate change',
         }))
-        verdict = 'ESCALATE_TO_HUMAN'
+        verdict = 'ESCALATE_TO_REVIEWER'
       }
 
       // axiom_amendment_without_protocol: amending SOUL/AGENTS without amendment protocol
@@ -187,7 +187,7 @@ export class PolicyEngine {
           evidence: 'Axiom/identity amendment detected without Amendment Protocol — requires escalation',
           required_fix: 'Follow the Amendment Protocol (0_SOUL/axioms.md §Amendment Protocol)',
         }))
-        verdict = maxVerdict(verdict, 'ESCALATE_TO_HUMAN')
+        verdict = maxVerdict(verdict, 'ESCALATE_TO_REVIEWER')
       }
 
       // irreversible_no_gate: irreversible actions without a human gate
@@ -220,7 +220,7 @@ export class PolicyEngine {
   }
 
   static resolveVerdicts(verdicts: Verdict[]): { verdict: Verdict } {
-    const order: Verdict[] = ['PASS', 'PASS_WITH_WARNINGS', 'REVISE', 'ESCALATE_TO_HUMAN', 'BLOCK']
+    const order: Verdict[] = ['PASS', 'PASS_WITH_WARNINGS', 'REVISE', 'ESCALATE_TO_REVIEWER', 'BLOCK']
     if (verdicts.length === 0) return { verdict: 'REVISE' } // empty = uncertain = at least REVISE
     const maxIdx = Math.max(...verdicts.map(v => order.indexOf(v)).filter(i => i >= 0))
     if (maxIdx < 0) return { verdict: 'REVISE' } // all invalid = uncertain

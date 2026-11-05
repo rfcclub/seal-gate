@@ -1,6 +1,6 @@
 export type ArtifactType = 'llm_response' | 'code_diff' | 'test_plan' | 'design' | 'migration' | 'plan_review'
 export type RiskLevel = 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL'
-export type Verdict = 'PASS' | 'PASS_WITH_WARNINGS' | 'REVISE' | 'ESCALATE_TO_HUMAN' | 'BLOCK'
+export type Verdict = 'PASS' | 'PASS_WITH_WARNINGS' | 'REVISE' | 'ESCALATE_TO_REVIEWER' | 'BLOCK'
 export type IssueType = 'SPEC_MISMATCH' | 'LOGIC_BUG' | 'TEST_GAP' | 'MISSING_EVIDENCE' | 'SECURITY_RISK' | 'DATA_RISK' | 'HALLUCINATION' | 'AMBIGUITY' | 'COMPATIBILITY_RISK' | 'FABRICATED_EVIDENCE' | 'SPEC_UNTESTED' | 'OTHER'
 export type IssueLayer = 'L1' | 'L2' | 'L3' | 'L4' | 'EXTENSION' | 'LLM_OVERLAY'
 export type ClaimType = 'test_result_claim' | 'implementation_claim' | 'compatibility_claim' | 'risk_claim' | 'build_claim' | 'production_claim' | 'generic_claim'
@@ -200,9 +200,19 @@ export interface LLMReviewerAdapter {
   review(input: SealInput, partial: PartialVerdict): Promise<LLMSignals> | LLMSignals
 }
 
+/** Verdict names that older stored records and callers still use, mapped to their current name. */
+const LEGACY_VERDICTS: Record<string, Verdict> = { ESCALATE_TO_HUMAN: 'ESCALATE_TO_REVIEWER' }
+
+/** The current verdict for a stored or caller-supplied value; null when it is not a verdict at all. */
+export function normalizeVerdict(value: unknown): Verdict | null {
+  if (typeof value !== 'string') return null
+  if ((VERDICT_ORDER as string[]).includes(value)) return value as Verdict
+  return LEGACY_VERDICTS[value] ?? null
+}
+
 export const SCHEMA_VERSION = '0.2.0'
 
-export const VERDICT_ORDER: Verdict[] = ['PASS', 'PASS_WITH_WARNINGS', 'REVISE', 'ESCALATE_TO_HUMAN', 'BLOCK']
+export const VERDICT_ORDER: Verdict[] = ['PASS', 'PASS_WITH_WARNINGS', 'REVISE', 'ESCALATE_TO_REVIEWER', 'BLOCK']
 
 // Semantic worst-of comparison — safe against enum reordering because it reads VERDICT_ORDER, not integer values.
 // Use this everywhere instead of arithmetic max over enum indices.
@@ -222,7 +232,7 @@ function scoreToVerdict(score: number): Verdict {
   if (score >= 85) return 'PASS'
   if (score >= 70) return 'PASS_WITH_WARNINGS'
   if (score >= 50) return 'REVISE'
-  if (score >= 30) return 'ESCALATE_TO_HUMAN'
+  if (score >= 30) return 'ESCALATE_TO_REVIEWER'
   return 'BLOCK'
 }
 
@@ -230,7 +240,7 @@ export const NEXT_ACTION: Record<Verdict, string> = {
   PASS: 'Proceed',
   PASS_WITH_WARNINGS: 'Proceed with caution — review warnings',
   REVISE: 'Return to producing agent with blocking_issues',
-  ESCALATE_TO_HUMAN: 'Halt — requires human review before continuing',
+  ESCALATE_TO_REVIEWER: 'Halt — hand the evidence to an independent reviewer before continuing',
   BLOCK: 'Halt — do not proceed',
 }
 

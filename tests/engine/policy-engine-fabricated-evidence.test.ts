@@ -31,7 +31,7 @@ describe('PolicyEngine — FABRICATED_EVIDENCE escalation', () => {
       all_findings: [fabricated],
     })
 
-    expect(result.verdict).toBe('ESCALATE_TO_HUMAN')
+    expect(result.verdict).toBe('ESCALATE_TO_REVIEWER')
   })
 
   it('does not escalate when there is no FABRICATED_EVIDENCE finding', () => {

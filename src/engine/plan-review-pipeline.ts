@@ -6,7 +6,7 @@
  * locked before it was written?" Falsification, not approval.
  *
  * Pass threshold: 90 (higher than code mode's 85)
- * High-risk [71,89]: ESCALATE_TO_HUMAN instead of PASS_WITH_WARNINGS
+ * High-risk [71,89]: ESCALATE_TO_REVIEWER instead of PASS_WITH_WARNINGS
  */
 
 import {
@@ -36,13 +36,13 @@ function planReviewVerdict(score: number, hasBlocking: boolean, riskLevel: strin
 
   // High-risk middle band → ESCALATE instead of PASS_WITH_WARNINGS
   if (score >= PLAN_ESCALATE_BAND_LOW && score <= PLAN_ESCALATE_BAND_HIGH && riskLevel === 'HIGH') {
-    return 'ESCALATE_TO_HUMAN'
+    return 'ESCALATE_TO_REVIEWER'
   }
 
   if (score >= PLAN_PASS_THRESHOLD) return 'PASS'
   if (score >= PLAN_ESCALATE_BAND_LOW) return 'PASS_WITH_WARNINGS'
   if (score >= 50) return 'REVISE'
-  if (score >= 30) return 'ESCALATE_TO_HUMAN'
+  if (score >= 30) return 'ESCALATE_TO_REVIEWER'
   return 'BLOCK'
 }
 
@@ -158,7 +158,7 @@ export async function runPlanReviewPipeline(
 
   // Preflight escalation overrides
   if (coverageResult.no_criteria_escalate) {
-    finalVerdict = worstOf(finalVerdict, 'ESCALATE_TO_HUMAN')
+    finalVerdict = worstOf(finalVerdict, 'ESCALATE_TO_REVIEWER')
   }
 
   // Extension block check

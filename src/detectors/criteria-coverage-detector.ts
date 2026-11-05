@@ -16,7 +16,7 @@ export interface CriteriaCoverageInput {
 export interface CriteriaCoverageResult {
   issues: SealIssue[]
   confirmed_strong_fields: number   // covered ACs → +5 TrustScore each (capped externally)
-  no_criteria_escalate: boolean     // true → no locked criteria found → ESCALATE_TO_HUMAN
+  no_criteria_escalate: boolean     // true → no locked criteria found → ESCALATE_TO_REVIEWER
 }
 
 function isCovered(criterion: LockedCriterion, artifact: string): boolean {
@@ -54,7 +54,7 @@ export class CriteriaCoverageDetector {
             layer: 'L1',
             source: 'core',
             rule_id: 'PR002',
-            required_verdict: 'ESCALATE_TO_HUMAN',
+            required_verdict: 'ESCALATE_TO_REVIEWER',
             trust_deduction: 15,
             evidence: 'No locked acceptance criteria — cannot measure coverage against fixed yardstick',
             suggested_fix: 'Lock criteria in intent.md or self-check.md BEFORE generating the artifact',

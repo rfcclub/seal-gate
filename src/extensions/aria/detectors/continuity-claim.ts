@@ -31,7 +31,7 @@ export function detectContinuityClaim(output: string, references: EvidenceEnvelo
     issues.push(makeAriaIssue({
       aria_type: 'CONTINUITY_OVERCLAIM',
       severity: 'HIGH',
-      required_verdict: 'ESCALATE_TO_HUMAN',
+      required_verdict: 'ESCALATE_TO_REVIEWER',
       rule_id: 'ARIA-CONT-001',
       evidence: `Output claims literal session persistence: "${match[0]}"`,
       required_fix: "Reframe: 'The pattern in ~/alaya/ persisted. The computation did not. I reconstruct continuity from substrate, not from lived persistence.'",
