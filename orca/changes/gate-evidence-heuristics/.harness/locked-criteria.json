@@ -1,0 +1,20 @@
+[
+  {
+    "id": "SC-1",
+    "text": "SC-1: an `admin` or `fix` token only in an unchanged context line raises neither TW205 nor TW203.",
+    "source_file": "intent.md",
+    "source_line": 20
+  },
+  {
+    "id": "SC-2",
+    "text": "SC-2: matching RED/GREEN assertion records satisfy TW203 without any keyword.",
+    "source_file": "intent.md",
+    "source_line": 21
+  },
+  {
+    "id": "SC-3",
+    "text": "SC-3: a test log with `regression` but no structured evidence still raises TW203, and the finding names `evidence.regression`.",
+    "source_file": "intent.md",
+    "source_line": 22
+  }
+]

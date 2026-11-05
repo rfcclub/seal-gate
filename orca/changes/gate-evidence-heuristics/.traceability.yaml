@@ -1,0 +1,13 @@
+scenarios:
+  - scenario: heuristics-read-changed-lines-context-line-admin
+    test: tests/gate/evidence-heuristics.test.ts
+    assertion: "gate evidence heuristics context-line-admin: admin only in a context line does not escalate"
+  - scenario: heuristics-read-changed-lines-context-line-fix
+    test: tests/gate/evidence-heuristics.test.ts
+    assertion: "gate evidence heuristics context-line-fix: fix only in a context line does not raise TW203"
+  - scenario: regression-evidence-is-structured-structured-regression
+    test: tests/gate/evidence-heuristics.test.ts
+    assertion: "gate evidence heuristics structured-regression: matching RED and GREEN records satisfy TW203"
+  - scenario: regression-evidence-is-structured-keyword-only
+    test: tests/gate/evidence-heuristics.test.ts
+    assertion: "gate evidence heuristics keyword-only: the word regression alone does not satisfy TW203"

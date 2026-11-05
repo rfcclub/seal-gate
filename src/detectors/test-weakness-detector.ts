@@ -1,5 +1,6 @@
-import { SealIssue, ArtifactType, RiskLevel, SealEvidence } from '../types.js'
+import { SealIssue, ArtifactType, RiskLevel, SealEvidence, RegressionEvidence } from '../types.js'
 import { makeIssue } from '../types.js'
+import { changedText } from './diff-lines.js'
 
 const NEGATIVE_TEST_PATTERN = /\b(fail|error|exception|invalid|unauthorized|forbidden|edge|negative|reject|timeout|backoff)\b/i
 const RETRY_PATTERN = /\b(retry|retries|exponential.?backoff|timeout|circuit.?breaker)\b/i
@@ -7,6 +8,13 @@ const BUG_FIX_PATTERN = /\b(fix(?:ed)?|bug|defect|regression)\b/i
 const REGRESSION_TEST_PATTERN = /\b(regression|repro|original.?bug|fixed.?case)\b/i
 // Auth test evidence: literal keywords + semantic equivalents (budget exhausted, no candidate, access denied, etc.)
 const AUTH_UNAUTH_PATTERN = /\b(unauthorized|forbidden|403|401|permission.?denied|access.?denied|exhausted|no (?:candidate|access|permission)|not (?:allowed|permitted|authorized)|reject(?:ed)?(?:\s+\w+)?\s*(?:access|action|request))\b/i
+
+/** One assertion failed in RED and passed in GREEN, same test file and content. */
+export function hasRegressionEvidence(regression: RegressionEvidence | undefined): boolean {
+  if (!regression || !Array.isArray(regression.red) || !Array.isArray(regression.green)) return false
+  return regression.red.some(r => r?.status === 'failed' && typeof r.test_sha256 === 'string' && r.test_sha256 !== '' &&
+    regression.green.some(g => g?.status === 'passed' && g.test === r.test && g.name === r.name && g.test_sha256 === r.test_sha256))
+}
 
 export interface TestWeaknessResult {
   issues: SealIssue[]
@@ -22,6 +30,7 @@ export class TestWeaknessDetector {
   }, evidence: SealEvidence): TestWeaknessResult {
     const { artifact_type, output, risk_level, auth_flagged } = params
     const { test_log } = evidence
+    const changed = changedText(output)
     const issues: SealIssue[] = []
     let trust_deductions = 0
 
@@ -51,7 +60,8 @@ export class TestWeaknessDetector {
     }
 
     // TW203: bug fix without regression test
-    if (BUG_FIX_PATTERN.test(output) && test_log.trim().length > 0 && !REGRESSION_TEST_PATTERN.test(test_log)) {
+    if (BUG_FIX_PATTERN.test(changed) && test_log.trim().length > 0 && !hasRegressionEvidence(evidence.regression) &&
+        !REGRESSION_TEST_PATTERN.test(test_log)) {
       issues.push(makeIssue({
         type: 'TEST_GAP', severity: 'HIGH', layer: 'L4', source: 'core',
         rule_id: 'TW203',
@@ -61,7 +71,7 @@ export class TestWeaknessDetector {
     }
 
     // TW204: retry logic without failure/timeout test
-    if (RETRY_PATTERN.test(output) && test_log.trim().length > 0 && !NEGATIVE_TEST_PATTERN.test(test_log)) {
+    if (RETRY_PATTERN.test(changed) && test_log.trim().length > 0 && !NEGATIVE_TEST_PATTERN.test(test_log)) {
       issues.push(makeIssue({
         type: 'TEST_GAP', severity: 'MEDIUM', layer: 'L4', source: 'core',
         rule_id: 'TW204',

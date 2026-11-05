@@ -1,0 +1,64 @@
+bun test v1.3.14 (0d9b296a)
+
+tests/gate/evidence-heuristics.test.ts:
+26 | 
+27 | describe('gate evidence heuristics', () => {
+28 |   it('context-line-admin: admin only in a context line does not escalate', async () => {
+29 |     const diff = diffWith('// admin users may export every save slot')
+30 |     const r = await review(diff, diff, passingLog)
+31 |     expect(rules(r)).not.toContain('TW205')
+                              ^
+error: expect(received).not.toContain(expected)
+
+Expected to not contain: "TW205"
+Received: [ "TW205" ]
+
+      at <anonymous> (/Users/thoor/work/seal-gate-wt/gate-evidence/tests/gate/evidence-heuristics.test.ts:31:26)
+(fail) gate evidence heuristics > context-line-admin: admin only in a context line does not escalate [2.31ms]
+33 |   })
+34 | 
+35 |   it('context-line-fix: fix only in a context line does not raise TW203', async () => {
+36 |     const diff = diffWith('// fix the slot export later')
+37 |     const r = await review(diff, diff, passingLog)
+38 |     expect(rules(r)).not.toContain('TW203')
+                              ^
+error: expect(received).not.toContain(expected)
+
+Expected to not contain: "TW203"
+Received: [ "TW203" ]
+
+      at <anonymous> (/Users/thoor/work/seal-gate-wt/gate-evidence/tests/gate/evidence-heuristics.test.ts:38:26)
+(fail) gate evidence heuristics > context-line-fix: fix only in a context line does not raise TW203 [0.20ms]
+40 | 
+41 |   it('structured-regression: matching RED and GREEN records satisfy TW203', async () => {
+42 |     const diff = diffWith('// every slot is exported')
+43 |     const r = await review('fix: export includes the first slot\n' + diff, diff, passingLog,
+44 |       { red: [record('failed')], green: [record('passed')] })
+45 |     expect(rules(r)).not.toContain('TW203')
+                              ^
+error: expect(received).not.toContain(expected)
+
+Expected to not contain: "TW203"
+Received: [ "TW203" ]
+
+      at <anonymous> (/Users/thoor/work/seal-gate-wt/gate-evidence/tests/gate/evidence-heuristics.test.ts:45:26)
+(fail) gate evidence heuristics > structured-regression: matching RED and GREEN records satisfy TW203 [0.13ms]
+47 | 
+48 |   it('keyword-only: the word regression alone does not satisfy TW203', async () => {
+49 |     const diff = diffWith('// every slot is exported')
+50 |     const r = await review('fix: export includes the first slot\n' + diff, diff, passingLog + ' regression')
+51 |     const tw203 = r.blocking_issues.find(i => i.rule_id === 'TW203')
+52 |     expect(String(tw203?.evidence)).toContain('evidence.regression')
+                                         ^
+error: expect(received).toContain(expected)
+
+Expected to contain: "evidence.regression"
+Received: "undefined"
+
+      at <anonymous> (/Users/thoor/work/seal-gate-wt/gate-evidence/tests/gate/evidence-heuristics.test.ts:52:37)
+(fail) gate evidence heuristics > keyword-only: the word regression alone does not satisfy TW203 [0.10ms]
+
+ 3 pass
+ 4 fail
+ 10 expect() calls
+Ran 7 tests across 1 file. [18.00ms]

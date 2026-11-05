@@ -1,4 +1,5 @@
 import { RiskLevel } from '../types.js'
+import { changedText } from './diff-lines.js'
 
 const RISK_ORDER: RiskLevel[] = ['LOW', 'MEDIUM', 'HIGH', 'CRITICAL']
 
@@ -21,7 +22,7 @@ export interface RiskResult {
 export class RiskClassifier {
   static classify(params: { output: string; diff: string; risk_hint: RiskLevel | null }): RiskResult {
     const { output, diff, risk_hint } = params
-    const text = output + '\n' + diff
+    const text = changedText(output) + '\n' + changedText(diff)
     let risk_level: RiskLevel = 'MEDIUM'
     let trust_deduction = 0
     const matched_rules: string[] = []
