@@ -13,6 +13,13 @@
       "trust_score": 80,
       "risk_level": "HIGH",
       "blocking_count": 1
+    },
+    {
+      "ts": 1793847351612,
+      "verdict": "ESCALATE_TO_HUMAN",
+      "trust_score": 75,
+      "risk_level": "HIGH",
+      "blocking_count": 1
     }
   ]
 }

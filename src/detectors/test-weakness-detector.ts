@@ -1,9 +1,10 @@
-import { SealIssue, ArtifactType, RiskLevel, SealEvidence, RegressionEvidence } from '../types.js'
+import { SealIssue, ArtifactType, RiskLevel, SealEvidence, RegressionEvidence, AssertionRecord } from '../types.js'
 import { makeIssue } from '../types.js'
 import { changedText } from './diff-lines.js'
 
 const NEGATIVE_TEST_PATTERN = /\b(fail|error|exception|invalid|unauthorized|forbidden|edge|negative|reject|timeout|backoff)\b/i
 const RETRY_PATTERN = /\b(retry|retries|exponential.?backoff|timeout|circuit.?breaker)\b/i
+const SHA256 = /^[a-f0-9]{64}$/
 const BUG_FIX_PATTERN = /\b(fix(?:ed)?|bug|defect|regression)\b/i
 // Auth test evidence: literal keywords + semantic equivalents (budget exhausted, no candidate, access denied, etc.)
 const AUTH_UNAUTH_PATTERN = /\b(unauthorized|forbidden|403|401|permission.?denied|access.?denied|exhausted|no (?:candidate|access|permission)|not (?:allowed|permitted|authorized)|reject(?:ed)?(?:\s+\w+)?\s*(?:access|action|request))\b/i
@@ -11,8 +12,10 @@ const AUTH_UNAUTH_PATTERN = /\b(unauthorized|forbidden|403|401|permission.?denie
 /** One assertion failed in RED and passed in GREEN, same test file and content. */
 export function hasRegressionEvidence(regression: RegressionEvidence | undefined): boolean {
   if (!regression || !Array.isArray(regression.red) || !Array.isArray(regression.green)) return false
-  return regression.red.some(r => r?.status === 'failed' && typeof r.test_sha256 === 'string' && r.test_sha256 !== '' &&
-    regression.green.some(g => g?.status === 'passed' && g.test === r.test && g.name === r.name && g.test_sha256 === r.test_sha256))
+  const valid = (a: AssertionRecord | undefined) => typeof a?.test === 'string' && a.test !== '' &&
+    typeof a.name === 'string' && a.name !== '' && typeof a.test_sha256 === 'string' && SHA256.test(a.test_sha256)
+  return regression.red.some(r => valid(r) && r.status === 'failed' &&
+    regression.green.some(g => valid(g) && g.status === 'passed' && g.test === r.test && g.name === r.name && g.test_sha256 === r.test_sha256))
 }
 
 export interface TestWeaknessResult {

@@ -11,3 +11,9 @@ scenarios:
   - scenario: regression-evidence-is-structured-keyword-only
     test: tests/gate/evidence-heuristics.test.ts
     assertion: "gate evidence heuristics keyword-only: the word regression alone does not satisfy TW203"
+  - scenario: heuristics-read-changed-lines-auth-path
+    test: tests/gate/evidence-heuristics.test.ts
+    assertion: "gate evidence heuristics review fixes auth-path: a change in an auth file escalates even when its lines have no auth word"
+  - scenario: regression-evidence-is-structured-malformed-records
+    test: tests/gate/evidence-heuristics.test.ts
+    assertion: "gate evidence heuristics review fixes malformed-records: records without a test, a name or a SHA-256 do not satisfy TW203"

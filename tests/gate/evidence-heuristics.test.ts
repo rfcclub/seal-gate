@@ -79,3 +79,33 @@ describe('gate evidence heuristics preserved', () => {
     expect(rules(r)).toEqual(expect.arrayContaining(['TW203', 'TW205']))
   })
 })
+
+describe('gate evidence heuristics review fixes', () => {
+  it('auth-path: a change in an auth file escalates even when its lines have no auth word', async () => {
+    const diff = `diff --git a/src/auth/check.ts b/src/auth/check.ts
+index 1111111..2222222 100644
+--- a/src/auth/check.ts
++++ b/src/auth/check.ts
+@@ -1,3 +1,3 @@
+ export function allowed(user) {
+-  return !!user
++  return true
+ }
+`
+    const r = await review(diff, diff, '1 pass')
+    expect(rules(r)).toContain('TW205')
+  })
+
+  it('malformed-records: records without a test, a name or a SHA-256 do not satisfy TW203', async () => {
+    const diff = diffWith('// every slot is exported')
+    for (const regression of [
+      { red: [{ status: 'failed', test_sha256: 'x' }], green: [{ status: 'passed', test_sha256: 'x' }] },
+      { red: [{ ...record('failed'), test: '' }], green: [{ ...record('passed'), test: '' }] },
+      { red: [{ ...record('failed'), name: '' }], green: [{ ...record('passed'), name: '' }] },
+      { red: [record('failed', 'x')], green: [record('passed', 'x')] },
+    ]) {
+      const r = await review('fix: export includes the first slot\n' + diff, diff, passingLog, regression)
+      expect(rules(r)).toContain('TW203')
+    }
+  })
+})

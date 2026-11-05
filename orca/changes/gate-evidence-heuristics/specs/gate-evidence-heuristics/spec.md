@@ -14,7 +14,17 @@
 - **WHEN** the reviewed output is a unified diff with `fix` only in an unchanged context line, and the test log has no regression keyword
 - **THEN** the review has no TW203 finding
 
+#### Scenario: auth-path
+
+- **WHEN** a unified diff changes a file under an `auth` path and its changed lines contain no auth keyword
+- **THEN** the review has a TW205 finding
+
 ### Requirement: Regression evidence is structured
+
+#### Scenario: malformed-records
+
+- **WHEN** regression records lack a test path or assertion name, or carry a hash that is not a SHA-256
+- **THEN** the review still has a TW203 finding
 
 #### Scenario: structured-regression
 
