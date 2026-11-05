@@ -124,3 +124,12 @@ index 1111111..2222222 100644
     expect(rules(r)).toContain('TW205')
   })
 })
+
+describe('gate evidence heuristics fourth review', () => {
+  it('hunk-without-file-header: a hunk header in prose without a file header is not a hunk', async () => {
+    const diff = diffWith('// every slot is exported')
+    const output = 'Summary of the change\n@@ -1,99 +1,99 @@\n  This fixes the auth bypass bug\n'
+    const r = await review(output, diff, passingLog)
+    expect(rules(r)).toContain('TW205')
+  })
+})

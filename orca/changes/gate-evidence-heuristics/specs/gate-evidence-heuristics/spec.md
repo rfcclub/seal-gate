@@ -24,6 +24,11 @@
 - **WHEN** the reviewed output has a unified diff hunk followed by indented prose containing an auth keyword
 - **THEN** the hunk ends at its header's line counts, the prose is classified, and the review has a TW205 finding
 
+#### Scenario: hunk-without-file-header
+
+- **WHEN** the reviewed output has an `@@` hunk header with no `+++` file header before it, followed by indented prose containing an auth keyword
+- **THEN** the header is not treated as a hunk, the prose is classified, and the review has a TW205 finding
+
 ### Requirement: Regression evidence is structured
 
 #### Scenario: malformed-records

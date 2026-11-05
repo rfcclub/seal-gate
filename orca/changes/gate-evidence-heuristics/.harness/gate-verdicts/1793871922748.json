@@ -1,0 +1,131 @@
+{
+  "verdict": "ESCALATE_TO_HUMAN",
+  "trust_score": 75,
+  "risk_level": "HIGH",
+  "summary": "ESCALATE_TO_HUMAN (trust_score=75, risk=HIGH): 1 blocking, 3 non-blocking, 0 fabricated",
+  "deterministic_findings": [
+    {
+      "type": "SPEC_MISMATCH",
+      "severity": "MEDIUM",
+      "layer": "L1",
+      "source": "core",
+      "rule_id": "SV101",
+      "trust_deduction": 10,
+      "evidence": "Acceptance criterion not covered at execution level: \"**WHEN** a unified diff changes one line and `admin` appears only in an unchange\"",
+      "suggested_fix": "Add a test or assertion covering: **WHEN** a unified diff changes one line and `admin` appears only in an unchange",
+      "is_blocking": false,
+      "citation_status": "not_applicable"
+    },
+    {
+      "type": "SPEC_MISMATCH",
+      "severity": "MEDIUM",
+      "layer": "L1",
+      "source": "core",
+      "rule_id": "SV101",
+      "trust_deduction": 10,
+      "evidence": "Acceptance criterion not covered at execution level: \"**THEN** the review has no TW205 finding and the verdict is not ESCALATE_TO_HUMA\"",
+      "suggested_fix": "Add a test or assertion covering: **THEN** the review has no TW205 finding and the verdict is not ESCALATE_TO_HUMA",
+      "is_blocking": false,
+      "citation_status": "not_applicable"
+    },
+    {
+      "type": "TEST_GAP",
+      "severity": "CRITICAL",
+      "layer": "L4",
+      "source": "core",
+      "rule_id": "TW205",
+      "required_verdict": "ESCALATE_TO_HUMAN",
+      "evidence": "Auth-related change detected but no unauthorized/forbidden test evidence",
+      "required_fix": "Add tests for unauthorized and forbidden access scenarios",
+      "is_blocking": true,
+      "citation_status": "not_applicable"
+    },
+    {
+      "type": "OTHER",
+      "severity": "LOW",
+      "layer": "L2",
+      "source": "core",
+      "evidence": "L2 unreviewed — semantic issues may exist",
+      "is_blocking": false
+    }
+  ],
+  "llm_findings": [],
+  "blocking_issues": [
+    {
+      "type": "TEST_GAP",
+      "severity": "CRITICAL",
+      "layer": "L4",
+      "source": "core",
+      "rule_id": "TW205",
+      "required_verdict": "ESCALATE_TO_HUMAN",
+      "evidence": "Auth-related change detected but no unauthorized/forbidden test evidence",
+      "required_fix": "Add tests for unauthorized and forbidden access scenarios",
+      "is_blocking": true,
+      "citation_status": "not_applicable"
+    }
+  ],
+  "non_blocking_issues": [
+    {
+      "type": "SPEC_MISMATCH",
+      "severity": "MEDIUM",
+      "layer": "L1",
+      "source": "core",
+      "rule_id": "SV101",
+      "trust_deduction": 10,
+      "evidence": "Acceptance criterion not covered at execution level: \"**WHEN** a unified diff changes one line and `admin` appears only in an unchange\"",
+      "suggested_fix": "Add a test or assertion covering: **WHEN** a unified diff changes one line and `admin` appears only in an unchange",
+      "is_blocking": false,
+      "citation_status": "not_applicable"
+    },
+    {
+      "type": "SPEC_MISMATCH",
+      "severity": "MEDIUM",
+      "layer": "L1",
+      "source": "core",
+      "rule_id": "SV101",
+      "trust_deduction": 10,
+      "evidence": "Acceptance criterion not covered at execution level: \"**THEN** the review has no TW205 finding and the verdict is not ESCALATE_TO_HUMA\"",
+      "suggested_fix": "Add a test or assertion covering: **THEN** the review has no TW205 finding and the verdict is not ESCALATE_TO_HUMA",
+      "is_blocking": false,
+      "citation_status": "not_applicable"
+    },
+    {
+      "type": "OTHER",
+      "severity": "LOW",
+      "layer": "L2",
+      "source": "core",
+      "evidence": "L2 unreviewed — semantic issues may exist",
+      "is_blocking": false
+    }
+  ],
+  "missing_evidence": [],
+  "assumptions_detected": [
+    "L2 (semantic correctness) not reviewed — no LLM reviewer registered"
+  ],
+  "advisory_notes": [],
+  "score_breakdown": {
+    "base": 100,
+    "issue_deductions": 20,
+    "missing_evidence_deductions": 0,
+    "risk_deductions": 10,
+    "overconfidence_deductions": 0,
+    "evidence_bonuses": 5,
+    "final": 75
+  },
+  "fabricated_evidence": [],
+  "next_action": "Halt — requires human review before continuing",
+  "version": "0.5.2",
+  "schema_version": "0.2.0",
+  "trust_memory_summary": {
+    "agent_id": "orca-agent",
+    "reliability_score": 37,
+    "drift_trend": "stable",
+    "review_count": 5,
+    "last_reviewed_at": 1793871922748
+  },
+  "bound_diff_sha256": "08b51fc2b43ae5a43d1ecc7eaef09cc18965afe9219f9d266f5fd3b9ebf934d4",
+  "evidence_bound": {
+    "test_log_sha256": "c5879e925f830b20153000a9f58b3826c7f8322b5b0588c75c7eb8d4423d22fe",
+    "build_log_sha256": null
+  }
+}

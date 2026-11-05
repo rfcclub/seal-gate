@@ -2,9 +2,9 @@
   "version": 1,
   "mode": "executable",
   "change": "gate-evidence-heuristics",
-  "timestamp": "2026-11-05T04:11:51.648Z",
-  "total_scenarios": 7,
-  "passing": 7,
+  "timestamp": "2026-11-05T09:45:06.795Z",
+  "total_scenarios": 8,
+  "passing": 8,
   "coverage": 1,
   "threshold": 100,
   "passed": true,
@@ -13,12 +13,12 @@
     "version": 1,
     "outcome": "green",
     "source": {
-      "head": "a38ab1bf59e2310a7bd4ab089821f009f4685f13",
-      "diff_sha256": "7f3ed9bcee9f3b97924215149aef9ef6ea585a58926e3b1c6a57f5edf3db3985",
-      "tree_sha256": "cf678f0128d37a79584340c1db879da49d961575238fa3e2046aadc27baf763d"
+      "head": "3857767cf7db2a4ab31196edc003819dcb1068a7",
+      "diff_sha256": "fae8a0b0a47fb252a3423c10f2459780d628e5d51e349419cd463e757280a45f",
+      "tree_sha256": "32a725ce91f965c681e629bfa885c003d3cc998136ecf4bc2787354c3d7ff621"
     },
     "tests": {
-      "tests/gate/evidence-heuristics.test.ts": "933411e1c78159003e4324739bc1954b427bc84ee7e6532999522aeb4fecb1b0"
+      "tests/gate/evidence-heuristics.test.ts": "275946b3a9aa8c5d59f4ca73f3066c04e734664dbb9ed6eff8790df0b7c3d025"
     },
     "runner": {
       "entry": "/Users/thoor/work/seal-gate-wt/gate-evidence/node_modules/vitest/vitest.mjs",
@@ -48,6 +48,11 @@
         "assertion": "gate evidence heuristics third review prose-after-hunk: indented prose after a hunk is classified, not dropped as context"
       },
       {
+        "id": "heuristics-read-changed-lines-hunk-without-file-header",
+        "test": "tests/gate/evidence-heuristics.test.ts",
+        "assertion": "gate evidence heuristics fourth review hunk-without-file-header: a hunk header in prose without a file header is not a hunk"
+      },
+      {
         "id": "regression-evidence-is-structured-malformed-records",
         "test": "tests/gate/evidence-heuristics.test.ts",
         "assertion": "gate evidence heuristics review fixes malformed-records: records without a test, a name or a SHA-256 do not satisfy TW203"
@@ -72,20 +77,20 @@
         "--root",
         "/Users/thoor/work/seal-gate-wt/gate-evidence",
         "--reporter=json",
-        "--outputFile=/var/folders/xx/_15f_6pn4dgb5l2tr2wll6fh0000gn/T/orca-vitest-bGruuC/report.json",
+        "--outputFile=/var/folders/xx/_15f_6pn4dgb5l2tr2wll6fh0000gn/T/orca-vitest-SYH2mO/report.json",
         "--maxWorkers=1",
         "--no-file-parallelism",
         "--expect.requireAssertions"
       ],
       "exit_code": 0,
-      "stdout": "JSON report written to /var/folders/xx/_15f_6pn4dgb5l2tr2wll6fh0000gn/T/orca-vitest-bGruuC/report.json\n",
+      "stdout": "JSON report written to /var/folders/xx/_15f_6pn4dgb5l2tr2wll6fh0000gn/T/orca-vitest-SYH2mO/report.json\n",
       "stderr": ""
     },
-    "report": "{\"numTotalTestSuites\":5,\"numPassedTestSuites\":5,\"numFailedTestSuites\":0,\"numPendingTestSuites\":0,\"numTotalTests\":10,\"numPassedTests\":10,\"numFailedTests\":0,\"numPendingTests\":0,\"numTodoTests\":0,\"snapshot\":{\"added\":0,\"failure\":false,\"filesAdded\":0,\"filesRemoved\":0,\"filesRemovedList\":[],\"filesUnmatched\":0,\"filesUpdated\":0,\"matched\":0,\"total\":0,\"unchecked\":0,\"uncheckedKeysByFile\":[],\"unmatched\":0,\"updated\":0,\"didUpdate\":false},\"startTime\":1793851911407,\"success\":true,\"testResults\":[{\"assertionResults\":[{\"ancestorTitles\":[\"gate evidence heuristics\"],\"fullName\":\"gate evidence heuristics context-line-admin: admin only in a context line does not escalate\",\"status\":\"passed\",\"title\":\"context-line-admin: admin only in a context line does not escalate\",\"duration\":4.249917000000011,\"failureMessages\":[],\"meta\":{},\"tags\":[]},{\"ancestorTitles\":[\"gate evidence heuristics\"],\"fullName\":\"gate evidence heuristics context-line-fix: fix only in a context line does not raise TW203\",\"status\":\"passed\",\"title\":\"context-line-fix: fix only in a context line does not raise TW203\",\"duration\":1.1771249999999895,\"failureMessages\":[],\"meta\":{},\"tags\":[]},{\"ancestorTitles\":[\"gate evidence heuristics\"],\"fullName\":\"gate evidence heuristics structured-regression: matching RED and GREEN records satisfy TW203\",\"status\":\"passed\",\"title\":\"structured-regression: matching RED and GREEN records satisfy TW203\",\"duration\":0.2815830000000119,\"failureMessages\":[],\"meta\":{},\"tags\":[]},{\"ancestorTitles\":[\"gate evidence heuristics\"],\"fullName\":\"gate evidence heuristics keyword-only: the word regression alone does not satisfy TW203\",\"status\":\"passed\",\"title\":\"keyword-only: the word regression alone does not satisfy TW203\",\"duration\":0.1853749999999934,\"failureMessages\":[],\"meta\":{},\"tags\":[]},{\"ancestorTitles\":[\"gate evidence heuristics preserved\"],\"fullName\":\"gate evidence heuristics preserved removed auth code still escalates\",\"status\":\"passed\",\"title\":\"removed auth code still escalates\",\"duration\":0.35412500000001046,\"failureMessages\":[],\"meta\":{},\"tags\":[]},{\"ancestorTitles\":[\"gate evidence heuristics preserved\"],\"fullName\":\"gate evidence heuristics preserved mismatched RED and GREEN records do not satisfy TW203\",\"status\":\"passed\",\"title\":\"mismatched RED and GREEN records do not satisfy TW203\",\"duration\":0.5437499999999886,\"failureMessages\":[],\"meta\":{},\"tags\":[]},{\"ancestorTitles\":[\"gate evidence heuristics preserved\"],\"fullName\":\"gate evidence heuristics preserved plain text without a diff is classified as before\",\"status\":\"passed\",\"title\":\"plain text without a diff is classified as before\",\"duration\":0.34908400000000483,\"failureMessages\":[],\"meta\":{},\"tags\":[]},{\"ancestorTitles\":[\"gate evidence heuristics review fixes\"],\"fullName\":\"gate evidence heuristics review fixes auth-path: a change in an auth file escalates even when its lines have no auth word\",\"status\":\"passed\",\"title\":\"auth-path: a change in an auth file escalates even when its lines have no auth word\",\"duration\":0.16687500000000455,\"failureMessages\":[],\"meta\":{},\"tags\":[]},{\"ancestorTitles\":[\"gate evidence heuristics review fixes\"],\"fullName\":\"gate evidence heuristics review fixes malformed-records: records without a test, a name or a SHA-256 do not satisfy TW203\",\"status\":\"passed\",\"title\":\"malformed-records: records without a test, a name or a SHA-256 do not satisfy TW203\",\"duration\":0.3266660000000172,\"failureMessages\":[],\"meta\":{},\"tags\":[]},{\"ancestorTitles\":[\"gate evidence heuristics third review\"],\"fullName\":\"gate evidence heuristics third review prose-after-hunk: indented prose after a hunk is classified, not dropped as context\",\"status\":\"passed\",\"title\":\"prose-after-hunk: indented prose after a hunk is classified, not dropped as context\",\"duration\":0.12250000000000227,\"failureMessages\":[],\"meta\":{},\"tags\":[]}],\"startTime\":1793851911554,\"endTime\":1793851911562.3267,\"status\":\"passed\",\"message\":\"\",\"name\":\"/Users/thoor/work/seal-gate-wt/gate-evidence/tests/gate/evidence-heuristics.test.ts\"}]}",
-    "report_sha256": "811402bc58a0143f272432de25921e91298dbccd84ba5a7ad26eea2c7359733e",
+    "report": "{\"numTotalTestSuites\":6,\"numPassedTestSuites\":6,\"numFailedTestSuites\":0,\"numPendingTestSuites\":0,\"numTotalTests\":11,\"numPassedTests\":11,\"numFailedTests\":0,\"numPendingTests\":0,\"numTodoTests\":0,\"snapshot\":{\"added\":0,\"failure\":false,\"filesAdded\":0,\"filesRemoved\":0,\"filesRemovedList\":[],\"filesUnmatched\":0,\"filesUpdated\":0,\"matched\":0,\"total\":0,\"unchecked\":0,\"uncheckedKeysByFile\":[],\"unmatched\":0,\"updated\":0,\"didUpdate\":false},\"startTime\":1793871906558,\"success\":true,\"testResults\":[{\"assertionResults\":[{\"ancestorTitles\":[\"gate evidence heuristics\"],\"fullName\":\"gate evidence heuristics context-line-admin: admin only in a context line does not escalate\",\"status\":\"passed\",\"title\":\"context-line-admin: admin only in a context line does not escalate\",\"duration\":4.441166999999993,\"failureMessages\":[],\"meta\":{},\"tags\":[]},{\"ancestorTitles\":[\"gate evidence heuristics\"],\"fullName\":\"gate evidence heuristics context-line-fix: fix only in a context line does not raise TW203\",\"status\":\"passed\",\"title\":\"context-line-fix: fix only in a context line does not raise TW203\",\"duration\":1.1612499999999955,\"failureMessages\":[],\"meta\":{},\"tags\":[]},{\"ancestorTitles\":[\"gate evidence heuristics\"],\"fullName\":\"gate evidence heuristics structured-regression: matching RED and GREEN records satisfy TW203\",\"status\":\"passed\",\"title\":\"structured-regression: matching RED and GREEN records satisfy TW203\",\"duration\":0.27512500000000273,\"failureMessages\":[],\"meta\":{},\"tags\":[]},{\"ancestorTitles\":[\"gate evidence heuristics\"],\"fullName\":\"gate evidence heuristics keyword-only: the word regression alone does not satisfy TW203\",\"status\":\"passed\",\"title\":\"keyword-only: the word regression alone does not satisfy TW203\",\"duration\":0.18945899999999938,\"failureMessages\":[],\"meta\":{},\"tags\":[]},{\"ancestorTitles\":[\"gate evidence heuristics preserved\"],\"fullName\":\"gate evidence heuristics preserved removed auth code still escalates\",\"status\":\"passed\",\"title\":\"removed auth code still escalates\",\"duration\":0.3427090000000135,\"failureMessages\":[],\"meta\":{},\"tags\":[]},{\"ancestorTitles\":[\"gate evidence heuristics preserved\"],\"fullName\":\"gate evidence heuristics preserved mismatched RED and GREEN records do not satisfy TW203\",\"status\":\"passed\",\"title\":\"mismatched RED and GREEN records do not satisfy TW203\",\"duration\":0.5118750000000034,\"failureMessages\":[],\"meta\":{},\"tags\":[]},{\"ancestorTitles\":[\"gate evidence heuristics preserved\"],\"fullName\":\"gate evidence heuristics preserved plain text without a diff is classified as before\",\"status\":\"passed\",\"title\":\"plain text without a diff is classified as before\",\"duration\":0.3312080000000037,\"failureMessages\":[],\"meta\":{},\"tags\":[]},{\"ancestorTitles\":[\"gate evidence heuristics review fixes\"],\"fullName\":\"gate evidence heuristics review fixes auth-path: a change in an auth file escalates even when its lines have no auth word\",\"status\":\"passed\",\"title\":\"auth-path: a change in an auth file escalates even when its lines have no auth word\",\"duration\":0.1613749999999925,\"failureMessages\":[],\"meta\":{},\"tags\":[]},{\"ancestorTitles\":[\"gate evidence heuristics review fixes\"],\"fullName\":\"gate evidence heuristics review fixes malformed-records: records without a test, a name or a SHA-256 do not satisfy TW203\",\"status\":\"passed\",\"title\":\"malformed-records: records without a test, a name or a SHA-256 do not satisfy TW203\",\"duration\":0.3237079999999821,\"failureMessages\":[],\"meta\":{},\"tags\":[]},{\"ancestorTitles\":[\"gate evidence heuristics third review\"],\"fullName\":\"gate evidence heuristics third review prose-after-hunk: indented prose after a hunk is classified, not dropped as context\",\"status\":\"passed\",\"title\":\"prose-after-hunk: indented prose after a hunk is classified, not dropped as context\",\"duration\":0.12475000000000591,\"failureMessages\":[],\"meta\":{},\"tags\":[]},{\"ancestorTitles\":[\"gate evidence heuristics fourth review\"],\"fullName\":\"gate evidence heuristics fourth review hunk-without-file-header: a hunk header in prose without a file header is not a hunk\",\"status\":\"passed\",\"title\":\"hunk-without-file-header: a hunk header in prose without a file header is not a hunk\",\"duration\":0.09950000000000614,\"failureMessages\":[],\"meta\":{},\"tags\":[]}],\"startTime\":1793871906700,\"endTime\":1793871906708.3237,\"status\":\"passed\",\"message\":\"\",\"name\":\"/Users/thoor/work/seal-gate-wt/gate-evidence/tests/gate/evidence-heuristics.test.ts\"}]}",
+    "report_sha256": "0f76c5f5b66b96ff354d2954c7a36da2b791cf2a867afdd243974d5ff9eadf6d",
     "property_report": "[]",
     "property_report_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
-    "property_invocation": "c9e75530-3c20-41d5-871e-91d8ace4f6fc",
+    "property_invocation": "72b474a0-7b43-457d-b734-49a100dab2f2",
     "assertions": [
       {
         "id": "heuristics-read-changed-lines-context-line-admin",
@@ -116,6 +121,13 @@
         "failures": []
       },
       {
+        "id": "heuristics-read-changed-lines-hunk-without-file-header",
+        "test": "tests/gate/evidence-heuristics.test.ts",
+        "name": "gate evidence heuristics fourth review hunk-without-file-header: a hunk header in prose without a file header is not a hunk",
+        "status": "passed",
+        "failures": []
+      },
+      {
         "id": "regression-evidence-is-structured-malformed-records",
         "test": "tests/gate/evidence-heuristics.test.ts",
         "name": "gate evidence heuristics review fixes malformed-records: records without a test, a name or a SHA-256 do not satisfy TW203",
@@ -138,13 +150,13 @@
       }
     ],
     "reasons": [],
-    "started_at": "2026-11-05T04:11:51.292Z",
-    "finished_at": "2026-11-05T04:11:51.647Z"
+    "started_at": "2026-11-05T09:45:06.411Z",
+    "finished_at": "2026-11-05T09:45:06.794Z"
   },
   "replay": null,
   "inputs": {
-    "orca/changes/gate-evidence-heuristics/specs/gate-evidence-heuristics/spec.md": "f73036d587b23b58b3546cd6a5873e63233aeddb9ddc93184dd8d5f8e508fbde",
-    "orca/changes/gate-evidence-heuristics/.traceability.yaml": "851aa58d782e9b3e6e047d2ee91c519eb63a443314316863653e23ea53a8a84d",
+    "orca/changes/gate-evidence-heuristics/specs/gate-evidence-heuristics/spec.md": "8489042b844e555be88d7f154b89e70c23ccc5f4430df6b0472f9afc45a78a10",
+    "orca/changes/gate-evidence-heuristics/.traceability.yaml": "02670373e65f0f429801841cdc8be942bbdaa82d7930689766d1252607be6111",
     "orca/changes/gate-evidence-heuristics/intent.md": "07c927c8ba52cbfdcccf8c406cd8bcc6537d09d27d8c22b60a813b3ab78aa1d9"
   },
   "reasons": [],

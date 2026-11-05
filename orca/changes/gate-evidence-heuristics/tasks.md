@@ -7,6 +7,7 @@
 - [x] G6 (SC-1): Keep diff file paths for classification; only unchanged context lines and @@ headers are dropped (Coda review, auth-path).
 - [x] G7 (SC-2): Validate record test, name and SHA-256 shape before matching (Coda review, malformed-records).
 - [x] G8 (SC-1): End each hunk at its header's old/new line counts so text after it is classified (Lila/Coda review, prose-after-hunk).
+- [x] G9 (SC-1): Honor a hunk header only after a `+++` file header or directly after the previous hunk of the same file (Aura review, hunk-without-file-header).
 - [x] G5: Full tests, build, verify and gates; self-check.
 
 ## Locked criteria mapping
