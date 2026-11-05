@@ -5,7 +5,6 @@ import { changedText } from './diff-lines.js'
 const NEGATIVE_TEST_PATTERN = /\b(fail|error|exception|invalid|unauthorized|forbidden|edge|negative|reject|timeout|backoff)\b/i
 const RETRY_PATTERN = /\b(retry|retries|exponential.?backoff|timeout|circuit.?breaker)\b/i
 const BUG_FIX_PATTERN = /\b(fix(?:ed)?|bug|defect|regression)\b/i
-const REGRESSION_TEST_PATTERN = /\b(regression|repro|original.?bug|fixed.?case)\b/i
 // Auth test evidence: literal keywords + semantic equivalents (budget exhausted, no candidate, access denied, etc.)
 const AUTH_UNAUTH_PATTERN = /\b(unauthorized|forbidden|403|401|permission.?denied|access.?denied|exhausted|no (?:candidate|access|permission)|not (?:allowed|permitted|authorized)|reject(?:ed)?(?:\s+\w+)?\s*(?:access|action|request))\b/i
 
@@ -60,13 +59,12 @@ export class TestWeaknessDetector {
     }
 
     // TW203: bug fix without regression test
-    if (BUG_FIX_PATTERN.test(changed) && test_log.trim().length > 0 && !hasRegressionEvidence(evidence.regression) &&
-        !REGRESSION_TEST_PATTERN.test(test_log)) {
+    if (BUG_FIX_PATTERN.test(changed) && test_log.trim().length > 0 && !hasRegressionEvidence(evidence.regression)) {
       issues.push(makeIssue({
         type: 'TEST_GAP', severity: 'HIGH', layer: 'L4', source: 'core',
         rule_id: 'TW203',
-        evidence: 'Bug fix detected but no regression test evidence found',
-        required_fix: 'Add regression test that reproduces the original bug',
+        evidence: 'Bug fix detected but evidence.regression has no assertion that failed before the fix and passes after it',
+        required_fix: 'Record the failing run before the fix and the passing run after it (Orca: record-red, then verify) and pass both as evidence.regression',
       }))
     }
 
