@@ -23,3 +23,6 @@ scenarios:
   - scenario: heuristics-read-changed-lines-hunk-without-file-header
     test: tests/gate/evidence-heuristics.test.ts
     assertion: "gate evidence heuristics fourth review hunk-without-file-header: a hunk header in prose without a file header is not a hunk"
+  - scenario: heuristics-read-changed-lines-fake-hunk-after-hunk
+    test: tests/gate/evidence-heuristics.test.ts
+    assertion: "gate evidence heuristics fifth review fake-hunk-after-hunk: an @@ line right after a real hunk does not hide prose the diff does not have"

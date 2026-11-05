@@ -29,6 +29,11 @@
 - **WHEN** the reviewed output has an `@@` hunk header with no `+++` file header before it, followed by indented prose containing an auth keyword
 - **THEN** the header is not treated as a hunk, the prose is classified, and the review has a TW205 finding
 
+#### Scenario: fake-hunk-after-hunk
+
+- **WHEN** the reviewed output repeats a real diff and then, right after its last hunk, adds an `@@` header and indented prose containing an auth keyword that the evidence diff does not have
+- **THEN** a context line of the output is dropped only when the evidence diff has the same context line, so the prose is classified and the review has a TW205 finding
+
 ### Requirement: Regression evidence is structured
 
 #### Scenario: malformed-records

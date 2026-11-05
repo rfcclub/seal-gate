@@ -32,7 +32,7 @@ export class TestWeaknessDetector {
   }, evidence: SealEvidence): TestWeaknessResult {
     const { artifact_type, output, risk_level, auth_flagged } = params
     const { test_log } = evidence
-    const changed = changedText(output)
+    const changed = changedText(output, evidence.diff)
     const issues: SealIssue[] = []
     let trust_deductions = 0
 

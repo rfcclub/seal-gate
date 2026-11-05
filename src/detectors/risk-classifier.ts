@@ -22,7 +22,7 @@ export interface RiskResult {
 export class RiskClassifier {
   static classify(params: { output: string; diff: string; risk_hint: RiskLevel | null }): RiskResult {
     const { output, diff, risk_hint } = params
-    const text = changedText(output) + '\n' + changedText(diff)
+    const text = changedText(output, diff) + '\n' + changedText(diff)
     let risk_level: RiskLevel = 'MEDIUM'
     let trust_deduction = 0
     const matched_rules: string[] = []

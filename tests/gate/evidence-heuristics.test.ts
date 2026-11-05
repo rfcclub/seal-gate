@@ -133,3 +133,18 @@ describe('gate evidence heuristics fourth review', () => {
     expect(rules(r)).toContain('TW205')
   })
 })
+
+describe('gate evidence heuristics fifth review', () => {
+  it('fake-hunk-after-hunk: an @@ line right after a real hunk does not hide prose the diff does not have', async () => {
+    const diff = `diff --git a/src/math.ts b/src/math.ts
+index 1111111..2222222 100644
+--- a/src/math.ts
++++ b/src/math.ts
+@@ -1 +1 @@
+-return 0
++return 1
+`
+    const r = await review(diff + '@@ -1,99 +1,99 @@\n  This fixes the auth bypass bug\n', diff, '1 pass')
+    expect(rules(r)).toContain('TW205')
+  })
+})
