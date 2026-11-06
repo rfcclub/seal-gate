@@ -6,7 +6,7 @@
  * Stateless core: TrustMemory holds in-memory state.
  * Callers are responsible for persistence (serialize/deserialize via toJSON/fromJSON).
  */
-import { Verdict } from './types.js'
+import { Verdict, normalizeVerdict } from './types.js'
 
 export interface ReviewRecord {
   ts: number           // Unix ms
@@ -34,7 +34,7 @@ const VERDICT_SCORE: Record<Verdict, number> = {
   'PASS': 100,
   'PASS_WITH_WARNINGS': 80,
   'REVISE': 50,
-  'ESCALATE_TO_HUMAN': 20,
+  'ESCALATE_TO_REVIEWER': 20,
   'BLOCK': 0,
 }
 
@@ -154,16 +154,16 @@ export class TrustMemory {
   /** Restore from serialized object. Validates, sorts by ts, deduplicates, and caps. */
   static fromJSON(data: Record<string, ReviewRecord[]>, options?: TrustMemoryOptions): TrustMemory {
     const mem = new TrustMemory(options)
-    const VALID_VERDICTS = new Set(['PASS', 'PASS_WITH_WARNINGS', 'REVISE', 'ESCALATE_TO_HUMAN', 'BLOCK'])
     for (const [agent_id, records] of Object.entries(data)) {
       if (!Array.isArray(records)) continue
+      // Records stored under an older verdict name are read as the current one.
       const valid = records.filter(r =>
         typeof r.ts === 'number' &&
-        typeof r.verdict === 'string' && VALID_VERDICTS.has(r.verdict) &&
+        normalizeVerdict(r.verdict) !== null &&
         typeof r.trust_score === 'number' &&
         typeof r.risk_level === 'string' &&
         typeof r.blocking_count === 'number'
-      )
+      ).map(r => ({ ...r, verdict: normalizeVerdict(r.verdict) as Verdict }))
       mem.store.set(agent_id, normalizeFromPersistence(valid, options?.maxHistory ?? 50))
     }
     return mem

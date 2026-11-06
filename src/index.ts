@@ -158,7 +158,7 @@ export const Seal = {
         layer: 'L4',
         source: 'core',
         evidence: 'Pipeline integrity check failed — artifact changed mid-review',
-        required_verdict: 'ESCALATE_TO_HUMAN',
+        required_verdict: 'ESCALATE_TO_REVIEWER',
         required_fix: 'Review the artifact again from scratch',
       }))
     }
@@ -269,7 +269,7 @@ export const Seal = {
     // Final verdict
     let finalVerdict = maxVerdict(policyResult.verdict, HeuristicScorer.toVerdict(finalScore, allIssues.filter(i => i.is_blocking)))
     if (policyResult.verdict === 'BLOCK') finalVerdict = 'BLOCK'
-    if (!integrityPassed) finalVerdict = maxVerdict(finalVerdict, 'ESCALATE_TO_HUMAN')
+    if (!integrityPassed) finalVerdict = maxVerdict(finalVerdict, 'ESCALATE_TO_REVIEWER')
 
     // Step 13: Extensions
     const extResult = registry.run(input)

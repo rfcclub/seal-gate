@@ -1,0 +1,7 @@
+scenarios:
+  - scenario: the-old-verdict-name-keeps-its-severity-aggregation-ranks-the-old-name-as-the-reviewer-verdict
+    test: tests/spec/reviewer-verdict-boundaries.test.ts
+    assertion: "boundary-legacy-aggregation: the old name keeps its severity when verdicts are aggregated"
+  - scenario: the-old-verdict-name-keeps-its-severity-prototype-property-names-are-not-verdicts
+    test: tests/spec/reviewer-verdict-boundaries.test.ts
+    assertion: "boundary-prototype-names: inherited object property names are not verdicts or aliases"

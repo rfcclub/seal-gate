@@ -1,0 +1,10 @@
+scenarios:
+  - scenario: the-uncertain-verdict-hands-off-to-a-reviewer-the-30-49-band-ordering-and-next-action-use-the-reviewer-name
+    test: tests/spec/escalate-to-reviewer.test.ts
+    assertion: "reviewer-verdict-band: the 30–49 band, ordering and next action use the reviewer name"
+  - scenario: the-uncertain-verdict-hands-off-to-a-reviewer-the-old-name-is-read-as-the-new-one-and-nothing-else-is-renamed
+    test: tests/spec/escalate-to-reviewer.test.ts
+    assertion: "reviewer-verdict-alias: the old name is read as the new one and nothing else is renamed"
+  - scenario: the-uncertain-verdict-hands-off-to-a-reviewer-stored-trust-memory-with-the-old-name-loads-as-the-new-one
+    test: tests/spec/escalate-to-reviewer.test.ts
+    assertion: "reviewer-verdict-stored: stored trust memory with the old name loads as the new one"

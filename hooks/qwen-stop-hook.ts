@@ -63,7 +63,7 @@ try {
 
 // ─── Output ────────────────────────────────────────────────────────────────
 
-const shouldBlock = verdict && ['BLOCK', 'ESCALATE_TO_HUMAN'].includes(verdict.verdict)
+const shouldBlock = verdict && ['BLOCK', 'ESCALATE_TO_REVIEWER', 'ESCALATE_TO_HUMAN'].includes(verdict.verdict)
 const blockReason = shouldBlock
   ? (verdict!.blocking_issues[0]?.evidence ?? verdict!.next_action ?? 'Seal Gate: identity bleed or hallucination detected')
   : undefined

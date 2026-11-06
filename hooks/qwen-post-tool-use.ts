@@ -115,7 +115,7 @@ const verdict = await Seal.review({
 })
 
 // Map Seal verdict to Qwen Code HookOutput
-const shouldStop = ['BLOCK', 'ESCALATE_TO_HUMAN'].includes(verdict.verdict)
+const shouldStop = ['BLOCK', 'ESCALATE_TO_REVIEWER', 'ESCALATE_TO_HUMAN'].includes(verdict.verdict)
 
 const additionalContext = verdict.verdict !== 'PASS'
   ? `[Seal Gate: ${verdict.verdict}] ${verdict.summary}`

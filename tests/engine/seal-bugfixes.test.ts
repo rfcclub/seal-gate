@@ -22,13 +22,13 @@ describe('worstOf — semantic verdict comparison', () => {
   test('VERDICT_ORDER is in correct ascending severity', () => {
     // If this fails, all verdict comparisons are broken — canary test
     expect(VERDICT_ORDER).toEqual([
-      'PASS', 'PASS_WITH_WARNINGS', 'REVISE', 'ESCALATE_TO_HUMAN', 'BLOCK'
+      'PASS', 'PASS_WITH_WARNINGS', 'REVISE', 'ESCALATE_TO_REVIEWER', 'BLOCK'
     ])
   })
 
   test('worstOf is commutative', () => {
     const pairs: [Verdict, Verdict][] = [
-      ['PASS', 'REVISE'], ['BLOCK', 'ESCALATE_TO_HUMAN'], ['PASS_WITH_WARNINGS', 'PASS'],
+      ['PASS', 'REVISE'], ['BLOCK', 'ESCALATE_TO_REVIEWER'], ['PASS_WITH_WARNINGS', 'PASS'],
     ]
     for (const [a, b] of pairs) {
       expect(worstOf(a, b)).toBe(worstOf(b, a))
@@ -125,6 +125,6 @@ describe('CL401 — overconfident language is advisory, not score deduction', ()
       risk_hint: 'HIGH',
     })
     // CL402 behavior unchanged — hedging on HIGH risk still escalates
-    expect(['ESCALATE_TO_HUMAN', 'BLOCK']).toContain(v.verdict)
+    expect(['ESCALATE_TO_REVIEWER', 'BLOCK']).toContain(v.verdict)
   })
 })

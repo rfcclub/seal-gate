@@ -74,7 +74,7 @@ export class TestWeaknessDetector {
     if (auth_flagged && test_log.trim().length > 0 && !AUTH_UNAUTH_PATTERN.test(test_log)) {
       issues.push(makeIssue({
         type: 'TEST_GAP', severity: 'CRITICAL', layer: 'L4', source: 'core',
-        rule_id: 'TW205', required_verdict: 'ESCALATE_TO_HUMAN',
+        rule_id: 'TW205', required_verdict: 'ESCALATE_TO_REVIEWER',
         evidence: 'Auth-related change detected but no unauthorized/forbidden test evidence',
         required_fix: 'Add tests for unauthorized and forbidden access scenarios',
       }))

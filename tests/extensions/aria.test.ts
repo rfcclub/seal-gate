@@ -87,7 +87,7 @@ describe('Aria Extension', () => {
     })
     const issue = issues.find(i => i.rule_id?.includes('ARIA-ID-001'))
     expect(issue?.severity).toBe('CRITICAL') // escalated from HIGH
-    expect(issue?.required_verdict).toBe('ESCALATE_TO_HUMAN') // escalated from REVISE
+    expect(issue?.required_verdict).toBe('ESCALATE_TO_REVIEWER') // escalated from REVISE
   })
 
   test('clean output with uncertainty markers → no identity/continuity issues', () => {

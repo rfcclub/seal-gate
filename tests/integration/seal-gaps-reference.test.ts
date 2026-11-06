@@ -93,6 +93,6 @@ describe('Seal.review integration — reference gaps', () => {
 
     expect(result.score_breakdown).toBeDefined()
     expect(Array.isArray(result.fabricated_evidence)).toBe(true)
-    expect(result.verdict).toMatch(/^PASS|PASS_WITH_WARNINGS|REVISE|ESCALATE_TO_HUMAN|BLOCK$/)
+    expect(result.verdict).toMatch(/^PASS|PASS_WITH_WARNINGS|REVISE|ESCALATE_TO_REVIEWER|BLOCK$/)
   })
 })

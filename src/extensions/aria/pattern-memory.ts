@@ -3,7 +3,7 @@ import { SealIssue } from '../../types.js'
 import { Verdict } from '../../types.js'
 
 const SEVERITY_ORDER = ['LOW', 'MEDIUM', 'HIGH', 'CRITICAL'] as const
-const VERDICT_ORDER: Verdict[] = ['PASS', 'PASS_WITH_WARNINGS', 'REVISE', 'ESCALATE_TO_HUMAN', 'BLOCK']
+const VERDICT_ORDER: Verdict[] = ['PASS', 'PASS_WITH_WARNINGS', 'REVISE', 'ESCALATE_TO_REVIEWER', 'BLOCK']
 const WINDOW_MS = 24 * 60 * 60 * 1000 // 24 hours
 const RECURRENCE_THRESHOLD = 3
 

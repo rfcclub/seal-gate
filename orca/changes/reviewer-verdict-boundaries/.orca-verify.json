@@ -1,0 +1,92 @@
+{
+  "version": 1,
+  "mode": "executable",
+  "change": "reviewer-verdict-boundaries",
+  "timestamp": "2026-11-06T03:32:09.952Z",
+  "total_scenarios": 2,
+  "passing": 2,
+  "coverage": 1,
+  "threshold": 100,
+  "passed": true,
+  "execution_verified": true,
+  "execution": {
+    "version": 1,
+    "outcome": "green",
+    "source": {
+      "head": "f5f8f0bc155d74fe42cbd3379f09812b4ae0220e",
+      "diff_sha256": "11e001dae5c991dc66d93e646ffb42406ddfa9dadbc0440e6b75dc5c4b8deae7",
+      "tree_sha256": "7183a1d204285593128224cd0ff1ce7b28b410669fede68ccb0e33b59d5d371f"
+    },
+    "tests": {
+      "tests/spec/reviewer-verdict-boundaries.test.ts": "4c89a6da518a6fa8bebc4f331b520633362882e601378747ba3bc264cffcbb05"
+    },
+    "runner": {
+      "entry": "/Users/thoor/work/seal-gate-wt-reviewer/node_modules/vitest/vitest.mjs",
+      "sha256": "39db22f579acf5639bbb17a261408debbde03f4692c0c439e77e7f13aeba74d6",
+      "version": "4.1.11",
+      "node_version": "v26.5.0"
+    },
+    "selection": [
+      {
+        "id": "the-old-verdict-name-keeps-its-severity-aggregation-ranks-the-old-name-as-the-reviewer-verdict",
+        "test": "tests/spec/reviewer-verdict-boundaries.test.ts",
+        "assertion": "boundary-legacy-aggregation: the old name keeps its severity when verdicts are aggregated"
+      },
+      {
+        "id": "the-old-verdict-name-keeps-its-severity-prototype-property-names-are-not-verdicts",
+        "test": "tests/spec/reviewer-verdict-boundaries.test.ts",
+        "assertion": "boundary-prototype-names: inherited object property names are not verdicts or aliases"
+      }
+    ],
+    "command": {
+      "executable": "/opt/homebrew/Cellar/node/26.5.0/bin/node",
+      "args": [
+        "/Users/thoor/work/seal-gate-wt-reviewer/node_modules/vitest/vitest.mjs",
+        "run",
+        "tests/spec/reviewer-verdict-boundaries.test.ts",
+        "--root",
+        "/Users/thoor/work/seal-gate-wt-reviewer",
+        "--reporter=json",
+        "--outputFile=/var/folders/xx/_15f_6pn4dgb5l2tr2wll6fh0000gn/T/orca-vitest-YDBQOr/report.json",
+        "--maxWorkers=1",
+        "--no-file-parallelism",
+        "--expect.requireAssertions"
+      ],
+      "exit_code": 0,
+      "stdout": "JSON report written to /var/folders/xx/_15f_6pn4dgb5l2tr2wll6fh0000gn/T/orca-vitest-YDBQOr/report.json\n",
+      "stderr": ""
+    },
+    "report": "{\"numTotalTestSuites\":1,\"numPassedTestSuites\":1,\"numFailedTestSuites\":0,\"numPendingTestSuites\":0,\"numTotalTests\":2,\"numPassedTests\":2,\"numFailedTests\":0,\"numPendingTests\":0,\"numTodoTests\":0,\"snapshot\":{\"added\":0,\"failure\":false,\"filesAdded\":0,\"filesRemoved\":0,\"filesRemovedList\":[],\"filesUnmatched\":0,\"filesUpdated\":0,\"matched\":0,\"total\":0,\"unchecked\":0,\"uncheckedKeysByFile\":[],\"unmatched\":0,\"updated\":0,\"didUpdate\":false},\"startTime\":1793935929773,\"success\":true,\"testResults\":[{\"assertionResults\":[{\"ancestorTitles\":[],\"fullName\":\"boundary-legacy-aggregation: the old name keeps its severity when verdicts are aggregated\",\"status\":\"passed\",\"title\":\"boundary-legacy-aggregation: the old name keeps its severity when verdicts are aggregated\",\"duration\":0.7112089999999966,\"failureMessages\":[],\"meta\":{},\"tags\":[]},{\"ancestorTitles\":[],\"fullName\":\"boundary-prototype-names: inherited object property names are not verdicts or aliases\",\"status\":\"passed\",\"title\":\"boundary-prototype-names: inherited object property names are not verdicts or aliases\",\"duration\":0.39212499999999295,\"failureMessages\":[],\"meta\":{},\"tags\":[]}],\"startTime\":1793935929862,\"endTime\":1793935929863.392,\"status\":\"passed\",\"message\":\"\",\"name\":\"/Users/thoor/work/seal-gate-wt-reviewer/tests/spec/reviewer-verdict-boundaries.test.ts\"}]}",
+    "report_sha256": "d7457fe65883e1e339a4575e9ff863fab97c00ce45f6799fcab38f485e268267",
+    "property_report": "[]",
+    "property_report_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+    "property_invocation": "e29b9483-ef56-4345-9fbf-4250b0d8b2db",
+    "assertions": [
+      {
+        "id": "the-old-verdict-name-keeps-its-severity-aggregation-ranks-the-old-name-as-the-reviewer-verdict",
+        "test": "tests/spec/reviewer-verdict-boundaries.test.ts",
+        "name": "boundary-legacy-aggregation: the old name keeps its severity when verdicts are aggregated",
+        "status": "passed",
+        "failures": []
+      },
+      {
+        "id": "the-old-verdict-name-keeps-its-severity-prototype-property-names-are-not-verdicts",
+        "test": "tests/spec/reviewer-verdict-boundaries.test.ts",
+        "name": "boundary-prototype-names: inherited object property names are not verdicts or aliases",
+        "status": "passed",
+        "failures": []
+      }
+    ],
+    "reasons": [],
+    "started_at": "2026-11-06T03:32:09.578Z",
+    "finished_at": "2026-11-06T03:32:09.952Z"
+  },
+  "replay": null,
+  "inputs": {
+    "orca/changes/reviewer-verdict-boundaries/specs/reviewer-verdict-boundaries/spec.md": "ec4f5fc999d7d494b0dde56bca778c880209957cb98096a8816496dc71bf7020",
+    "orca/changes/reviewer-verdict-boundaries/.traceability.yaml": "dc9ba02032de3a2774f01a35ae21d2204d413cd430e3e814bd4aa68ff26998ff",
+    "orca/changes/reviewer-verdict-boundaries/intent.md": "fb6897c6ee096e7dc19e4e66df5ff6c524460d5c358df99e6a4bf99361e26a91"
+  },
+  "reasons": [],
+  "uncovered": []
+}

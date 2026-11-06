@@ -120,7 +120,7 @@ try {
 
 // ─── Output ────────────────────────────────────────────────────────────────
 
-if (verdict && ['BLOCK', 'ESCALATE_TO_HUMAN'].includes(verdict.verdict)) {
+if (verdict && ['BLOCK', 'ESCALATE_TO_REVIEWER', 'ESCALATE_TO_HUMAN'].includes(verdict.verdict)) {
   const reason = verdict.blocking_issues[0]?.evidence
     ?? verdict.next_action
     ?? 'Seal Gate: identity drift or ungrounded claim detected'

@@ -153,7 +153,7 @@ export class ConfidenceLanguageDetector {
       if (HEDGING_PATTERN.exec(output) !== null) {
         issues.push(makeIssue({
           type: 'AMBIGUITY', severity: 'HIGH', layer: 'L4', source: 'core',
-          rule_id: 'CL402', required_verdict: 'ESCALATE_TO_HUMAN',
+          rule_id: 'CL402', required_verdict: 'ESCALATE_TO_REVIEWER',
           evidence: `Hedging language in ${risk_level} risk artifact`,
           required_fix: 'Either assert with evidence or escalate to human review',
         }))
@@ -191,7 +191,7 @@ export class ConfidenceLanguageDetector {
                   layer: 'L4',
                   source: 'core',
                   rule_id: `CL-${group.id}01`,
-                  required_verdict: isHighPlus ? 'ESCALATE_TO_HUMAN' : 'REVISE',
+                  required_verdict: isHighPlus ? 'ESCALATE_TO_REVIEWER' : 'REVISE',
                   evidence: `"${match[0]}" claimed but endpoint/migration changes exist and no compatibility evidence provided`,
                   required_fix: 'Provide backward-compatibility analysis or remove the claim',
                 }))

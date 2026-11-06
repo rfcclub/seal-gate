@@ -55,7 +55,7 @@ describe('plan_review pipeline (Seal.review)', () => {
       spec: null,
       context: { locked_criteria: [] },
     })
-    expect(result.verdict).toBe('ESCALATE_TO_HUMAN')
+    expect(result.verdict).toBe('ESCALATE_TO_REVIEWER')
     expect(result.blocking_issues.length + result.non_blocking_issues.length).toBeGreaterThan(0)
   })
 
@@ -67,7 +67,7 @@ describe('plan_review pipeline (Seal.review)', () => {
       context: { locked_criteria: LOCKED_CRITERIA },
     })
     // ContradictionDetector fires BLOCK for write vs readonly
-    expect(['BLOCK', 'ESCALATE_TO_HUMAN', 'REVISE']).toContain(result.verdict)
+    expect(['BLOCK', 'ESCALATE_TO_REVIEWER', 'REVISE']).toContain(result.verdict)
     expect(result.deterministic_findings.some(f => f.rule_id === 'PR001')).toBe(true)
   })
 
@@ -97,7 +97,7 @@ The gate will no longer block without rollback. Human sign-off required.
       spec: null,
       context: { locked_criteria: LOCKED_CRITERIA },
     })
-    expect(['ESCALATE_TO_HUMAN', 'BLOCK']).toContain(result.verdict)
+    expect(['ESCALATE_TO_REVIEWER', 'BLOCK']).toContain(result.verdict)
   })
 
   it('summary contains plan_review prefix', async () => {

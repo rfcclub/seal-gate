@@ -1,0 +1,2 @@
+# Design
+`Verdict` holds only the new name. `normalizeVerdict(value)` in `types.ts` is the single read boundary: current names pass, `ESCALATE_TO_HUMAN` maps to `ESCALATE_TO_REVIEWER`, anything else is `null`. `TrustMemory.fromJSON` uses it so persisted history keeps counting. The three stop hooks list both names. `SCHEMA_VERSION` is unchanged: no field was added or removed, only a value renamed with a read-side alias. Detector scores and bands are untouched; the existing suites are renamed in place and pass unchanged.

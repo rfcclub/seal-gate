@@ -148,7 +148,7 @@ describe('CriteriaCoverageDetector', () => {
   it('emits ESCALATE when no locked criteria', () => {
     const result = CriteriaCoverageDetector.detect({ artifact: 'some artifact', locked_criteria: [] })
     expect(result.no_criteria_escalate).toBe(true)
-    expect(result.issues[0].required_verdict).toBe('ESCALATE_TO_HUMAN')
+    expect(result.issues[0].required_verdict).toBe('ESCALATE_TO_REVIEWER')
     expect(result.issues[0].type).toBe('AMBIGUITY')
   })
 

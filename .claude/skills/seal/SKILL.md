@@ -58,7 +58,7 @@ CRITICAL = production destructive, user data, legal/financial/medical
 PASS                → proceed
 PASS_WITH_WARNINGS  → proceed; log warnings
 REVISE              → send blocking_issues back to producing agent
-ESCALATE_TO_HUMAN   → gate is uncertain; needs human decision
+ESCALATE_TO_REVIEWER   → gate is uncertain; needs human decision
 BLOCK               → stop; risk too high or spec fundamentally broken
 ```
 
@@ -68,7 +68,7 @@ BLOCK               → stop; risk too high or spec fundamentally broken
 - Security, data loss, privacy, financial, legal, production risk → ESCALATE or BLOCK
 - Missing evidence for important claim → not PASS
 - Weak or superficial tests → not PASS
-- Uncertain AND risk >= MEDIUM → ESCALATE_TO_HUMAN
+- Uncertain AND risk >= MEDIUM → ESCALATE_TO_REVIEWER
 - **Never invent evidence**
 - **Never assume success without proof**
 - **Code ≠ reality. Always check data.**
@@ -136,7 +136,7 @@ Severity: MEDIUM | required_verdict: REVISE | trust_deduction: 10
 
 Coverage heuristic: criterion is covered if its ID appears literally (e.g. `AC-003`) OR ≥50% of its significant words (>4 chars, excluding SHALL/WHEN/THEN) appear in the artifact.
 
-**No locked criteria → preflight ESCALATE_TO_HUMAN** (can't measure coverage without a yardstick).
+**No locked criteria → preflight ESCALATE_TO_REVIEWER** (can't measure coverage without a yardstick).
 
 #### Stage 3 — OrphanClaimDetector [rule_id: PR003]
 
@@ -174,17 +174,17 @@ Deduct: -trust_deduction per issue
 |------------|---------|
 | ≥ 90 | PASS |
 | 71-89 (RISK < HIGH) | PASS_WITH_WARNINGS |
-| 71-89 (RISK = HIGH) | ESCALATE_TO_HUMAN |
+| 71-89 (RISK = HIGH) | ESCALATE_TO_REVIEWER |
 | 50-70 | REVISE |
-| 30-49 | ESCALATE_TO_HUMAN |
+| 30-49 | ESCALATE_TO_REVIEWER |
 | < 30 or has blocking | BLOCK |
 
 ### Hard Block Bypass Rules (apply via PolicyEngine when `artifact_type = plan_review`)
 
 | Rule | Condition | Verdict |
 |------|-----------|---------|
-| PR-HB-01 | Plan removes an existing BLOCK/ESCALATE verdict | ESCALATE_TO_HUMAN |
-| PR-HB-02 | Axiom/identity amendment without Amendment Protocol | ESCALATE_TO_HUMAN |
+| PR-HB-01 | Plan removes an existing BLOCK/ESCALATE verdict | ESCALATE_TO_REVIEWER |
+| PR-HB-02 | Axiom/identity amendment without Amendment Protocol | ESCALATE_TO_REVIEWER |
 | PR-HB-03 | Irreversible action without human gate or rollback | REVISE |
 
 ### Evidence Grading
@@ -258,7 +258,7 @@ Decision rules:
 - If output may cause security, data loss, privacy, financial, legal, or production risk → ESCALATE or BLOCK.
 - If evidence is missing for an important claim → not PASS.
 - If tests are weak or superficial → not PASS.
-- If uncertain and risk >= MEDIUM → ESCALATE_TO_HUMAN.
+- If uncertain and risk >= MEDIUM → ESCALATE_TO_REVIEWER.
 - Never invent evidence.
 - Never assume success without proof.
 ```

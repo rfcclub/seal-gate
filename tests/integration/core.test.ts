@@ -24,7 +24,7 @@ describe('Seal.review() — integration', () => {
       output: 'ALTER TABLE users ADD COLUMN email VARCHAR(255)',
       evidence: { test_log: '', build_log: '', diff: 'ALTER TABLE...', references: [] },
     })
-    expect(['REVISE', 'ESCALATE_TO_HUMAN', 'BLOCK']).toContain(v.verdict)
+    expect(['REVISE', 'ESCALATE_TO_REVIEWER', 'BLOCK']).toContain(v.verdict)
     expect(v.blocking_issues.some(i => i.rule_id === 'AX503')).toBe(true)
   })
 
