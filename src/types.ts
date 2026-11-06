@@ -14,11 +14,29 @@ export type EvidenceEnvelope =
   | { type: 'text'; label: string; content: string }
   | { type: 'memory'; memory_key: string; retrieved_at: string; content_snapshot: string }
 
+/** One assertion result from an executed run; test_sha256 is the test file's content hash. */
+export interface AssertionRecord {
+  test: string
+  name: string
+  status: string
+  test_sha256: string
+}
+
+/**
+ * Fail-before / pass-after runs of the mapped tests. The caller passes a GREEN
+ * run that matches the current source; Seal only matches the records.
+ */
+export interface RegressionEvidence {
+  red: AssertionRecord[]
+  green: AssertionRecord[]
+}
+
 export interface SealEvidence {
   test_log: string
   build_log: string
   diff: string
   references: EvidenceEnvelope[]
+  regression?: RegressionEvidence
 }
 
 export interface SealInput {

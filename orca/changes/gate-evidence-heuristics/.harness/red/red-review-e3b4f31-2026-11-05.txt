@@ -1,0 +1,36 @@
+bun test v1.3.14 (0d9b296a)
+
+tests/gate/evidence-heuristics.test.ts:
+91 | -  return !!user
+92 | +  return true
+93 |  }
+94 | `
+95 |     const r = await review(diff, diff, '1 pass')
+96 |     expect(rules(r)).toContain('TW205')
+                          ^
+error: expect(received).toContain(expected)
+
+Expected to contain: "TW205"
+Received: []
+
+      at <anonymous> (/Users/thoor/work/seal-gate-wt/gate-evidence/tests/gate/evidence-heuristics.test.ts:96:22)
+(fail) gate evidence heuristics review fixes > auth-path: a change in an auth file escalates even when its lines have no auth word [0.25ms]
+103 |       { red: [{ ...record('failed'), test: '' }], green: [{ ...record('passed'), test: '' }] },
+104 |       { red: [{ ...record('failed'), name: '' }], green: [{ ...record('passed'), name: '' }] },
+105 |       { red: [record('failed', 'x')], green: [record('passed', 'x')] },
+106 |     ]) {
+107 |       const r = await review('fix: export includes the first slot\n' + diff, diff, passingLog, regression)
+108 |       expect(rules(r)).toContain('TW203')
+                             ^
+error: expect(received).toContain(expected)
+
+Expected to contain: "TW203"
+Received: []
+
+      at <anonymous> (/Users/thoor/work/seal-gate-wt/gate-evidence/tests/gate/evidence-heuristics.test.ts:108:24)
+(fail) gate evidence heuristics review fixes > malformed-records: records without a test, a name or a SHA-256 do not satisfy TW203 [0.26ms]
+
+ 7 pass
+ 2 fail
+ 13 expect() calls
+Ran 9 tests across 1 file. [26.00ms]

@@ -24,6 +24,7 @@ export class InputNormalizer {
         build_log: input.evidence?.build_log ?? '',
         diff: input.evidence?.diff ?? '',
         references: input.evidence?.references ?? [],
+        ...(input.evidence?.regression ? { regression: input.evidence.regression } : {}),
       },
       risk_hint: input.risk_hint ?? null,
       context: input.context,

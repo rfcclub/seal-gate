@@ -4,5 +4,5 @@ import { defineConfig } from 'vitest/config'
 // Vitest reporter; the native Bun suite remains the repository's primary suite.
 export default defineConfig({
   resolve: { alias: { 'bun:test': 'vitest' } },
-  test: { include: ['tests/property/**/*.test.ts', 'tests/spec/**/*.test.ts', 'tests/cli/**/*.test.ts'] },
+  test: { include: ['tests/property/**/*.test.ts', 'tests/spec/**/*.test.ts', 'tests/cli/**/*.test.ts', 'tests/gate/**/*.test.ts'] },
 })

@@ -1,0 +1,22 @@
+bun test v1.3.14 (0d9b296a)
+
+tests/gate/evidence-heuristics.test.ts:
+119 | @@ -1 +1 @@
+120 | -return 0
+121 | +return 1
+122 | `
+123 |     const r = await review(diff + '\n  Removed auth checks for admin routes.\n', diff, '1 pass')
+124 |     expect(rules(r)).toContain('TW205')
+                           ^
+error: expect(received).toContain(expected)
+
+Expected to contain: "TW205"
+Received: []
+
+      at <anonymous> (/Users/thoor/work/seal-gate-wt/gate-evidence/tests/gate/evidence-heuristics.test.ts:124:22)
+(fail) gate evidence heuristics third review > prose-after-hunk: indented prose after a hunk is classified, not dropped as context [0.21ms]
+
+ 9 pass
+ 1 fail
+ 17 expect() calls
+Ran 10 tests across 1 file. [27.00ms]

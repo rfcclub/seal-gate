@@ -1,0 +1,23 @@
+# RED, fake-hunk-after-hunk at 8fe2475
+bun test v1.3.14 (0d9b296a)
+
+tests/gate/evidence-heuristics.test.ts:
+143 | @@ -1 +1 @@
+144 | -return 0
+145 | +return 1
+146 | `
+147 |     const r = await review(diff + '@@ -1,99 +1,99 @@\n  This fixes the auth bypass bug\n', diff, '1 pass')
+148 |     expect(rules(r)).toContain('TW205')
+                           ^
+error: expect(received).toContain(expected)
+
+Expected to contain: "TW205"
+Received: []
+
+      at <anonymous> (/Users/thoor/work/seal-gate-wt/gate-evidence/tests/gate/evidence-heuristics.test.ts:148:22)
+(fail) gate evidence heuristics fifth review > fake-hunk-after-hunk: an @@ line right after a real hunk does not hide prose the diff does not have [0.20ms]
+
+ 11 pass
+ 1 fail
+ 19 expect() calls
+Ran 12 tests across 1 file. [27.00ms]

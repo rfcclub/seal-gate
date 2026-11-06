@@ -1,0 +1,24 @@
+# RED, Aura review of 3857767 (hunk-without-file-header), head 3857767
+$ bun test tests/gate/evidence-heuristics.test.ts
+bun test v1.3.14 (0d9b296a)
+
+tests/gate/evidence-heuristics.test.ts:
+128 | describe('gate evidence heuristics fourth review', () => {
+129 |   it('hunk-without-file-header: a hunk header in prose without a file header is not a hunk', async () => {
+130 |     const diff = diffWith('// every slot is exported')
+131 |     const output = 'Summary of the change\n@@ -1,99 +1,99 @@\n  This fixes the auth bypass bug\n'
+132 |     const r = await review(output, diff, passingLog)
+133 |     expect(rules(r)).toContain('TW205')
+                           ^
+error: expect(received).toContain(expected)
+
+Expected to contain: "TW205"
+Received: []
+
+      at <anonymous> (/Users/thoor/work/seal-gate-wt/gate-evidence/tests/gate/evidence-heuristics.test.ts:133:22)
+(fail) gate evidence heuristics fourth review > hunk-without-file-header: a hunk header in prose without a file header is not a hunk [0.22ms]
+
+ 10 pass
+ 1 fail
+ 18 expect() calls
+Ran 11 tests across 1 file. [20.00ms]
