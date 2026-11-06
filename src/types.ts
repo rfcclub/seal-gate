@@ -207,7 +207,7 @@ const LEGACY_VERDICTS: Record<string, Verdict> = { ESCALATE_TO_HUMAN: 'ESCALATE_
 export function normalizeVerdict(value: unknown): Verdict | null {
   if (typeof value !== 'string') return null
   if ((VERDICT_ORDER as string[]).includes(value)) return value as Verdict
-  return LEGACY_VERDICTS[value] ?? null
+  return Object.hasOwn(LEGACY_VERDICTS, value) ? LEGACY_VERDICTS[value]! : null
 }
 
 export const SCHEMA_VERSION = '0.2.0'
@@ -217,7 +217,10 @@ export const VERDICT_ORDER: Verdict[] = ['PASS', 'PASS_WITH_WARNINGS', 'REVISE',
 // Semantic worst-of comparison — safe against enum reordering because it reads VERDICT_ORDER, not integer values.
 // Use this everywhere instead of arithmetic max over enum indices.
 export function worstOf(a: Verdict, b: Verdict): Verdict {
-  return VERDICT_ORDER.indexOf(a) >= VERDICT_ORDER.indexOf(b) ? a : b
+  // The old name is read as the new one before ranking; a value that is still not a verdict keeps its old behavior.
+  const x = normalizeVerdict(a) ?? a
+  const y = normalizeVerdict(b) ?? b
+  return VERDICT_ORDER.indexOf(x) >= VERDICT_ORDER.indexOf(y) ? x : y
 }
 
 // Alias for backward compatibility — prefer worstOf in new code

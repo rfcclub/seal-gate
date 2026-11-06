@@ -1,4 +1,4 @@
-import { SealIssue, SealInput, LLMSignals, Verdict, RiskLevel, maxVerdict, makeIssue } from '../types.js'
+import { SealIssue, SealInput, LLMSignals, Verdict, RiskLevel, maxVerdict, makeIssue, normalizeVerdict } from '../types.js'
 
 // AX501: destructive commands — requires word boundary only before, not after (/ is non-word)
 // TRUNCATE requires TABLE (actual SQL command) to avoid matching "(N lines truncated)" markers
@@ -222,7 +222,7 @@ export class PolicyEngine {
   static resolveVerdicts(verdicts: Verdict[]): { verdict: Verdict } {
     const order: Verdict[] = ['PASS', 'PASS_WITH_WARNINGS', 'REVISE', 'ESCALATE_TO_REVIEWER', 'BLOCK']
     if (verdicts.length === 0) return { verdict: 'REVISE' } // empty = uncertain = at least REVISE
-    const maxIdx = Math.max(...verdicts.map(v => order.indexOf(v)).filter(i => i >= 0))
+    const maxIdx = Math.max(...verdicts.map(v => order.indexOf(normalizeVerdict(v) ?? v)).filter(i => i >= 0))
     if (maxIdx < 0) return { verdict: 'REVISE' } // all invalid = uncertain
     return { verdict: order[maxIdx]! }
   }

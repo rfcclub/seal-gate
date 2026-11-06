@@ -2,7 +2,7 @@
   "version": 1,
   "mode": "executable",
   "change": "escalate-to-reviewer",
-  "timestamp": "2026-11-05T22:26:08.183Z",
+  "timestamp": "2026-11-06T03:32:10.367Z",
   "total_scenarios": 3,
   "passing": 3,
   "coverage": 1,
@@ -13,9 +13,9 @@
     "version": 1,
     "outcome": "green",
     "source": {
-      "head": "5a5d44d3ebf9981c3cdef2db5767a9db572998a7",
-      "diff_sha256": "762a395b387312e1bd1fab9c581dc29e8971d72d6fc3cd65b3defd6a9f3bc81d",
-      "tree_sha256": "033f840eef1dc00b920708111366042c4a87e6f2117366ce41c5a82aaf3cffd0"
+      "head": "f5f8f0bc155d74fe42cbd3379f09812b4ae0220e",
+      "diff_sha256": "11e001dae5c991dc66d93e646ffb42406ddfa9dadbc0440e6b75dc5c4b8deae7",
+      "tree_sha256": "7183a1d204285593128224cd0ff1ce7b28b410669fede68ccb0e33b59d5d371f"
     },
     "tests": {
       "tests/spec/escalate-to-reviewer.test.ts": "a9841e60d4954479371b73600f08bf001b107a51f357adba8c70e32a7f3bcaad"
@@ -52,20 +52,20 @@
         "--root",
         "/Users/thoor/work/seal-gate-wt-reviewer",
         "--reporter=json",
-        "--outputFile=/var/folders/xx/_15f_6pn4dgb5l2tr2wll6fh0000gn/T/orca-vitest-gP7Ioi/report.json",
+        "--outputFile=/var/folders/xx/_15f_6pn4dgb5l2tr2wll6fh0000gn/T/orca-vitest-7r2pzC/report.json",
         "--maxWorkers=1",
         "--no-file-parallelism",
         "--expect.requireAssertions"
       ],
       "exit_code": 0,
-      "stdout": "JSON report written to /var/folders/xx/_15f_6pn4dgb5l2tr2wll6fh0000gn/T/orca-vitest-gP7Ioi/report.json\n",
+      "stdout": "JSON report written to /var/folders/xx/_15f_6pn4dgb5l2tr2wll6fh0000gn/T/orca-vitest-7r2pzC/report.json\n",
       "stderr": ""
     },
-    "report": "{\"numTotalTestSuites\":1,\"numPassedTestSuites\":1,\"numFailedTestSuites\":0,\"numPendingTestSuites\":0,\"numTotalTests\":3,\"numPassedTests\":3,\"numFailedTests\":0,\"numPendingTests\":0,\"numTodoTests\":0,\"snapshot\":{\"added\":0,\"failure\":false,\"filesAdded\":0,\"filesRemoved\":0,\"filesRemovedList\":[],\"filesUnmatched\":0,\"filesUpdated\":0,\"matched\":0,\"total\":0,\"unchecked\":0,\"uncheckedKeysByFile\":[],\"unmatched\":0,\"updated\":0,\"didUpdate\":false},\"startTime\":1793917568002,\"success\":true,\"testResults\":[{\"assertionResults\":[{\"ancestorTitles\":[],\"fullName\":\"reviewer-verdict-band: the 30–49 band, ordering and next action use the reviewer name\",\"status\":\"passed\",\"title\":\"reviewer-verdict-band: the 30–49 band, ordering and next action use the reviewer name\",\"duration\":0.9037909999999982,\"failureMessages\":[],\"meta\":{},\"tags\":[]},{\"ancestorTitles\":[],\"fullName\":\"reviewer-verdict-alias: the old name is read as the new one and nothing else is renamed\",\"status\":\"passed\",\"title\":\"reviewer-verdict-alias: the old name is read as the new one and nothing else is renamed\",\"duration\":0.19841699999999207,\"failureMessages\":[],\"meta\":{},\"tags\":[]},{\"ancestorTitles\":[],\"fullName\":\"reviewer-verdict-stored: stored trust memory with the old name loads as the new one\",\"status\":\"passed\",\"title\":\"reviewer-verdict-stored: stored trust memory with the old name loads as the new one\",\"duration\":0.164874999999995,\"failureMessages\":[],\"meta\":{},\"tags\":[]}],\"startTime\":1793917568084,\"endTime\":1793917568085.1985,\"status\":\"passed\",\"message\":\"\",\"name\":\"/Users/thoor/work/seal-gate-wt-reviewer/tests/spec/escalate-to-reviewer.test.ts\"}]}",
-    "report_sha256": "9b43c4cd478d2acec4ce266ecd118866752b6afe8bde461863819939172b54a9",
+    "report": "{\"numTotalTestSuites\":1,\"numPassedTestSuites\":1,\"numFailedTestSuites\":0,\"numPendingTestSuites\":0,\"numTotalTests\":3,\"numPassedTests\":3,\"numFailedTests\":0,\"numPendingTests\":0,\"numTodoTests\":0,\"snapshot\":{\"added\":0,\"failure\":false,\"filesAdded\":0,\"filesRemoved\":0,\"filesRemovedList\":[],\"filesUnmatched\":0,\"filesUpdated\":0,\"matched\":0,\"total\":0,\"unchecked\":0,\"uncheckedKeysByFile\":[],\"unmatched\":0,\"updated\":0,\"didUpdate\":false},\"startTime\":1793935930198,\"success\":true,\"testResults\":[{\"assertionResults\":[{\"ancestorTitles\":[],\"fullName\":\"reviewer-verdict-band: the 30–49 band, ordering and next action use the reviewer name\",\"status\":\"passed\",\"title\":\"reviewer-verdict-band: the 30–49 band, ordering and next action use the reviewer name\",\"duration\":0.8602080000000001,\"failureMessages\":[],\"meta\":{},\"tags\":[]},{\"ancestorTitles\":[],\"fullName\":\"reviewer-verdict-alias: the old name is read as the new one and nothing else is renamed\",\"status\":\"passed\",\"title\":\"reviewer-verdict-alias: the old name is read as the new one and nothing else is renamed\",\"duration\":0.14791699999999963,\"failureMessages\":[],\"meta\":{},\"tags\":[]},{\"ancestorTitles\":[],\"fullName\":\"reviewer-verdict-stored: stored trust memory with the old name loads as the new one\",\"status\":\"passed\",\"title\":\"reviewer-verdict-stored: stored trust memory with the old name loads as the new one\",\"duration\":0.1480409999999992,\"failureMessages\":[],\"meta\":{},\"tags\":[]}],\"startTime\":1793935930277,\"endTime\":1793935930278.148,\"status\":\"passed\",\"message\":\"\",\"name\":\"/Users/thoor/work/seal-gate-wt-reviewer/tests/spec/escalate-to-reviewer.test.ts\"}]}",
+    "report_sha256": "c65118bf48b350419b5af51b16558b6fb034c558ed49a021bc8b91534b1b8df0",
     "property_report": "[]",
     "property_report_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
-    "property_invocation": "172675d4-67fb-45b3-8931-b5290f8331af",
+    "property_invocation": "ed991a1f-ecd5-46ef-a1c0-defe1eaaa66c",
     "assertions": [
       {
         "id": "the-uncertain-verdict-hands-off-to-a-reviewer-the-30-49-band-ordering-and-next-action-use-the-reviewer-name",
@@ -90,8 +90,8 @@
       }
     ],
     "reasons": [],
-    "started_at": "2026-11-05T22:26:07.878Z",
-    "finished_at": "2026-11-05T22:26:08.183Z"
+    "started_at": "2026-11-06T03:32:10.072Z",
+    "finished_at": "2026-11-06T03:32:10.366Z"
   },
   "replay": null,
   "inputs": {
