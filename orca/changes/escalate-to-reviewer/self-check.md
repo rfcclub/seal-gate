@@ -24,4 +24,6 @@
 - Hooks were edited but not run.
 
 ## Unresolved
-- `orca gate-code escalate-to-reviewer` (the installed orca still uses the old seal-gate) returned the old escalation verdict with two blocking findings: "bug fix without regression test evidence" and "auth-related change without unauthorized/forbidden test evidence". This change is a rename with a regression test (`tests/spec/escalate-to-reviewer.test.ts`); nothing here is auth. The findings look like heuristic matches on the diff text, not verified failures, and are recorded rather than overridden. Review is requested.
+- `orca gate-code` reads `git diff HEAD`; run on already committed code it reviews an empty diff (hash e3b0c442...) and its PASS means nothing. I re-ran it on the full branch diff (soft-reset to the merge base, restored afterwards): `ESCALATE_TO_HUMAN` (the installed orca still prints the old name), trust 55, two findings.
+- TW203 "bug fix without regression test evidence" is a keyword match on "fix" in the diff against a test log without the word "regression". This change is a rename; its tests are `tests/spec/escalate-to-reviewer.test.ts`. The later fix commit has its own regression tests in the change `reviewer-verdict-boundaries`.
+- TW205 "auth-related change without unauthorized/forbidden test evidence" is a keyword match (risk rule RK-HIGH). Nothing here touches authentication or authorization: the only auth words in the diff are in prose that quotes this very finding. Not overridden; independent review is requested on the PR.
