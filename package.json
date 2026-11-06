@@ -1,6 +1,6 @@
 {
   "name": "seal-gate",
-  "version": "0.5.3",
+  "version": "0.6.0-beta.0",
   "description": "Universal standalone AI quality gate — deterministic core + optional LLM overlay",
   "license": "MIT",
   "repository": {
